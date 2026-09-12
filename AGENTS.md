@@ -2,6 +2,11 @@
 
 You are authorized to make any changes to RapidRAW and its MCP integration that you judge necessary to improve the AI photo editing workflow. This includes changes to the RapidRAW application, MCP tools, and supporting workflow code. Proceed with these improvements without asking for separate permission for each change.
 
+## Image generation requires permission
+
+- This is a photo-editing project. Ask for explicit permission before using imagegen or any other generative image service, including to create a separate sticker or other asset.
+- A request to edit a photograph does not itself authorize image generation. Use photographic editing and local compositing for ordinary edits, preserving the original scene and resolution.
+
 ## Shared review workspace
 
 - Use the [shared review application](review/README.md) for ongoing photo, style, denoise, and detail reviews. Publish rendered candidates through its manifest/API/CLI contract; extend its panel registry when a new inspection needs a specialised view.

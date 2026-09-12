@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Require explicit permission before using generative image services; preserve the original scene and resolution for ordinary photo edits and local compositing.
+
 - Let agents choose a default single-image, side-by-side, or before/after view for each photo, with variant overrides for masks and overlays, while preserving review feedback.
 
 - Drag the before/after divider directly over the photograph, with keyboard adjustment and independent image panning when zoomed.
