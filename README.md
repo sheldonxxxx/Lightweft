@@ -29,8 +29,6 @@
 
 Use it for RAW photo editing, colour grading, landscape and wildlife photography, nightscapes, portraits, or a second opinion on an existing edit. Pair its artistic judgment with **any photo-editing tool you or your agent can operate**. Your editor supplies the controls; the skill supplies the direction and critique.
 
-The installable skill is named **`photo-edit-master`**. Lightweft is the project's display name.
-
 ## Install in one command
 
 ```sh
@@ -38,8 +36,6 @@ npx skills add sheldonxxxx/lightweft --skill photo-edit-master
 ```
 
 Choose your agent when prompted. The [Skills CLI](https://github.com/vercel-labs/skills#readme) supports project installation by default; add `--global` for a user-level installation.
-
-While this repository is private, installation requires Git credentials with access to it. The same command works for everyone after the repository becomes public.
 
 Then give your agent a photograph and a brief:
 
@@ -103,6 +99,22 @@ Then give your agent a photograph and a brief:
 
 The skill uses selective reading: a shared core plus the reference relevant to the photograph. [Master studies](skills/photo-edit-master/references/master-studies.md) provide deeper context and distinguish testimony, observation, and inference. The guidance contains no fixed slider recipes or mandatory look.
 
+## One workspace for review and personal style
+
+The [local review application](review/README.md) brings edit comparisons, style exploration, denoise review, and detail inspection into one extensible workspace. Agents publish rendered candidates; photographers compare them and save feedback and selections for the next iteration. Start it from this repository with Python 3.10+ on macOS or Linux:
+
+```sh
+python3 review/server.py --workspace .local/review --media-root . --port 8765
+```
+
+Open `http://127.0.0.1:8765`. Follow the [review guide](review/README.md) to add your images or import an existing review manifest. The app displays existing editor exports; it does not decode RAW files or perform edits itself.
+
+Use [photo-style-builder](skills/photo-style-builder/SKILL.md) to explore a personal look with an agent. The master skill supplies a convincing image-specific base; the style builder develops your preferences through rendered alternatives and feedback. Save qualitative preferences as a workspace edit profile, or save a real editor recipe as a preset with provenance and reuse limits. Personal taste stays in your workspace, independently of the shared master skill.
+
+```sh
+npx skills add sheldonxxxx/lightweft --skill photo-style-builder
+```
+
 ## Bring your favourite editor
 
 ```text
@@ -127,7 +139,7 @@ Use the plan in Lightroom, darktable, Photoshop, a command-line workflow, or ano
   <a href="https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/VERIFICATION.md"><img alt="MCP workflow tested on macOS" src="https://img.shields.io/badge/MCP_Workflow-macOS_Tested-53615f?style=flat-square"></a>
 </p>
 
-[**Sheldon's RapidRAW fork**](https://github.com/sheldonxxxx/RapidRAW) is the tested execution companion for this skill. Its native MCP bridge lets a vision-capable agent inspect RAW photographs, make reversible edits, build masks, compare versions, run denoising jobs, and export the result through RapidRAW's own processing engine.
+[**My RapidRAW fork**](https://github.com/sheldonxxxx/RapidRAW) is the tested execution companion for this skill. Its native MCP bridge lets a vision-capable agent inspect RAW photographs, make reversible edits, build masks, compare versions, run denoising jobs, and export the result through RapidRAW's own processing engine.
 
 | Lightweft | RapidRAW execution skill |
 | :--- | :--- |
@@ -211,6 +223,8 @@ The optional [RAW regression toolkit](workflow/README.md) builds a private catal
 | Path | Purpose |
 | :--- | :--- |
 | `skills/photo-edit-master/` | Generic planning and critique skill, with research references |
+| `skills/photo-style-builder/` | Collaborative personal style exploration and workspace profiles |
+| `review/` | Local review server, browser panels, and session contract |
 | `workflow/` | Local suite builder, catalogue, verifier, and blank templates |
 | `tests/` | Synthetic integrity and portability tests |
 | `scripts/check_public_repo.py` | Public-source boundaries and common private-data checks |

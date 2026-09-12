@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check the exact Git index for public-source boundaries and common leak patterns."""
 from pathlib import Path, PurePosixPath
+import argparse
 import re
 import subprocess
 import sys
@@ -13,6 +14,10 @@ EXACT = {
     'workflow/build_catalogue.py', 'workflow/verify_collection.py', 'workflow/catalogue.css',
     'workflow/selection.example.json', 'workflow/evaluation-template.json',
     'assets/readme-hero.svg',
+    'CHANGELOG.md', 'skills/photo-style-builder/SKILL.md',
+    'review/README.md', 'review/server.py', 'review/cli.py', 'review/import_legacy.py',
+    'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs',
+    'tests/test_review.py', 'tests/test_review_import.py',
 }
 PATTERNS = {
     'personal absolute path': re.compile(r'/(?:Users|home|Volumes)/[^/\s]+/'),
@@ -29,9 +34,12 @@ def git(*args):
     return subprocess.check_output(['git', '-C', str(ROOT), *args])
 
 
-def check():
+def check(working_tree=False):
     errors, count, total = [], 0, 0
     entries = git('ls-files', '--stage', '-z').split(b'\0')
+    if working_tree:
+        names = sorted(set(git('ls-files', '--cached', '--others', '--exclude-standard', '-z').split(b'\0')) - {b''})
+        entries = [b'100644 working-tree 0\t' + name for name in names]
     for entry in entries:
         if not entry:
             continue
@@ -44,17 +52,30 @@ def check():
             path.parent == PurePosixPath('skills/photo-edit-master/references')
             and path.suffix == '.md' and not path.name.startswith('.')
         )
-        if name not in EXACT and not allowed_reference:
+        allowed_web = (
+            path.parent in (PurePosixPath('review/web'), PurePosixPath('review/web/panels'))
+            and path.suffix in {'.js', '.css', '.html', '.svg'} and not path.name.startswith('.')
+        )
+        if name not in EXACT and not allowed_reference and not allowed_web:
             errors.append((name, 'outside public source allowlist'))
         if mode not in {'100644', '100755'} or stage != '0':
             errors.append((name, 'symlink, nested repository, or unresolved merge entry'))
             continue
-        size = int(git('cat-file', '-s', oid))
+        if working_tree:
+            local = ROOT / name
+            if not local.exists():
+                continue
+            if local.is_symlink() or not local.is_file():
+                errors.append((name, 'symlink or non-file'))
+                continue
+            size = local.stat().st_size
+        else:
+            size = int(git('cat-file', '-s', oid))
         total += size
         if size > 1024 * 1024:
             errors.append((name, 'larger than the 1 MiB public source limit'))
             continue
-        blob = git('cat-file', 'blob', oid)
+        blob = local.read_bytes() if working_tree else git('cat-file', 'blob', oid)
         try:
             text = blob.decode('utf-8')
         except UnicodeDecodeError:
@@ -72,10 +93,12 @@ def check():
             # Never echo matched content, which could itself contain credentials.
             print(f'FAIL: {name}: {reason}', file=sys.stderr)
         return 1
-    print(f'Public index check passed: {count} text files, {total:,} bytes.')
+    print(f'Public {"working tree" if working_tree else "index"} check passed: {count} text files, {total:,} bytes.')
     print('Checked source boundaries, blob sizes, and common credential/private-path patterns.')
     return 0
 
 
 if __name__ == '__main__':
-    sys.exit(check())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--working-tree', action='store_true', help='Check tracked and unignored source without staging it')
+    sys.exit(check(parser.parse_args().working_tree))

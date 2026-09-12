@@ -155,6 +155,7 @@ class PublicIndexTests(unittest.TestCase):
             readme.write_text(private_path)
             with patch.object(check_public_repo, 'ROOT', root), contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(check_public_repo.check(), 0)
+                self.assertEqual(check_public_repo.check(working_tree=True), 1)
                 git('add', 'README.md')
                 self.assertEqual(check_public_repo.check(), 1)
                 readme.write_text('Public documentation\n')

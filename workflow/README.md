@@ -57,4 +57,6 @@ Preserve original bytes. Put editing sessions, recipes, and rendered results in 
 
 Review source and candidate at the intended viewing size and matched native detail. Record gains, losses, artifacts, and unresolved limitations. A successful integrity check or export does not establish aesthetic quality or user acceptance. Container-signature checks also do not prove that a RAW decoder can open the file.
 
+Use the [unified review application](../review/README.md) for ongoing edit, style, denoise, and detail review. Publish rendered exports and their provenance into a review session, then read saved user feedback before revising. The catalogue remains an inventory and integrity aid; new review capabilities belong in the shared application's panels. The [style builder skill](../skills/photo-style-builder/SKILL.md) keeps personal preferences and validated editor presets in the user's workspace, separately from the general editing philosophy.
+
 Never publish generated catalogues, manifests, or populated evaluations from a personal library. They can contain paths, identifiers, capture metadata, and photographs.
