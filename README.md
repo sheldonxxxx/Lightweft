@@ -2,7 +2,7 @@
   <img src="assets/readme-hero.svg" alt="Photo Edit Atelier — art direction for AI photo editing, with the tools you choose" width="100%">
 </p>
 
-<h1 align="center">Photo Edit Atelier</h1>
+<h1 align="center">Photo Edit Atelier — AI Photo Editing Skill</h1>
 <p align="center"><strong>A tool-agnostic AI photo editing skill for thoughtful, expressive photographs.</strong></p>
 <p align="center">Image-specific art direction · Colour and light · Composition · Visual critique</p>
 
@@ -33,10 +33,12 @@ The installable skill is named **`photo-edit-master`**. Photo Edit Atelier is th
 ## Install in one command
 
 ```sh
-npx skills add sheldonxxxx/photo-edit-test --skill photo-edit-master
+npx skills add sheldonxxxx/photo-edit-atelier --skill photo-edit-master
 ```
 
 Choose your agent when prompted. The [Skills CLI](https://github.com/vercel-labs/skills#readme) supports project installation by default; add `--global` for a user-level installation.
+
+While this repository is private, installation requires Git credentials with access to it. The same command works for everyone after the repository becomes public.
 
 Then give your agent a photograph and a brief:
 
@@ -229,7 +231,7 @@ Photos, private library metadata, editing runs, and a separate local RapidRAW ch
 <p align="center">
   <a href="skills/photo-edit-master/SKILL.md">Read the skill</a> ·
   <a href="CONTRIBUTING.md">Contribute</a> ·
-  <a href="https://github.com/sheldonxxxx/photo-edit-test/issues">Share feedback</a>
+  <a href="https://github.com/sheldonxxxx/photo-edit-atelier/issues">Share feedback</a>
 </p>
 
 Original code, documentation, and vector artwork are [MIT licensed](LICENSE). Referenced research and third-party projects retain their own terms. RapidRAW is a separate project under its own AGPL-3.0 license.
