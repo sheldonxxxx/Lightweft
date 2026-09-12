@@ -1,0 +1,29 @@
+# Public source allowlist. Everything else stays local, including photos,
+# manifests, editing runs, credentials, and the independent RapidRAW checkout.
+*
+!/.gitignore
+!/.gitattributes
+!/AGENTS.md
+!/README.md
+!/CONTRIBUTING.md
+!/LICENSE
+!/.github/
+!/.github/workflows/
+!/.github/workflows/validate.yml
+!/skills/
+!/skills/photo-edit-master/
+!/skills/photo-edit-master/SKILL.md
+!/skills/photo-edit-master/references/
+!/skills/photo-edit-master/references/*.md
+!/workflow/
+!/workflow/README.md
+!/workflow/build_suite.py
+!/workflow/build_catalogue.py
+!/workflow/verify_collection.py
+!/workflow/catalogue.css
+!/workflow/selection.example.json
+!/workflow/evaluation-template.json
+!/scripts/
+!/scripts/check_public_repo.py
+!/tests/
+!/tests/test_workflow.py

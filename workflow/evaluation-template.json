@@ -1,0 +1,79 @@
+{
+  "suite_version": "v2-raw",
+  "run_id": null,
+  "status": "not_run",
+  "candidate": {
+    "kind": null,
+    "name": null,
+    "version": null,
+    "intended_subjects": [],
+    "intended_look": null,
+    "accepted_formats": [
+      "CR3",
+      "DNG"
+    ],
+    "comparison_version": null
+  },
+  "environment": {
+    "application": null,
+    "application_version": null,
+    "raw_profile": null,
+    "starting_white_balance": null,
+    "lens_correction": null,
+    "automatic_adjustments": null,
+    "output_dimensions": null,
+    "output_color_space": null,
+    "output_sharpening": null,
+    "viewing_conditions": null
+  },
+  "case_result_template": {
+    "case_id": null,
+    "immich_asset_id": null,
+    "capture_group": null,
+    "split": null,
+    "input_sha256": null,
+    "eligible": null,
+    "eligibility_reason": null,
+    "input_track": null,
+    "stress_control_tags": [],
+    "intended_result": null,
+    "protected_details": [],
+    "known_input_limitations": [],
+    "baseline_path": null,
+    "candidate_path": null,
+    "recipe_path": null,
+    "score_scale": "0=failed; 1=acceptable with reservations; 2=good; null=not assessed or not applicable",
+    "scores": {
+      "intent": null,
+      "attention": null,
+      "tone": null,
+      "color": null,
+      "detail": null,
+      "artifacts": null
+    },
+    "visual_evidence": null,
+    "inspected_fit_to_screen": false,
+    "inspected_at_100_percent": false,
+    "hard_failures": [],
+    "regressions": [],
+    "export_success": null,
+    "source_checksum_unchanged": null,
+    "elapsed_seconds": null,
+    "tool_errors": [],
+    "manual_intervention": null,
+    "repeatability_check": null,
+    "outcome": "not_run"
+  },
+  "case_results": [],
+  "summary": {
+    "eligible_count": 0,
+    "evaluated_count": 0,
+    "hard_failure_count": 0,
+    "export_failure_count": 0,
+    "unexplained_regression_count": 0,
+    "coverage_gaps": [],
+    "decision": "not_evaluated",
+    "decision_reason": null
+  },
+  "evaluation_boundary": "All current cases are exposed development/regression material; no fresh holdouts."
+}

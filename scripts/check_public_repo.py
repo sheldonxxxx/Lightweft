@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Check the exact Git index for public-source boundaries and common leak patterns."""
+from pathlib import Path, PurePosixPath
+import re
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+EXACT = {
+    '.gitignore', '.gitattributes', 'AGENTS.md', 'README.md', 'CONTRIBUTING.md', 'LICENSE',
+    '.github/workflows/validate.yml', 'scripts/check_public_repo.py', 'tests/test_workflow.py',
+    'skills/photo-edit-master/SKILL.md', 'workflow/README.md', 'workflow/build_suite.py',
+    'workflow/build_catalogue.py', 'workflow/verify_collection.py', 'workflow/catalogue.css',
+    'workflow/selection.example.json', 'workflow/evaluation-template.json',
+}
+PATTERNS = {
+    'personal absolute path': re.compile(r'/(?:Users|home|Volumes)/[^/\s]+/'),
+    'private key': re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),
+    'GitHub credential': re.compile(r'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b'),
+    'AWS access key': re.compile(r'\b(?:AKIA|ASIA)[A-Z0-9]{16}\b'),
+    'credential in URL': re.compile(r'https?://[^\s/@:]+:[^\s/@]+@'),
+    'assigned credential': re.compile(
+        r'''(?i)["']?(?:api[_-]?key|access[_-]?token|password|client[_-]?secret)["']?\s*[:=]\s*["'][A-Za-z0-9+/_.=-]{20,}["']'''),
+}
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def check():
+    errors, count, total = [], 0, 0
+    entries = git('ls-files', '--stage', '-z').split(b'\0')
+    for entry in entries:
+        if not entry:
+            continue
+        metadata, raw_path = entry.split(b'\t', 1)
+        mode, oid, stage = metadata.decode().split()
+        name = raw_path.decode('utf-8')
+        path = PurePosixPath(name)
+        count += 1
+        allowed_reference = (
+            path.parent == PurePosixPath('skills/photo-edit-master/references')
+            and path.suffix == '.md' and not path.name.startswith('.')
+        )
+        if name not in EXACT and not allowed_reference:
+            errors.append((name, 'outside public source allowlist'))
+        if mode not in {'100644', '100755'} or stage != '0':
+            errors.append((name, 'symlink, nested repository, or unresolved merge entry'))
+            continue
+        size = int(git('cat-file', '-s', oid))
+        total += size
+        if size > 1024 * 1024:
+            errors.append((name, 'larger than the 1 MiB public source limit'))
+            continue
+        blob = git('cat-file', 'blob', oid)
+        try:
+            text = blob.decode('utf-8')
+        except UnicodeDecodeError:
+            errors.append((name, 'binary file'))
+            continue
+        if '\x00' in text:
+            errors.append((name, 'binary content'))
+        for label, pattern in PATTERNS.items():
+            if pattern.search(text):
+                errors.append((name, label))
+    if not count:
+        errors.append(('(index)', 'no staged/tracked files; stage reviewed source first'))
+    if errors:
+        for name, reason in errors:
+            # Never echo matched content, which could itself contain credentials.
+            print(f'FAIL: {name}: {reason}', file=sys.stderr)
+        return 1
+    print(f'Public index check passed: {count} text files, {total:,} bytes.')
+    print('Checked source boundaries, blob sizes, and common credential/private-path patterns.')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(check())

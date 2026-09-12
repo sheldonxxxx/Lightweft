@@ -1,0 +1,57 @@
+{
+  "schema_version": "v2-raw",
+  "suite_id": "example-regression-suite",
+  "allowed_input_formats": [
+    "CR3",
+    "DNG"
+  ],
+  "split_policy": {
+    "development_count": 1,
+    "holdout_count": 0
+  },
+  "assets": [
+    {
+      "id": "example-01",
+      "asset_id": null,
+      "source_url": null,
+      "origin": "local",
+      "category": "landscape",
+      "capture_date": null,
+      "capture_date_candidates": [],
+      "group_id": "capture-group-01",
+      "split": "development",
+      "evaluation_status": "exposed_regression",
+      "smoke_subset": true,
+      "tags": [
+        "landscape"
+      ],
+      "reason": "Describe the visible editing challenge.",
+      "related_case_ids": [],
+      "input_limitations": [
+        "Record known input limitations."
+      ],
+      "metadata": {
+        "camera": {},
+        "width": null,
+        "height": null
+      },
+      "source_checksum_sha256": "REPLACE_WITH_ORIGINAL_SHA256",
+      "original": {
+        "path": "../originals/example.dng",
+        "filename": "example.dng",
+        "format": "DNG",
+        "byte_size": 0,
+        "sha256": "REPLACE_WITH_ORIGINAL_SHA256",
+        "server_sha1_base64": null,
+        "verification": "Local file size and SHA-256"
+      },
+      "preview": {
+        "path": "previews/example.jpg",
+        "kind": "Describe how this preview was rendered.",
+        "original_input": false,
+        "sha256": "REPLACE_WITH_PREVIEW_SHA256",
+        "byte_size": 0
+      }
+    }
+  ]
+}

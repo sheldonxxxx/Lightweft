@@ -1,0 +1,25 @@
+name: Validate public source
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Check public file boundaries
+        run: python3 scripts/check_public_repo.py
+      - name: Test portable workflow
+        run: python3 -m unittest discover -s tests -v
+      - name: Check whitespace
+        run: git show --format= --check HEAD
