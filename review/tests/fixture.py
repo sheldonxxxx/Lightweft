@@ -25,7 +25,7 @@ def png(width, height, warm=False):
 
 
 def fixture(root):
-    for name, w, h, warm in [('base', 400, 300, False), ('edit', 400, 300, True), ('edit-full', 800, 600, True), ('base-full', 800, 600, False), ('crop-base', 128, 128, False), ('crop-edit', 128, 128, True), ('portrait', 300, 450, True)]:
+    for name, w, h, warm in [('base', 400, 300, False), ('edit', 400, 300, True), ('edit-full', 800, 600, True), ('base-full', 800, 600, False), ('crop-base', 128, 128, False), ('crop-edit', 128, 128, True), ('portrait', 300, 450, True), ('sphere-base', 720, 360, False), ('sphere-edit', 720, 360, True)]:
         (root / (name + '.png')).write_bytes(png(w, h, warm))
     (root / 'recipe.json').write_text('{"schema":"qa-recipe","exposure":0.25}\n')
     return {'schemaVersion': 1, 'id': 'fixture', 'title': 'Review studio · generated QA', 'cases': [
@@ -34,6 +34,9 @@ def fixture(root):
             {'id': 'warm', 'label': 'Warm direction', 'role': 'candidate', 'image': 'edit.png', 'full': 'edit-full.png', 'recipe': 'recipe.json', 'recipeFormat': 'qa-recipe'},
             {'id': 'earlier', 'label': 'Earlier reference', 'role': 'reference', 'image': 'base.png', 'defaultView': 'single'}],
          'regions': [{'id': 'texture', 'label': 'Fine texture', 'x': 40, 'y': 60, 'width': 128, 'height': 128, 'aligned': True, 'native': True, 'images': [{'variantId': 'base', 'image': 'crop-base.png'}, {'variantId': 'warm', 'image': 'crop-edit.png'}]}]},
+        {'id': 'sphere', 'title': 'Generated full sphere', 'category': 'panorama', 'aligned': True, 'defaultView': 'side', 'metadata': {'sphereView': {'yaw': 0, 'pitch': 0, 'hfov': 75}}, 'variants': [
+            {'id': 'base', 'label': 'Sphere foundation', 'role': 'baseline', 'image': 'sphere-base.png', 'metadata': {'projection': 'equirectangular'}},
+            {'id': 'edit', 'label': 'Sphere candidate', 'role': 'candidate', 'image': 'sphere-edit.png', 'metadata': {'projection': 'equirectangular'}}]},
         {'id': 'portrait', 'title': 'A different frame', 'category': 'portrait', 'aligned': False, 'defaultView': 'wipe', 'variants': [
             {'id': 'base', 'label': 'Original frame', 'role': 'baseline', 'image': 'base.png'},
             {'id': 'crop', 'label': 'Changed frame', 'role': 'candidate', 'image': 'portrait.png'}]}]}

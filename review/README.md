@@ -74,9 +74,10 @@ The import registers paths and metadata; it does not move, edit, or delete sourc
 
 | Page | Use it for |
 | --- | --- |
-| Photo reviewer | Whole-image comparisons, edit intention and limits, user decisions, and links to available exports and recipes |
+| Photo reviewer | Whole-image comparisons with automatic spherical viewing for 360° pairs, edit intention and limits, user decisions, and links to available exports and recipes |
 | Style builder | Distinct rendered directions, personal preference notes, and saving profiles or editor presets |
 | Detail lab | Zoom and matched crop inspection, with separate detail and denoise observation checklists |
+| 360 review | Synchronized spherical viewpoints, longitude seams, horizon and pole inspection |
 
 All pages share the same collection, selected comparison pair, and candidate feedback. Search the collection, filter by genre, format, group, or decision, and use the collection selector to move between studies. The page URL retains the collection, photograph, and review page.
 
@@ -87,7 +88,7 @@ The shared comparison surface includes side-by-side and single-image views, an a
 | Left / Right arrow | Previous / next photograph |
 | Hold Space | Temporarily show the other version |
 | B | Swap comparison sides |
-| 1 / 2 / 3 | Open Photo reviewer / Style builder / Detail lab |
+| 1 / 2 / 3 / 4 | Open Photo reviewer / Style builder / Detail lab / 360 review |
 | Drag at 100% or above | Pan the compared images together |
 
 Feedback saves automatically to the workspace, with a browser draft available if saving fails. The save status shows whether the workspace has received it. On a concurrent update, loading the newer version retains a separate recovery draft and opens the earlier feedback as JSON for reconciliation. Exports provide copy, select, and download controls so in-app browsers need not rely on downloads. “Follow agent updates” refreshes published candidates while there are no unsaved edits. Feedback can also be imported as JSON.
@@ -104,6 +105,16 @@ Save the artifact that matches the result:
 | Editor preset | An actual recipe exported by the editor | Requires that editor's supported format and a suitable scope of adjustments |
 
 A profile is not a set of invented slider values. A preset is not a prose description. To enable preset export, a variant needs a `recipe` path and `recipeFormat`, and should identify editor/version and validation provenance in `metadata`. The server checks that the recipe exists and snapshots its exact bytes with a SHA-256 hash. It cannot establish whether an arbitrary editor recipe is reusable: the editing agent must verify the recipe against the candidate and document its limits. Scene-specific crop, masks, retouching, and adaptive settings require a supported and validated reuse method before inclusion in a general preset. Saving a style does not itself mark the candidate accepted; keep drafts and confirmed preferences clearly described.
+
+## Review full-sphere photographs
+
+Register each confirmed full-sphere variant with `metadata.projection: "equirectangular"`. Photo reviewer automatically opens the spherical viewer when both selected variants carry this declaration, including on direct links and when moving between photographs. Flat photographs, masks, and mixed-projection pairs use the ordinary image viewer. The dedicated 360 review page offers the same spherical controls. The spherical viewer loads the registered `full` export when present, otherwise `image`, and requires exact 2:1 decoded dimensions. A matching ratio alone does not establish a spherical projection; unstitched fisheyes and flat reframes must not carry this declaration. No image upload or separate viewer is required.
+
+An optional `metadata.sphereView` on the case or selected candidate sets the opening `{ "yaw": 0, "pitch": 0, "hfov": 75 }`. Angles are in degrees: yaw zero points at the panorama centre, positive yaw turns right, positive pitch looks up, and `hfov` is horizontal field of view. These are image-relative coordinates, not a compass bearing. The view stays synchronized across both versions while dragging, zooming, swapping, or changing candidates. The View coordinates button exports the current angle for a reproducible rectilinear reframe.
+
+The panel honors `defaultView` and offers single, side, and aligned divider comparisons. Differing dimensions or unconfirmed alignment disable the divider. Use the named seam, zenith, nadir, and cardinal viewpoints alongside a full horizon sweep. Inspect the seam in single-image mode or move the divider away from it; a centred divider can obscure a discontinuity. Inspection checkboxes share the selected candidate's normal feedback record. When the panorama surface has keyboard focus, arrow keys look around, Shift increases the step, plus/minus zoom, and zero returns to the opening view. Outside that surface, the normal collection shortcuts apply.
+
+WebGL sphere viewing interpolates pixels and may reduce large exports to the browser's graphics limits. It is useful for geometry, orientation, seams, and photographic intent; native texture judgments still belong in Detail lab. The panel reads the declared projection; it does not author or validate GPano delivery metadata.
 
 ## Session and agent contract
 
@@ -175,7 +186,7 @@ Run the repository checks from its root:
 
 ```sh
 python3 -m unittest discover -s tests -v
-node --test review/tests/store.test.mjs
+node --test review/tests/*.test.mjs
 python3 scripts/check_public_repo.py --working-tree
 python3 scripts/check_public_repo.py
 ```
@@ -188,4 +199,4 @@ For repeatable browser checks without changing photo feedback, start the [dispos
 python3 review/tests/fixture.py --port 8766
 ```
 
-Open `http://127.0.0.1:8766`. It contains generated images with aligned versions, a changed frame, full exports, a detail region, an earlier reference, and a sample recipe. Check comparison modes, native zoom and pan, disabled wipe for changed framing, and notes/decisions after reload. Use Style builder to save both artifact types and inspect their downloads. Check Detail lab and a narrow viewport. Closing the fixture server removes its temporary workspace. These checks exercise the application; they do not establish the aesthetic success of a private edit or validate a RAW decoder.
+Open `http://127.0.0.1:8766`. It contains generated images with aligned versions, a changed frame, full exports, a detail region, an earlier reference, a sample recipe, and generated full spheres. In 360 review, inspect the seam and both poles, compare synchronized views, and export angle coordinates. Check comparison modes, native zoom and pan, disabled wipe for changed framing, and notes/decisions after reload. Use Style builder to save both artifact types and inspect their downloads. Check Detail lab and a narrow viewport. Closing the fixture server removes its temporary workspace. These checks exercise the application; they do not establish the aesthetic success of a private edit or validate a RAW decoder.

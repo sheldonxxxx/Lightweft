@@ -75,6 +75,30 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(report['summary']['formats'], {'DNG': 1, 'CR3': 1})
         self.assertEqual(self.original.read_bytes(), original_bytes)
 
+    def test_catalogue_has_no_source_cohort_labels_or_filter(self):
+        self.case['origin'] = 'legacy'
+        self.save()
+        self.build()
+        html = (self.root / 'catalogue.html').read_text()
+        self.assertNotIn('id="origin"', html)
+        self.assertNotIn('data-origin', html)
+        self.assertNotIn('legacy', html)
+
+    def test_immich_provenance_checks_remote_checksum(self):
+        import base64
+        self.case['origin'] = 'immich'
+        self.case['asset_id'] = 'synthetic-remote-identity'
+        self.case['original']['server_sha1_base64'] = base64.b64encode(
+            hashlib.sha1(self.original.read_bytes()).digest()).decode()
+        self.save()
+        self.build()
+        self.assertTrue(verify_collection.verify(self.root)['valid'])
+        self.case['original']['server_sha1_base64'] = 'incorrect'
+        self.save()
+        self.build()
+        report = verify_collection.verify(self.root)
+        self.assertIn('Immich checksum mismatch: example-01', report['errors'])
+
     def test_hash_rejection_survives_optimized_python(self):
         self.original.write_bytes(b'II*\x00synthetic-changed!')
         result = subprocess.run([sys.executable, '-O', str(REPO / 'workflow/build_suite.py'),

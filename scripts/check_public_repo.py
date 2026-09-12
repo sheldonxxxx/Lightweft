@@ -16,7 +16,7 @@ EXACT = {
     'assets/readme-hero.svg',
     'CHANGELOG.md', 'skills/photo-style-builder/SKILL.md',
     'review/README.md', 'review/server.py', 'review/cli.py', 'review/import_legacy.py',
-    'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs',
+    'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs', 'review/tests/sphere.test.mjs',
     'tests/test_review.py', 'tests/test_review_import.py',
 }
 PATTERNS = {

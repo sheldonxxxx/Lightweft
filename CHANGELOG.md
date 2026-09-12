@@ -4,6 +4,14 @@
 
 - Require explicit permission before using generative image services; preserve the original scene and resolution for ordinary photo edits and local compositing.
 
+- Open confirmed 360° comparison pairs in the interactive spherical viewer automatically in Photo reviewer.
+
+- Fix photo loading and panel switching when 360 review contains a flat photograph or mask variant.
+
+- Add synchronized 360° review with seam and pole inspection, saved viewing coordinates, and guidance for judging full spheres and selected perspective photographs.
+
+- Present RAW regression catalogues as one collection without source-cohort badges or filters, and support explicit Immich provenance in verification.
+
 - Let agents choose a default single-image, side-by-side, or before/after view for each photo, with variant overrides for masks and overlays, while preserving review feedback.
 
 - Drag the before/after divider directly over the photograph, with keyboard adjustment and independent image panning when zoomed.

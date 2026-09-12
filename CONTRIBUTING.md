@@ -19,7 +19,7 @@ The publication check reads staged blobs, so stage the final versions before run
 
 ## Publication boundary
 
-`.gitignore` uses a source allowlist because this workspace may also contain private photo libraries and editing runs. New public files require a deliberate allowlist change. Never force-add originals, rendered photos, EXIF dumps, library manifests, session/recipe data, credentials, local database configuration, or the nested `RapidRAW/` checkout. Use invented identifiers and generated test bytes in examples.
+`.gitignore` uses a source allowlist because this workspace may also contain private photo libraries and editing runs. New public files require a deliberate allowlist change in both `.gitignore` and `scripts/check_public_repo.py`. Keep those boundaries consistent so files visible to Git also pass publication validation. Never force-add originals, rendered photos, EXIF dumps, library manifests, session/recipe data, credentials, local database configuration, or the nested `RapidRAW/` checkout. Use invented identifiers and generated test bytes in examples.
 
 Keep private inputs and outputs under `.local/` or another ignored directory. Read an actual staged diff before publishing; pattern checks cannot prove that every possible secret or personal detail is absent. Do not paste private manifests or authentication data into issues.
 

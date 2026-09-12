@@ -1,7 +1,10 @@
 import {el} from '../dom.js';
+import {isSphere} from '../sphere-geometry.js';
+import {sphereReview} from './sphere.js';
 import {comparison, feedback, contextCard, artifacts, heading, regionCards} from './shared.js';
 
 export function reviewer(ctx) {
+  if (isSphere(ctx.left) && isSphere(ctx.right)) return sphereReview(ctx);
   const viewer = comparison(ctx);
   const element = el('div', {class: 'panel-layout'},
     el('div', {class: 'view-column'}, heading(ctx, 'Photo reviewer', 'See the whole. Decide what matters.'), viewer.root,

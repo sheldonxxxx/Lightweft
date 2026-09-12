@@ -41,7 +41,7 @@ def verify(root, require_clean=False):
             check(len(blob) == original['byte_size'], f'Original size mismatch: {key}')
             check(blob[4:8] == b'ftyp' if original['format'] == 'CR3' else blob[:4] in [b'II*\x00', b'MM\x00*'], f'Input container signature mismatch: {key}')
             verified_bytes += len(blob)
-            if case['origin'] == 'v2':
+            if case.get('origin') in {'immich', 'v2'}:
                 check(base64.b64encode(hashlib.sha1(blob).digest()).decode() == original['server_sha1_base64'], f'Immich checksum mismatch: {key}')
                 check(case['asset_id'] not in immich_ids and bool(case['asset_id']), f'Invalid Immich identity: {key}')
                 immich_ids.add(case['asset_id'])

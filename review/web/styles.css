@@ -163,3 +163,33 @@ textarea:disabled {
     flex-wrap: wrap;
   }
 }
+
+/* Full-sphere viewing reuses the registered comparison pair and review state. */
+.sphere-viewer { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.sphere-toolbar, .sphere-angles, .sphere-positions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:12px; }
+.sphere-toolbar button, .sphere-positions button { font-size:12px; padding:7px 10px; }
+.sphere-viewport { position:relative; display:grid; grid-template-columns:1fr 1fr; height: min(58vh, 620px); min-height:260px; background:#111; overflow:hidden; cursor:grab; touch-action:none; --sphere-divider:50%; }
+.sphere-viewport:active { cursor:grabbing; }
+.sphere-cell { position:relative; min-width:0; height:100%; overflow:hidden; }
+.sphere-cell canvas { display:block; width:100%; height:100%; }
+.sphere-label { position:absolute; left:12px; bottom:12px; max-width:calc(100% - 24px); border-radius:5px; padding:5px 8px; background:#000b; color:white; font-size:12px; pointer-events:none; }
+.sphere-viewport[data-swap="true"] .sphere-cell-0 { order:2; }
+.sphere-viewport[data-mode="single"], .sphere-viewport[data-mode="wipe"] { display:block; }
+.sphere-viewport[data-mode="single"] .sphere-cell, .sphere-viewport[data-mode="wipe"] .sphere-cell { position:absolute; inset:0; }
+.sphere-viewport[data-mode="single"][data-swap="false"] .sphere-cell-0, .sphere-viewport[data-mode="single"][data-swap="true"] .sphere-cell-1 { visibility:hidden; }
+.sphere-viewport[data-mode="wipe"][data-swap="false"] .sphere-cell-1 { clip-path:inset(0 0 0 var(--sphere-divider)); z-index:1; }
+.sphere-viewport[data-mode="wipe"][data-swap="true"] .sphere-cell-0 { clip-path:inset(0 0 0 var(--sphere-divider)); z-index:1; }
+.sphere-viewport[data-mode="wipe"]::after { content:""; position:absolute; top:0; bottom:0; left:var(--sphere-divider); width:2px; background:white; z-index:3; pointer-events:none; }
+.sphere-divider { display:block; width:calc(100% - 24px); margin:10px 12px; }
+.sphere-divider[hidden] { display:none; }
+.sphere-angle { display:flex; align-items:center; gap:5px; font-size:12px; }
+.sphere-angle input { width:76px; min-width:0; }
+.sphere-viewer > .field-hint { padding:0 12px; }
+.sphere-viewer:fullscreen { height:100vh; border:0; border-radius:0; overflow:auto; }
+.sphere-viewer:fullscreen .sphere-viewport { height:calc(100vh - 240px); }
+@media (max-width:600px) { .sphere-viewport {height:370px;} .sphere-viewport[data-mode="side"] {grid-template-columns:1fr; grid-template-rows:1fr 1fr;} .sphere-toolbar {gap:6px;} }
+
+.sphere-viewport:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
+.sphere-viewport[data-mode="wipe"][data-swap="false"] .sphere-cell-1 .sphere-label,
+.sphere-viewport[data-mode="wipe"][data-swap="true"] .sphere-cell-0 .sphere-label { left:auto; right:12px; }
+@media(max-width:720px) { .page-tabs {overflow-x:auto; scrollbar-width:thin; width:100%; flex-shrink:1;} }

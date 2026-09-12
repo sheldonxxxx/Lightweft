@@ -1,22 +1,33 @@
 # Public source allowlist. Everything else stays local, including photos,
 # manifests, editing runs, credentials, and the independent RapidRAW checkout.
 *
+
+# Repository documentation and validation.
 !/.gitignore
 !/.gitattributes
 !/AGENTS.md
 !/README.md
+!/CHANGELOG.md
 !/CONTRIBUTING.md
 !/LICENSE
-!/assets/
-!/assets/readme-hero.svg
 !/.github/
 !/.github/workflows/
 !/.github/workflows/validate.yml
+!/assets/
+!/assets/readme-hero.svg
+!/scripts/
+!/scripts/check_public_repo.py
+
+# Shared planning and personal-style skills.
 !/skills/
 !/skills/photo-edit-master/
 !/skills/photo-edit-master/SKILL.md
 !/skills/photo-edit-master/references/
 !/skills/photo-edit-master/references/*.md
+!/skills/photo-style-builder/
+!/skills/photo-style-builder/SKILL.md
+
+# Collection workflow and synthetic tests.
 !/workflow/
 !/workflow/README.md
 !/workflow/build_suite.py
@@ -25,19 +36,18 @@
 !/workflow/catalogue.css
 !/workflow/selection.example.json
 !/workflow/evaluation-template.json
-!/scripts/
-!/scripts/check_public_repo.py
 !/tests/
 !/tests/test_workflow.py
-!/CHANGELOG.md
-!/skills/photo-style-builder/
-!/skills/photo-style-builder/SKILL.md
+!/tests/test_review.py
+!/tests/test_review_import.py
+
+# Shared review application and browser modules.
 !/review/
-!/review/*.py
-!/review/*.md
+!/review/README.md
+!/review/server.py
+!/review/cli.py
+!/review/import_legacy.py
 !/review/package.json
-!/review/package-lock.json
-!/review/playwright.config.mjs
 !/review/web/
 !/review/web/*.html
 !/review/web/*.js
@@ -46,7 +56,7 @@
 !/review/web/panels/
 !/review/web/panels/*.js
 !/review/tests/
-!/review/tests/*.mjs
-!/review/tests/*.py
-!/tests/test_review.py
-!/tests/test_review_import.py
+!/review/tests/fixture.py
+!/review/tests/store.test.mjs
+
+!/review/tests/sphere.test.mjs

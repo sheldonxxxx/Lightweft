@@ -174,7 +174,7 @@ async function showLibrary() {
 }
 function shortcuts() {
   dialog('A few useful shortcuts', el('div', {class: 'shortcut-list'},
-    [['← / →', 'Previous / next photograph'], ['Space (hold)', 'Temporarily show the other version'], ['B', 'Swap the comparison sides'], ['1 / 2 / 3', 'Reviewer / Style builder / Detail lab'], ['Drag', 'Pan both images together at 100% or above']].map(([key, description]) => el('p', {}, el('kbd', {}, key), el('span', {}, description)))));
+    [['← / →', 'Previous / next photograph'], ['Space (hold)', 'Temporarily show the other version'], ['B', 'Swap the comparison sides'], ['1 / 2 / 3 / 4', 'Reviewer / Style builder / Detail lab / 360 review'], ['Drag', 'Pan both images together at 100% or above']].map(([key, description]) => el('p', {}, el('kbd', {}, key), el('span', {}, description)))));
 }
 function buildShell() {
   saveStatus = el('span', {class: 'save-status', role: 'status'}, 'Connecting…');
@@ -215,7 +215,7 @@ document.addEventListener('keydown', event => {
   if (event.key === 'ArrowRight') {event.preventDefault(); navigate(1);}
   if (event.key === 'ArrowLeft') {event.preventDefault(); navigate(-1);}
   if (event.key.toLowerCase() === 'b') activePanel?.viewer?.swap();
-  if (['1', '2', '3'].includes(event.key)) {ui.panel = panels[Number(event.key) - 1].id; renderTabs(); renderPanel();}
+  if (['1', '2', '3', '4'].includes(event.key)) {ui.panel = panels[Number(event.key) - 1].id; renderTabs(); renderPanel();}
 });
 document.addEventListener('keyup', event => {if (event.code === 'Space') activePanel?.viewer?.setBlink(false);});
 window.addEventListener('blur', () => activePanel?.viewer?.setBlink(false));
