@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title desc">
-  <title id="title">Photo Edit Atelier — every edit, with intention.</title>
+  <title id="title">Lightweft — every edit, with intention.</title>
   <desc id="desc">An editorial composition in ivory, copper, and midnight blue. An abstract landscape sits within a photographic frame, surrounded by fine aperture rings.</desc>
   <defs>
     <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#ddb99a"/><stop offset="1" stop-color="#f2dfbd"/></linearGradient>
@@ -15,7 +15,7 @@
   </g>
   <g font-family="Arial, Helvetica, sans-serif">
     <path d="M72 69h18m-9-9v18" stroke="#9f694a" stroke-width="2"/>
-    <text x="106" y="76" fill="#6b665d" font-size="16" letter-spacing="3">PHOTO EDIT ATELIER</text>
+    <text x="106" y="76" fill="#6b665d" font-size="16" letter-spacing="3">LIGHTWEFT</text>
     <text x="72" y="207" fill="#182f36" font-size="88" font-family="Georgia, 'Times New Roman', serif" letter-spacing="-3">Every edit,</text>
     <text x="72" y="303" fill="#9a6044" font-size="88" font-family="Georgia, 'Times New Roman', serif" font-style="italic" letter-spacing="-3">with intention.</text>
     <text x="76" y="367" fill="#53615f" font-size="24">Art direction for AI photo editing.</text>

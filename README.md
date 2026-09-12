@@ -1,8 +1,9 @@
 <p align="center">
-  <img src="assets/readme-hero.svg" alt="Photo Edit Atelier — art direction for AI photo editing, with the tools you choose" width="100%">
+  <img src="assets/readme-hero.svg" alt="Lightweft — art direction for AI photo editing, with the tools you choose" width="100%">
 </p>
 
-<h1 align="center">Photo Edit Atelier — AI Photo Editing Skill</h1>
+<h1 align="center">Lightweft — AI Photo Editing Skill</h1>
+<p align="center"><em>Thoughtful edits. Any editor.</em></p>
 <p align="center"><strong>A tool-agnostic AI photo editing skill for thoughtful, expressive photographs.</strong></p>
 <p align="center">Image-specific art direction · Colour and light · Composition · Visual critique</p>
 
@@ -24,16 +25,16 @@
 
 ## Give every photograph its own direction
 
-**Photo Edit Atelier helps an AI agent decide what a photograph should become—and judge whether the edit gets there.** It reads the relationships between subject, light, colour, space, and atmosphere, then turns them into a clear edit intention, visible priorities, and details worth protecting.
+**Lightweft helps an AI agent decide what a photograph should become—and judge whether the edit gets there.** It reads the relationships between subject, light, colour, space, and atmosphere, then turns them into a clear edit intention, visible priorities, and details worth protecting.
 
 Use it for RAW photo editing, colour grading, landscape and wildlife photography, nightscapes, portraits, or a second opinion on an existing edit. Pair its artistic judgment with **any photo-editing tool you or your agent can operate**. Your editor supplies the controls; the skill supplies the direction and critique.
 
-The installable skill is named **`photo-edit-master`**. Photo Edit Atelier is the project's display name.
+The installable skill is named **`photo-edit-master`**. Lightweft is the project's display name.
 
 ## Install in one command
 
 ```sh
-npx skills add sheldonxxxx/photo-edit-atelier --skill photo-edit-master
+npx skills add sheldonxxxx/lightweft --skill photo-edit-master
 ```
 
 Choose your agent when prompted. The [Skills CLI](https://github.com/vercel-labs/skills#readme) supports project installation by default; add `--global` for a user-level installation.
@@ -105,7 +106,7 @@ The skill uses selective reading: a shared core plus the reference relevant to t
 ## Bring your favourite editor
 
 ```text
-                         PHOTO EDIT ATELIER
+                               LIGHTWEFT
                       intention · priorities · critique
                                    │
                     Your agent or a human editor
@@ -128,7 +129,7 @@ Use the plan in Lightroom, darktable, Photoshop, a command-line workflow, or ano
 
 [**Sheldon's RapidRAW fork**](https://github.com/sheldonxxxx/RapidRAW) is the tested execution companion for this skill. Its native MCP bridge lets a vision-capable agent inspect RAW photographs, make reversible edits, build masks, compare versions, run denoising jobs, and export the result through RapidRAW's own processing engine.
 
-| Photo Edit Atelier | RapidRAW execution skill |
+| Lightweft | RapidRAW execution skill |
 | :--- | :--- |
 | Chooses the artistic intention | Translates that intention into native operations |
 | Explains what should change and what to protect | Maintains sessions, revisions, masks, and editable state |
@@ -231,7 +232,7 @@ Photos, private library metadata, editing runs, and a separate local RapidRAW ch
 <p align="center">
   <a href="skills/photo-edit-master/SKILL.md">Read the skill</a> ·
   <a href="CONTRIBUTING.md">Contribute</a> ·
-  <a href="https://github.com/sheldonxxxx/photo-edit-atelier/issues">Share feedback</a>
+  <a href="https://github.com/sheldonxxxx/lightweft/issues">Share feedback</a>
 </p>
 
 Original code, documentation, and vector artwork are [MIT licensed](LICENSE). Referenced research and third-party projects retain their own terms. RapidRAW is a separate project under its own AGPL-3.0 license.
