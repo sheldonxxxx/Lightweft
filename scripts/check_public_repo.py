@@ -12,6 +12,7 @@ EXACT = {
     'skills/photo-edit-master/SKILL.md', 'workflow/README.md', 'workflow/build_suite.py',
     'workflow/build_catalogue.py', 'workflow/verify_collection.py', 'workflow/catalogue.css',
     'workflow/selection.example.json', 'workflow/evaluation-template.json',
+    'assets/readme-hero.svg',
 }
 PATTERNS = {
     'personal absolute path': re.compile(r'/(?:Users|home|Volumes)/[^/\s]+/'),

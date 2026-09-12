@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title desc">
+  <title id="title">Photo Edit Atelier — every edit, with intention.</title>
+  <desc id="desc">An editorial composition in ivory, copper, and midnight blue. An abstract landscape sits within a photographic frame, surrounded by fine aperture rings.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#ddb99a"/><stop offset="1" stop-color="#f2dfbd"/></linearGradient>
+    <linearGradient id="land" x2="1" y2="1"><stop stop-color="#425f66"/><stop offset="1" stop-color="#203e47"/></linearGradient>
+    <clipPath id="frame"><rect x="1000" y="88" width="448" height="368" rx="4"/></clipPath>
+  </defs>
+  <rect width="1600" height="560" rx="16" fill="#f5f0e7"/>
+  <path d="M910 0H1584Q1600 0 1600 16V544Q1600 560 1584 560H910Z" fill="#142c34"/>
+  <g fill="none" stroke="#9eb0ac" stroke-width="1" opacity=".22">
+    <circle cx="1224" cy="272" r="256"/><circle cx="1224" cy="272" r="232"/>
+    <path d="M924 272H1524M1224 0V548"/>
+    <path d="M940 72L1510 478M941 478L1510 72"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <path d="M72 69h18m-9-9v18" stroke="#9f694a" stroke-width="2"/>
+    <text x="106" y="76" fill="#6b665d" font-size="16" letter-spacing="3">PHOTO EDIT ATELIER</text>
+    <text x="72" y="207" fill="#182f36" font-size="88" font-family="Georgia, 'Times New Roman', serif" letter-spacing="-3">Every edit,</text>
+    <text x="72" y="303" fill="#9a6044" font-size="88" font-family="Georgia, 'Times New Roman', serif" font-style="italic" letter-spacing="-3">with intention.</text>
+    <text x="76" y="367" fill="#53615f" font-size="24">Art direction for AI photo editing.</text>
+    <text x="76" y="402" fill="#53615f" font-size="24">A skill for the tools you choose.</text>
+    <path d="M76 452H821" stroke="#cec8ba"/>
+    <text x="76" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">OBSERVE</text>
+    <text x="256" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">DIRECT</text>
+    <text x="422" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">EDIT</text>
+    <text x="568" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">REFINE</text>
+    <path d="M195 490h22m-5-4 5 4-5 4m141-4h22m-5-4 5 4-5 4m134-4h22m-5-4 5 4-5 4" fill="none" stroke="#a19885"/>
+  </g>
+  <g clip-path="url(#frame)">
+    <rect x="1000" y="88" width="448" height="368" fill="url(#sky)"/>
+    <circle cx="1327" cy="170" r="39" fill="#faf0cf"/>
+    <path d="M972 344 1060 258 1120 303 1220 187 1380 365 1480 250V470H972Z" fill="#afbab0"/>
+    <path d="m1100 333 120  -146 160 178-108-77-44 17-51-57-44 60Z" fill="#dbe0c9"/>
+    <path d="m970 397 131-99 85 45 102-26 192 100v80H970Z" fill="#6f8a86"/>
+    <path d="M983 468 1056 385 1118 413 1256 324 1360 410 1490 386V485H983Z" fill="url(#land)"/>
+    <path d="m1256 324-46 111-8 40" fill="none" stroke="#b4c4b5" stroke-width="2" opacity=".7"/>
+    <path d="M1000 334h448" stroke="#f4ecd8" opacity=".14"/>
+  </g>
+  <g fill="none" stroke="#d9d0b7" stroke-width="2">
+    <path d="M981 124V69h55m377 0h54v55m0 296v55h-54m-377 0h-55v-55"/>
+  </g>
+  <text x="1001" y="505" fill="#c1c6b8" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="2.5">LIGHT / COLOUR / ATMOSPHERE</text>
+</svg>
