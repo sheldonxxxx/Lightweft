@@ -69,6 +69,46 @@ class ShowcaseTests(unittest.TestCase):
         self.save()
         self.assertTrue((self.build() / 'data.json').is_file())
 
+    def test_side_labels_and_descriptions_are_optional_and_preserved(self):
+        before = self.data['groups'][0]['photos'][0]['before']
+        after = self.data['groups'][0]['photos'][0]['after']
+        for labels in ({}, {'label': 'Corrected base'}, {'description': 'Photographic corrections'},
+                       {'label': 'Corrected base', 'description': 'Photographic corrections'}):
+            with self.subTest(labels=labels):
+                before.pop('label', None)
+                before.pop('description', None)
+                before.update(labels)
+                after.update(label='Quiet Story', description='The same base with the Quiet Story preset')
+                self.save()
+                published = json.loads((self.build() / 'data.json').read_text())
+                self.assertEqual(published, self.data)
+
+    def test_invalid_optional_side_text_fails_without_replacing_output(self):
+        output = self.build()
+        snapshot = (output / 'data.json').read_bytes()
+        photo = self.data['groups'][0]['photos'][0]
+        for side in ('before', 'after'):
+            for field in ('label', 'description'):
+                for value in ('', ' \n\t', None, 42, False, [], {}):
+                    with self.subTest(side=side, field=field, value=value):
+                        photo[side][field] = value
+                        self.save()
+                        with self.assertRaisesRegex(ValueError, 'nonempty strings'):
+                            self.build()
+                        self.assertEqual((output / 'data.json').read_bytes(), snapshot)
+                        del photo[side][field]
+
+    def test_optional_side_fields_do_not_allow_unknown_or_misplaced_fields(self):
+        photo = self.data['groups'][0]['photos'][0]
+        for target, field in ((photo['before'], 'caption'), (photo['after'], 'descripton'),
+                              (photo['before']['srcset'][0], 'label'), (photo, 'beforeLabel')):
+            with self.subTest(field=field):
+                target[field] = 'Corrected base'
+                self.save()
+                with self.assertRaisesRegex(ValueError, 'unsupported gallery fields'):
+                    self.build()
+                del target[field]
+
     def test_portrait_photos_preserve_their_declared_aspect_ratio(self):
         photo = self.data['groups'][0]['photos'][0]
         photo.update(width=2400, height=3000)

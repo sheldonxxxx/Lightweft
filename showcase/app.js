@@ -21,7 +21,16 @@
     return source.srcset.reduce((best, item) => item.width > best.width ? item : best).src;
   }
 
+  function sideText(photo, side) {
+    const defaults = side === 'before'
+      ? {label: 'Before', description: 'Unadjusted RAW rendering'}
+      : {label: 'After', description: 'Edited photograph'};
+    return {label: photo[side].label ?? defaults.label, description: photo[side].description ?? defaults.description};
+  }
+
   function makePhoto(photo, index, groupId) {
+    const before = sideText(photo, 'before');
+    const after = sideText(photo, 'after');
     const article = element('article', 'photo-story');
     const heading = element('div', 'photo-heading');
     const title = element('h3');
@@ -42,12 +51,13 @@
       image.height = photo.height;
       image.loading = 'lazy';
       image.decoding = 'async';
-      image.alt = `${version === 'after' ? 'Edited photograph' : 'Unadjusted RAW rendering'}: ${photo.alt}`;
+      const side = version === 'before' ? before : after;
+      image.alt = `${side.label} — ${side.description}: ${photo.alt}`;
       figure.append(image);
     }
 
-    const beforeLabel = element('span', 'image-label image-label-before', 'Before');
-    const afterLabel = element('span', 'image-label image-label-after', 'After');
+    const beforeLabel = element('span', 'image-label image-label-before', before.label);
+    const afterLabel = element('span', 'image-label image-label-after', after.label);
     const divider = element('span', 'compare-divider');
     divider.setAttribute('aria-hidden', 'true');
     divider.append(element('span', 'compare-handle', '↔'));
@@ -57,7 +67,7 @@
     input.max = '100';
     input.step = '1';
     input.value = '50';
-    input.setAttribute('aria-label', `Comparison divider for ${photo.title}`);
+    input.setAttribute('aria-label', `Comparison divider for ${photo.title}: ${before.label} and ${after.label}`);
     const helpId = `${groupId}-${photo.id}-help`;
     input.setAttribute('aria-describedby', helpId);
     figure.append(beforeLabel, afterLabel, divider, input);
@@ -71,11 +81,12 @@
     const help = element('p', 'compare-help');
     help.id = helpId;
     help.append(state, element('br'), document.createTextNode('Drag divider · Use arrow keys when focused'));
-    const choices = [{label: 'Before', value: 100}, {label: 'Compare', value: 50}, {label: 'After', value: 0}];
+    const choices = [{label: before.label, description: before.description, value: 100},
+      {label: 'Compare', value: 50}, {label: after.label, description: after.description, value: 0}];
     const controls = choices.map(choice => {
       const button = element('button', '', choice.label);
       button.type = 'button';
-      button.setAttribute('aria-label', `${choice.label === 'Compare' ? 'Compare before and after' : `Show ${choice.label.toLowerCase()}`} — ${photo.title}`);
+      button.setAttribute('aria-label', `${choice.value === 50 ? `Compare ${before.label} and ${after.label}` : `Show ${choice.label}: ${choice.description}`} — ${photo.title}`);
       button.addEventListener('click', () => update(choice.value));
       buttons.append(button);
       return {button, value: choice.value};
@@ -85,11 +96,11 @@
       const value = Math.max(0, Math.min(100, Number(rawValue)));
       input.value = String(value);
       figure.style.setProperty('--divider', `${value}%`);
-      input.setAttribute('aria-valuetext', value === 100 ? 'Full before image: unadjusted RAW rendering' : value === 0 ? 'Full after image: edited photograph' : `${value}% before image and ${100 - value}% after image`);
+      input.setAttribute('aria-valuetext', value === 100 ? `Full ${before.label} image: ${before.description}` : value === 0 ? `Full ${after.label} image: ${after.description}` : `${value}% ${before.label} and ${100 - value}% ${after.label}`);
       beforeLabel.hidden = value < 16;
       afterLabel.hidden = value > 84;
       divider.hidden = value === 0 || value === 100;
-      state.textContent = value === 100 ? 'Before · Unadjusted RAW' : value === 0 ? 'After · Edited photograph' : `Split view · ${value}% before / ${100 - value}% after`;
+      state.textContent = value === 100 ? `${before.label} · ${before.description}` : value === 0 ? `${after.label} · ${after.description}` : `Split view · ${value}% ${before.label} / ${100 - value}% ${after.label}`;
       for (const control of controls) {
         const pressed = control.value === 50 ? value > 0 && value < 100 : value === control.value;
         control.button.setAttribute('aria-pressed', String(pressed));
@@ -102,7 +113,10 @@
     article.append(toolbar);
     const links = element('p', 'photo-links');
     for (const version of ['before', 'after']) {
-      const link = element('a', '', version === 'before' ? 'Open unadjusted RAW render ↗' : 'Open edited photograph ↗');
+      const side = version === 'before' ? before : after;
+      const link = element('a', '', `Open ${side.label} ↗`);
+      link.setAttribute('aria-label', `Open ${side.label}: ${side.description} — ${photo.title}`);
+      link.title = side.description;
       link.href = largest(photo[version]);
       links.append(link);
     }
@@ -110,18 +124,29 @@
     return article;
   }
 
+  function checkedFields(value, required, optional = []) {
+    return value !== null && typeof value === 'object' && !Array.isArray(value) &&
+      required.every(field => Object.hasOwn(value, field)) &&
+      Object.keys(value).every(field => required.includes(field) || optional.includes(field));
+  }
+
   function validSource(source) {
     const localImage = value => typeof value === 'string' && /^assets\/[a-z0-9/-]+\.jpg$/.test(value) && !value.includes('..');
-    return source && localImage(source.src) && Array.isArray(source.srcset) && source.srcset.length > 0 && source.srcset.every(item => localImage(item.src) && Number.isInteger(item.width) && item.width > 0);
+    return checkedFields(source, ['src', 'srcset'], ['label', 'description']) &&
+      ['label', 'description'].every(field => !Object.hasOwn(source, field) || (typeof source[field] === 'string' && source[field].trim().length > 0)) &&
+      localImage(source.src) && Array.isArray(source.srcset) && source.srcset.length > 0 &&
+      source.srcset.every(item => checkedFields(item, ['src', 'width']) && localImage(item.src) && Number.isInteger(item.width) && item.width > 0);
   }
 
   function validData(data) {
     const slug = value => typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
     const text = value => typeof value === 'string' && value.trim().length > 0;
-    return data.schemaVersion === 1 && Array.isArray(data.groups) && data.groups.length > 0 &&
+    return checkedFields(data, ['schemaVersion', 'groups']) && data.schemaVersion === 1 && Array.isArray(data.groups) && data.groups.length > 0 &&
+      data.groups.every(group => checkedFields(group, ['id', 'number', 'title', 'subtitle', 'photos'])) &&
       new Set(data.groups.map(group => group.id)).size === data.groups.length &&
       data.groups.every(group => slug(group.id) && text(group.number) && text(group.title) && text(group.subtitle) &&
         Array.isArray(group.photos) && group.photos.length > 0 &&
+        group.photos.every(photo => checkedFields(photo, ['id', 'title', 'description', 'alt', 'width', 'height', 'before', 'after'])) &&
         new Set(group.photos.map(photo => photo.id)).size === group.photos.length &&
         group.photos.every(photo => slug(photo.id) && text(photo.title) && text(photo.description) && text(photo.alt) &&
           Number.isSafeInteger(photo.width) && photo.width > 0 && Number.isSafeInteger(photo.height) && photo.height > 0 &&
@@ -157,6 +182,10 @@
       nav.replaceChildren(navLinks);
       nav.hidden = data.groups.length < 2;
       document.getElementById('hero-count').textContent = `${String(data.groups[0].photos.length).padStart(2, '0')} photographs`;
+      if (window.location.hash) {
+        const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+        if (target && collections.contains(target)) target.scrollIntoView();
+      }
     } catch {
       // The static photographs and direct image links remain available.
     }

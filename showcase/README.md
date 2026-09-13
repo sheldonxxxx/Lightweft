@@ -44,6 +44,10 @@ Each group contains `id`, `number`, `title`, `subtitle`, and `photos`. Each phot
 }
 ```
 
+Each side also accepts optional `label` and `description` strings. When omitted, `before` uses **Before** / **Unadjusted RAW rendering**, and `after` uses **After** / **Edited photograph**. These names appear throughout the comparison controls, image descriptions and direct links.
+
+For a preset comparison, set the before side to `"label": "Base rendering"` and `"description": "RapidRAW base rendering, before the preset"`. Set the after label to the preset name, such as `"label": "Quiet Story"`, with `"description": "The same base rendering with the Quiet Story preset"`. A base may retain the editor's defaults or include photo-specific corrections. Both images must share the same corrections and finishing; a denoised after image needs a correspondingly denoised base. Labels and descriptions must be nonempty strings when supplied; unsupported fields are rejected.
+
 Image paths are relative to this directory. External image URLs, absolute paths, traversal, unsupported fields, and mismatched before/after dimensions are rejected. `assets/share-card.jpg` is the site's social preview; keep its content consistent with the gallery.
 
 ## Check and publish

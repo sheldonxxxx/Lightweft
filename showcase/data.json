@@ -17,17 +17,35 @@
           "before": {
             "src": "assets/nightscapes/starlit-ridge-before-1600.jpg",
             "srcset": [
-              { "src": "assets/nightscapes/starlit-ridge-before-960.jpg", "width": 960 },
-              { "src": "assets/nightscapes/starlit-ridge-before-1600.jpg", "width": 1600 },
-              { "src": "assets/nightscapes/starlit-ridge-before-2400.jpg", "width": 2400 }
+              {
+                "src": "assets/nightscapes/starlit-ridge-before-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/nightscapes/starlit-ridge-before-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/nightscapes/starlit-ridge-before-2400.jpg",
+                "width": 2400
+              }
             ]
           },
           "after": {
             "src": "assets/nightscapes/starlit-ridge-after-1600.jpg",
             "srcset": [
-              { "src": "assets/nightscapes/starlit-ridge-after-960.jpg", "width": 960 },
-              { "src": "assets/nightscapes/starlit-ridge-after-1600.jpg", "width": 1600 },
-              { "src": "assets/nightscapes/starlit-ridge-after-2400.jpg", "width": 2400 }
+              {
+                "src": "assets/nightscapes/starlit-ridge-after-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/nightscapes/starlit-ridge-after-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/nightscapes/starlit-ridge-after-2400.jpg",
+                "width": 2400
+              }
             ]
           }
         },
@@ -41,18 +59,228 @@
           "before": {
             "src": "assets/nightscapes/woodland-mirror-before-1600.jpg",
             "srcset": [
-              { "src": "assets/nightscapes/woodland-mirror-before-960.jpg", "width": 960 },
-              { "src": "assets/nightscapes/woodland-mirror-before-1600.jpg", "width": 1600 },
-              { "src": "assets/nightscapes/woodland-mirror-before-2400.jpg", "width": 2400 }
+              {
+                "src": "assets/nightscapes/woodland-mirror-before-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/nightscapes/woodland-mirror-before-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/nightscapes/woodland-mirror-before-2400.jpg",
+                "width": 2400
+              }
             ]
           },
           "after": {
             "src": "assets/nightscapes/woodland-mirror-after-1600.jpg",
             "srcset": [
-              { "src": "assets/nightscapes/woodland-mirror-after-960.jpg", "width": 960 },
-              { "src": "assets/nightscapes/woodland-mirror-after-1600.jpg", "width": 1600 },
-              { "src": "assets/nightscapes/woodland-mirror-after-2400.jpg", "width": 2400 }
+              {
+                "src": "assets/nightscapes/woodland-mirror-after-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/nightscapes/woodland-mirror-after-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/nightscapes/woodland-mirror-after-2400.jpg",
+                "width": 2400
+              }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "style-builder",
+      "number": "02",
+      "title": "Style Builder \u2014 four ways to shape a photograph",
+      "subtitle": "Four film-inspired presets, each paired with a scene that suits it. Compare the base rendering with the same photograph plus its saved preset. Both sides share the same preparation and framing; the colour and tone of the preset are the only change.",
+      "photos": [
+        {
+          "id": "quiet-story",
+          "title": "Quiet Story",
+          "width": 2400,
+          "height": 1600,
+          "description": "A moment by the river. A softer palette gives the blossom-lined river a reflective mood. The pale figure stays distinct against the water, while the distant mountain holds its haze.",
+          "alt": "A person in pale clothes beside a river, with flowering trees and snowy mountains beyond.",
+          "before": {
+            "src": "assets/style-builder/quiet-story-before-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/quiet-story-before-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/quiet-story-before-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/quiet-story-before-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Base rendering",
+            "description": "RapidRAW base rendering, before the preset"
+          },
+          "after": {
+            "src": "assets/style-builder/quiet-story-after-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/quiet-story-after-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/quiet-story-after-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/quiet-story-after-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Quiet Story",
+            "description": "Quiet Story preset applied to the same base rendering"
+          }
+        },
+        {
+          "id": "amber-days",
+          "title": "Amber Days",
+          "width": 2400,
+          "height": 1600,
+          "description": "Birds above the street. Copper-orange clouds turn the birds and curved streetlamp into a graphic silhouette. The colour is deliberately warmer; the dark forms carry the photograph.",
+          "alt": "Birds perched on street furniture, silhouetted with a tree and rooftops against layered amber clouds.",
+          "before": {
+            "src": "assets/style-builder/amber-days-before-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/amber-days-before-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/amber-days-before-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/amber-days-before-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Base rendering",
+            "description": "RapidRAW base rendering, before the preset"
+          },
+          "after": {
+            "src": "assets/style-builder/amber-days-after-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/amber-days-after-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/amber-days-after-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/amber-days-after-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Amber Days",
+            "description": "Amber Days preset applied to the same base rendering"
+          }
+        },
+        {
+          "id": "garden-reverie",
+          "title": "Garden Reverie",
+          "width": 2400,
+          "height": 1600,
+          "description": "A clearing in the green. Deeper greens frame the vermilion pagoda and pale waterfall. The forest becomes denser and quieter, with less openness in its shadows.",
+          "alt": "A vermilion pagoda beside a narrow waterfall, surrounded by a densely wooded hillside.",
+          "before": {
+            "src": "assets/style-builder/garden-reverie-before-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/garden-reverie-before-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/garden-reverie-before-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/garden-reverie-before-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Base rendering",
+            "description": "RapidRAW base rendering, before the preset"
+          },
+          "after": {
+            "src": "assets/style-builder/garden-reverie-after-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/garden-reverie-after-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/garden-reverie-after-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/garden-reverie-after-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Garden Reverie",
+            "description": "Garden Reverie preset applied to the same base rendering"
+          }
+        },
+        {
+          "id": "after-hours",
+          "title": "After Hours",
+          "width": 2400,
+          "height": 1600,
+          "description": "The street after rain. Cooler shade and warm reflections give the wet street a cinematic mood. Darker buildings recede, leaving the lamps and road to guide the eye.",
+          "alt": "Warm streetlights and coloured shop signs reflected along a dark wet street with parked cars.",
+          "before": {
+            "src": "assets/style-builder/after-hours-before-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/after-hours-before-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/after-hours-before-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/after-hours-before-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "Base rendering",
+            "description": "RapidRAW base rendering, before the preset"
+          },
+          "after": {
+            "src": "assets/style-builder/after-hours-after-1600.jpg",
+            "srcset": [
+              {
+                "src": "assets/style-builder/after-hours-after-960.jpg",
+                "width": 960
+              },
+              {
+                "src": "assets/style-builder/after-hours-after-1600.jpg",
+                "width": 1600
+              },
+              {
+                "src": "assets/style-builder/after-hours-after-2400.jpg",
+                "width": 2400
+              }
+            ],
+            "label": "After Hours",
+            "description": "After Hours preset applied to the same base rendering"
           }
         }
       ]

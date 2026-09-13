@@ -61,7 +61,8 @@ def asset_references(data):
             widths_by_side = []
             for side in ('before', 'after'):
                 variant = photo[side]
-                checked_fields(variant, ('src', 'srcset'))
+                checked_fields(variant, ('src', 'srcset'), ('label', 'description'))
+                text_fields(variant, (field for field in ('label', 'description') if field in variant))
                 assets.add(image_path(variant['src']))
                 if not isinstance(variant['srcset'], list) or not variant['srcset']:
                     raise ValueError('each image needs a nonempty srcset')

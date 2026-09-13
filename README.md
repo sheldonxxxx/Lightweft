@@ -121,6 +121,8 @@ Use [photo-style-builder](skills/photo-style-builder/SKILL.md) to explore a pers
 npx skills add sheldonxxxx/lightweft --skill photo-style-builder
 ```
 
+[See Style Builder in photographs](https://sheldonxxxx.github.io/Lightweft/#style-builder): Quiet Story, Amber Days, Garden Reverie, and After Hours each pair a saved film-inspired preset with a suitable scene. Compare the same base rendering with and without the preset. These are personal study examples; the presets are not bundled with the skill.
+
 ## Bring your favourite editor
 
 ```text
