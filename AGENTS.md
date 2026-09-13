@@ -14,6 +14,13 @@ You are authorized to make any changes to RapidRAW and its MCP integration that 
 - Keep review state, photographs, and personal style artifacts in the user's ignored workspace. Preserve historical review evidence, but do not create new standalone helper websites for workflows the shared app can handle.
 - The master editing skill supplies an image-specific foundation. Use [photo-style-builder](skills/photo-style-builder/SKILL.md) for collaborative personal style exploration, with profiles and actual editor recipes kept separate from shared philosophy.
 
+## Product manager review of public-facing material
+
+- Before finalizing or publishing any public-facing material, have a separate agent acting as a product manager review it. This applies to product naming, websites, demos, README files, documentation, social posts, release notes, and promotional images or videos.
+- Review for the intended audience: a clear value proposition, natural and compelling headlines, understandable messaging, professional presentation, and marketability appropriate to the material's purpose. Keep claims accurate and supported, and protect private information.
+- Review rendered pages and media when visual presentation matters. Address material findings before delivery or publication.
+- This is an internal agent review; it does not require an additional round of user permission.
+
 ## Public repository files
 
 - Write every public-facing file for its intended users and contributors. Never use README files, documentation, changelogs, examples, code comments, or other public files as an agent notepad: exclude internal work notes, conversation history, task progress, and temporary repository housekeeping.

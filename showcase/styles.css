@@ -238,25 +238,8 @@ h3 {
   color:#b8bbb2;
 }
 
-.collection-intro {
-  display:grid;
-  grid-template-columns:1.2fr 1fr;
-  align-items:end;
-  gap:80px;
-  padding-top:106px;
-  padding-bottom:76px;
-}
-
-.collection-intro h2 {
-  margin-bottom:0;
-  max-width:560px;
-}
-
-.collection-intro>p {
-  margin:0;
-  max-width:420px;
-  color:var(--muted);
-  font-size:17px;
+.photo-collections {
+  padding-top:72px;
 }
 
 .collection-nav {
@@ -653,10 +636,8 @@ h3 {
   .hero-image {
     object-position:58% center;
   }
-  .collection-intro {
-    gap:40px;
-    padding-top:75px;
-    padding-bottom:55px;
+  .photo-collections {
+    padding-top:55px;
   }
   .photo-heading {
     gap:40px;
@@ -730,19 +711,8 @@ h3 {
     letter-spacing:.07em;
     bottom:28px;
   }
-  .collection-intro {
-    display:block;
-    padding-top:65px;
-    padding-bottom:40px;
-  }
-  .collection-intro h2 {
-    font-size:38px;
-    max-width:340px;
-  }
-  .collection-intro>p {
-    font-size:15px;
-    margin-top:24px;
-    max-width:360px;
+  .photo-collections {
+    padding-top:40px;
   }
   .group-heading {
     margin-bottom:36px;

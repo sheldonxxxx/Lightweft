@@ -2,8 +2,12 @@
 
 ## Unreleased
 
-- Add a public photo showcase following galaxy-photo selection from an 80,000+ collection through to finished edits, with responsive before-and-after comparisons and support for future collections and photo aspect ratios.
+- Add a public photo showcase featuring two galaxy photographs selected through targeted Immich searches, with responsive before-and-after comparisons and support for future collections and photo aspect ratios.
 - Add a manually triggered GitHub Pages workflow and validate approved demo JPEGs, metadata, comparison dimensions, and the site's explicit runtime files.
+- Bring visitors directly to the photo comparisons, clarify Lightweft's role and photographer feedback, and improve social-preview readability.
+- Document Pillow setup for contributor checks and require a product manager agent review of public-facing material.
+- Present Lightweft's skills and local review app together, with companion setup linked to its owning repository.
+- Link the master studies and nightscape guidance to primary artist, museum, interview, and research sources.
 
 - Require explicit permission before using generative image services; preserve the original scene and resolution for ordinary photo edits and local compositing.
 

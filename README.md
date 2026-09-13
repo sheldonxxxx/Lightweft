@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="assets/readme-hero.svg" alt="Lightweft — art direction for AI photo editing, with the tools you choose" width="100%">
+  <img src="assets/readme-hero.svg" alt="Lightweft — artistic direction, personal style and visual review for AI photo editing" width="100%">
 </p>
 
-<h1 align="center">Lightweft — AI Photo Editing Skill</h1>
+<h1 align="center">Lightweft — AI Photo Editing Workspace</h1>
 <p align="center"><em>Thoughtful edits. Any editor.</em></p>
-<p align="center"><strong>A tool-agnostic AI photo editing skill for thoughtful, expressive photographs.</strong></p>
-<p align="center">Image-specific art direction · Colour and light · Composition · Visual critique</p>
+<p align="center"><strong>Artistic direction, personal style, and visual review for AI photo editing.</strong></p>
+<p align="center">Agent skills · Local review app · Tools you choose</p>
 
 <p align="center">
   <a href="skills/photo-edit-master/SKILL.md"><img alt="Agent skill: photo-edit-master" src="https://img.shields.io/badge/Agent_Skill-photo--edit--master-203e47?style=flat-square"></a>
@@ -18,6 +18,7 @@
   <a href="#install-in-one-command">Install</a> ·
   <a href="#what-the-skill-brings">Explore the skill</a> ·
   <a href="https://sheldonxxxx.github.io/Lightweft/">Photo demos</a> ·
+  <a href="#one-workspace-for-review-and-personal-style">Review workspace</a> ·
   <a href="#optional-companion-rapidraw-mcp">RapidRAW companion</a> ·
   <a href="#macos-quick-start">macOS setup</a>
 </p>
@@ -32,7 +33,7 @@ Use it for RAW photo editing, colour grading, landscape and wildlife photography
 
 For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
 
-[Explore the photo demos](https://sheldonxxxx.github.io/Lightweft/), beginning with **Under the Milky Way**: a photographer with an 80,000+ photo collection who kept putting off the edit asked GPT-6 Astra to select galaxy photographs and give them an impactful treatment. Compare what it chose with the finished results. The before images are unadjusted RAW renders from the same editor. See the [showcase guide](showcase/README.md) to add a collection or preview the gallery locally.
+[Explore the photo demos](https://sheldonxxxx.github.io/Lightweft/), beginning with **Under the Milky Way**. A photographer with 80,000+ photos kept putting off the editing. GPT-6 Astra used targeted Immich searches to select two galaxy photographs, then directed impactful edits in RapidRAW. Compare the unadjusted RAW renders with the finished photographs. No sky was generated or replaced. See the [showcase guide](showcase/README.md) to add a collection or preview the gallery locally.
 
 ## Install in one command
 
@@ -144,7 +145,7 @@ Use the plan in Lightroom, darktable, Photoshop, a command-line workflow, or ano
   <a href="https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/VERIFICATION.md"><img alt="MCP workflow tested on macOS" src="https://img.shields.io/badge/MCP_Workflow-macOS_Tested-53615f?style=flat-square"></a>
 </p>
 
-[**My RapidRAW fork**](https://github.com/sheldonxxxx/RapidRAW) is the tested execution companion for this skill. Its native MCP bridge lets a vision-capable agent inspect RAW photographs, make reversible edits, build masks, compare versions, run denoising jobs, and export the result through RapidRAW's own processing engine.
+The [**RapidRAW fork**](https://github.com/sheldonxxxx/RapidRAW) is an optional, tested execution companion. Its native MCP bridge lets a vision-capable agent inspect RAW photographs, make reversible edits, build masks, compare versions, run denoising jobs, and export the result through RapidRAW's own processing engine.
 
 | Lightweft | RapidRAW execution skill |
 | :--- | :--- |
@@ -162,61 +163,13 @@ npx skills add sheldonxxxx/RapidRAW --skill rapidraw-mcp
 
 ### macOS quick start
 
-**1 · Prepare the build tools**
+Follow the [RapidRAW MCP setup guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) for build prerequisites, enabling the bridge, and connecting your agent. The companion skill and MCP server are separate installations; installing the skill alone does not enable editing tools.
 
-Use macOS 13+ with a Metal-capable GPU, Node.js 22.12+, and [Rust via rustup](https://www.rust-lang.org/tools/install). Install Apple's Command Line Tools if needed:
-
-```sh
-xcode-select --install
-```
-
-See [Tauri's macOS prerequisites](https://v2.tauri.app/start/prerequisites/#macos) for the native toolchain requirements.
-
-**2 · Build the fork and its MCP server**
-
-```sh
-git clone https://github.com/sheldonxxxx/RapidRAW.git
-cd RapidRAW
-
-rustup toolchain install 1.98.1 --profile minimal
-npm ci
-npm run build
-CARGO_PROFILE_DEV_DEBUG=0 cargo +1.98.1 build \
-  --manifest-path src-tauri/Cargo.toml --features mcp --locked
-npm ci --prefix mcp
-npm run build --prefix mcp
-```
-
-This produces the debug binary used by the tested setup. The `mcp` feature is required; the upstream downloadable app does not include this fork's bridge. Native build dependencies may download on the first build.
-
-**3 · Connect your agent**
-
-Add a stdio server in your agent's MCP settings. For hosts using `mcpServers` JSON, the configuration has this shape:
-
-```json
-{
-  "mcpServers": {
-    "rapidraw": {
-      "command": "/absolute/path/to/node",
-      "args": [
-        "/absolute/path/to/RapidRAW/mcp/dist/index.js",
-        "--binary", "/absolute/path/to/RapidRAW/src-tauri/target/debug/RapidRAW",
-        "--workspace", "/absolute/path/to/rapidraw-photo-jobs"
-      ]
-    }
-  }
-}
-```
-
-Replace the examples with real absolute paths; `command -v node` locates Node. Use the actual Cargo output location if you set `CARGO_TARGET_DIR`. Keep the job workspace separate from your originals. Other MCP hosts may use a different configuration format with the same command and arguments.
-
-Restart or reconnect your agent, then ask it to call **`rapidraw_capabilities`**. Installing the skill and connecting the MCP server are separate steps. Local AI tools may need models installed through the bridge; ordinary grading and geometric masks can work without them.
-
-**4 · Make your first edit**
+Once connected, give your agent a photograph and ask:
 
 > Use photo-edit-master for artistic direction and rapidraw-mcp for execution. Inspect this photo, choose a treatment, preserve the original, and compare the rendered result before exporting.
 
-For connection recovery, model setup, and detailed test commands, see the fork's [MCP guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) and [execution skill](https://github.com/sheldonxxxx/RapidRAW/tree/main/skills/rapidraw-mcp).
+RapidRAW owns its build instructions, model setup, and connection troubleshooting. Consult its [execution skill](https://github.com/sheldonxxxx/RapidRAW/tree/main/skills/rapidraw-mcp) for the editing workflow and its [verification record](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/VERIFICATION.md) for tested limits.
 
 ## For skill authors and workflow builders
 

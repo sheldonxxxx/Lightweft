@@ -1,6 +1,6 @@
 # Local RAW regression workflow
 
-These tools are a portable extraction of the local suite builder, catalogue, and verifier. They use Python 3.10+ and the standard library. They accept existing CR3/DNG originals and JPEG/WebP previews; they do not download photographs, decode RAW files, render edits, or contact Immich.
+Build, catalogue, and verify local RAW regression collections with Python 3.10+ and the standard library. The tools accept existing CR3/DNG originals and JPEG/WebP previews; they do not download photographs, decode RAW files, render edits, or contact Immich.
 
 ## Set up your own collection
 
@@ -33,7 +33,7 @@ Repeat for the preview. Fill both `original.sha256` and `source_checksum_sha256`
 
 Describe the actual challenge, source limitations, and preview provenance. Preserve existing capture relationships with `group_id` and `related_case_ids`. All cases sharing a recorded capture date must be in one group. Dates alone do not prove independent shoots. Metadata fields are optional descriptions; do not invent measurements or server identities.
 
-Local originals use `origin: "local"`, `asset_id: null`, and `server_sha1_base64: null`. For compatibility with a private historical Immich selection, `origin: "v2"` requires its existing asset ID and base64 server SHA-1 checksum. Verification is offline; it does not confirm current server membership or permissions.
+Local originals use `origin: "local"`, `asset_id: null`, and `original.server_sha1_base64: null`. Existing Immich selections may use `origin: "immich"` or `"v2"` with their recorded asset ID and base64 server SHA-1 checksum. Verification checks that checksum against the local file; it does not confirm current library membership or access.
 
 ## Build and verify
 

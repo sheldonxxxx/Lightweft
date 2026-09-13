@@ -5,14 +5,14 @@
       "id": "under-the-milky-way",
       "number": "01",
       "title": "Under the Milky Way",
-      "subtitle": "The brief for this galaxy series: an impactful edit. A warm galactic core above a wooded ridge. A quieter band of stars reflected in a woodland pond. Two photographs, each given its own direction.",
+      "subtitle": "Drag the divider to compare the unadjusted RAW render with the edit. No sky was generated or replaced.",
       "photos": [
         {
           "id": "starlit-ridge",
           "title": "Starlit Ridge",
           "width": 2400,
           "height": 1600,
-          "description": "A warm galactic core, cooler surrounding sky and dark dust lanes. The ridge stays quiet beneath it all.",
+          "description": "A warm galactic core and clearer dust lanes above a quiet ridge.",
           "alt": "The Milky Way rises above a dark wooded ridge, with a warm galactic core and blue stars.",
           "before": {
             "src": "assets/nightscapes/starlit-ridge-before-1600.jpg",
@@ -36,7 +36,7 @@
           "title": "Woodland Mirror",
           "width": 2400,
           "height": 1600,
-          "description": "A luminous Milky Way, a still reflection and a small warm house. A gentle local lift gives the foreground a point of interest.",
+          "description": "After the first edit, I asked for a gentle lift to the house and its reflection.",
           "alt": "A diagonal band of the Milky Way above silhouetted trees and a warmly lit house, reflected in a woodland pond.",
           "before": {
             "src": "assets/nightscapes/woodland-mirror-before-1600.jpg",
