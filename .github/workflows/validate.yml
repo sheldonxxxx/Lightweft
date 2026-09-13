@@ -17,6 +17,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+      - name: Install showcase JPEG validation dependency
+        run: |
+          python3 -m venv "$RUNNER_TEMP/lightweft-python"
+          "$RUNNER_TEMP/lightweft-python/bin/python" -m pip install Pillow==12.2.0
+          echo "$RUNNER_TEMP/lightweft-python/bin" >> "$GITHUB_PATH"
       - name: Check public file boundaries
         run: python3 scripts/check_public_repo.py
       - name: Test portable workflow

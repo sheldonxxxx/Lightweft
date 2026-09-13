@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "groups": [
+    {
+      "id": "under-the-milky-way",
+      "number": "01",
+      "title": "Under the Milky Way",
+      "subtitle": "A bright galactic core above a wooded ridge. A quieter band of stars reflected in a woodland pond. Two different photographs, each given its own direction.",
+      "photos": [
+        {
+          "id": "starlit-ridge",
+          "title": "Starlit Ridge",
+          "width": 2400,
+          "height": 1600,
+          "description": "A warm galactic core, cooler surrounding sky and dark dust lanes. The ridge stays quiet beneath it all.",
+          "alt": "The Milky Way rises above a dark wooded ridge, with a warm galactic core and blue stars.",
+          "before": {
+            "src": "assets/nightscapes/starlit-ridge-before-1600.jpg",
+            "srcset": [
+              { "src": "assets/nightscapes/starlit-ridge-before-960.jpg", "width": 960 },
+              { "src": "assets/nightscapes/starlit-ridge-before-1600.jpg", "width": 1600 },
+              { "src": "assets/nightscapes/starlit-ridge-before-2400.jpg", "width": 2400 }
+            ]
+          },
+          "after": {
+            "src": "assets/nightscapes/starlit-ridge-after-1600.jpg",
+            "srcset": [
+              { "src": "assets/nightscapes/starlit-ridge-after-960.jpg", "width": 960 },
+              { "src": "assets/nightscapes/starlit-ridge-after-1600.jpg", "width": 1600 },
+              { "src": "assets/nightscapes/starlit-ridge-after-2400.jpg", "width": 2400 }
+            ]
+          }
+        },
+        {
+          "id": "woodland-mirror",
+          "title": "Woodland Mirror",
+          "width": 2400,
+          "height": 1600,
+          "description": "A luminous Milky Way, a still reflection and a small warm house. A gentle local lift gives the foreground a point of interest.",
+          "alt": "A diagonal band of the Milky Way above silhouetted trees and a warmly lit house, reflected in a woodland pond.",
+          "before": {
+            "src": "assets/nightscapes/woodland-mirror-before-1600.jpg",
+            "srcset": [
+              { "src": "assets/nightscapes/woodland-mirror-before-960.jpg", "width": 960 },
+              { "src": "assets/nightscapes/woodland-mirror-before-1600.jpg", "width": 1600 },
+              { "src": "assets/nightscapes/woodland-mirror-before-2400.jpg", "width": 2400 }
+            ]
+          },
+          "after": {
+            "src": "assets/nightscapes/woodland-mirror-after-1600.jpg",
+            "srcset": [
+              { "src": "assets/nightscapes/woodland-mirror-after-960.jpg", "width": 960 },
+              { "src": "assets/nightscapes/woodland-mirror-after-1600.jpg", "width": 1600 },
+              { "src": "assets/nightscapes/woodland-mirror-after-2400.jpg", "width": 2400 }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

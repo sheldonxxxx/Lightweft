@@ -6,6 +6,8 @@ import re
 import subprocess
 import sys
 
+from showcase_media import JPEG_LIMIT, is_asset_path, validate_jpeg
+
 ROOT = Path(__file__).resolve().parents[1]
 EXACT = {
     '.gitignore', '.gitattributes', 'AGENTS.md', 'README.md', 'CONTRIBUTING.md', 'LICENSE',
@@ -18,6 +20,9 @@ EXACT = {
     'review/README.md', 'review/server.py', 'review/cli.py', 'review/import_legacy.py',
     'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs', 'review/tests/sphere.test.mjs',
     'tests/test_review.py', 'tests/test_review_import.py',
+    '.github/workflows/pages.yml', 'scripts/build_showcase.py', 'scripts/showcase_media.py',
+    'tests/test_showcase.py', 'showcase/README.md', 'showcase/LICENSE',
+    'showcase/index.html', 'showcase/styles.css', 'showcase/app.js', 'showcase/data.json',
 }
 PATTERNS = {
     'personal absolute path': re.compile(r'/(?:Users|home|Volumes)/[^/\s]+/'),
@@ -34,6 +39,34 @@ def git(*args):
     return subprocess.check_output(['git', '-C', str(ROOT), *args])
 
 
+def validate_blob(name, blob):
+    path = PurePosixPath(name)
+    if is_asset_path(name):
+        validate_jpeg(blob, PATTERNS.values())
+        return
+    allowed_reference = (
+        path.parent == PurePosixPath('skills/photo-edit-master/references')
+        and path.suffix == '.md' and not path.name.startswith('.')
+    )
+    allowed_web = (
+        path.parent in (PurePosixPath('review/web'), PurePosixPath('review/web/panels'))
+        and path.suffix in {'.js', '.css', '.html', '.svg'} and not path.name.startswith('.')
+    )
+    if name not in EXACT and not allowed_reference and not allowed_web:
+        raise ValueError('outside public source allowlist')
+    if len(blob) > 1024 * 1024:
+        raise ValueError('larger than the 1 MiB public source limit')
+    try:
+        text = blob.decode('utf-8')
+    except UnicodeDecodeError as error:
+        raise ValueError('binary file outside the showcase JPEG boundary') from error
+    if '\x00' in text:
+        raise ValueError('binary content')
+    for label, pattern in PATTERNS.items():
+        if pattern.search(text):
+            raise ValueError(label)
+
+
 def check(working_tree=False):
     errors, count, total = [], 0, 0
     entries = git('ls-files', '--stage', '-z').split(b'\0')
@@ -46,18 +79,7 @@ def check(working_tree=False):
         metadata, raw_path = entry.split(b'\t', 1)
         mode, oid, stage = metadata.decode().split()
         name = raw_path.decode('utf-8')
-        path = PurePosixPath(name)
         count += 1
-        allowed_reference = (
-            path.parent == PurePosixPath('skills/photo-edit-master/references')
-            and path.suffix == '.md' and not path.name.startswith('.')
-        )
-        allowed_web = (
-            path.parent in (PurePosixPath('review/web'), PurePosixPath('review/web/panels'))
-            and path.suffix in {'.js', '.css', '.html', '.svg'} and not path.name.startswith('.')
-        )
-        if name not in EXACT and not allowed_reference and not allowed_web:
-            errors.append((name, 'outside public source allowlist'))
         if mode not in {'100644', '100755'} or stage != '0':
             errors.append((name, 'symlink, nested repository, or unresolved merge entry'))
             continue
@@ -72,20 +94,15 @@ def check(working_tree=False):
         else:
             size = int(git('cat-file', '-s', oid))
         total += size
-        if size > 1024 * 1024:
-            errors.append((name, 'larger than the 1 MiB public source limit'))
+        size_limit = JPEG_LIMIT if is_asset_path(name) else 1024 * 1024
+        if size > size_limit:
+            errors.append((name, 'larger than the public source or showcase JPEG limit'))
             continue
         blob = local.read_bytes() if working_tree else git('cat-file', 'blob', oid)
         try:
-            text = blob.decode('utf-8')
-        except UnicodeDecodeError:
-            errors.append((name, 'binary file'))
-            continue
-        if '\x00' in text:
-            errors.append((name, 'binary content'))
-        for label, pattern in PATTERNS.items():
-            if pattern.search(text):
-                errors.append((name, label))
+            validate_blob(name, blob)
+        except ValueError as error:
+            errors.append((name, str(error)))
     if not count:
         errors.append(('(index)', 'no staged/tracked files; stage reviewed source first'))
     if errors:
@@ -93,7 +110,7 @@ def check(working_tree=False):
             # Never echo matched content, which could itself contain credentials.
             print(f'FAIL: {name}: {reason}', file=sys.stderr)
         return 1
-    print(f'Public {"working tree" if working_tree else "index"} check passed: {count} text files, {total:,} bytes.')
+    print(f'Public {"working tree" if working_tree else "index"} check passed: {count} files, {total:,} bytes.')
     print('Checked source boundaries, blob sizes, and common credential/private-path patterns.')
     return 0
 

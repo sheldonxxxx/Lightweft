@@ -17,6 +17,7 @@
 <p align="center">
   <a href="#install-in-one-command">Install</a> ·
   <a href="#what-the-skill-brings">Explore the skill</a> ·
+  <a href="https://sheldonxxxx.github.io/Lightweft/">Photo demos</a> ·
   <a href="#optional-companion-rapidraw-mcp">RapidRAW companion</a> ·
   <a href="#macos-quick-start">macOS setup</a>
 </p>
@@ -30,6 +31,8 @@
 Use it for RAW photo editing, colour grading, landscape and wildlife photography, nightscapes, portraits, or a second opinion on an existing edit. Pair its artistic judgment with **any photo-editing tool you or your agent can operate**. Your editor supplies the controls; the skill supplies the direction and critique.
 
 For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
+
+[Explore the photo demos](https://sheldonxxxx.github.io/Lightweft/) for aligned before-and-after comparisons, beginning with **Under the Milky Way**. The before images are unadjusted RAW renders from the same editor. See the [showcase guide](showcase/README.md) to add a collection or preview the gallery locally.
 
 ## Install in one command
 
@@ -229,16 +232,19 @@ The optional [RAW regression toolkit](workflow/README.md) builds a private catal
 | `review/` | Local review server, browser panels, and session contract |
 | `workflow/` | Local suite builder, catalogue, verifier, and blank templates |
 | `tests/` | Synthetic integrity and portability tests |
+| `showcase/` | Approved photo demos and a static gallery |
 | `scripts/check_public_repo.py` | Public-source boundaries and common private-data checks |
 
-Python 3.10+; standard library only:
+Python 3.10+; Pillow validates the published JPEGs:
 
 ```sh
-python3 -m unittest discover -s tests -v
-python3 scripts/check_public_repo.py
+python3 -m venv .venv
+.venv/bin/python -m pip install Pillow==12.2.0
+.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python scripts/check_public_repo.py
 ```
 
-Photos, private library metadata, editing runs, and a separate local RapidRAW checkout stay outside this repository's public source. The banner is original vector artwork, not a sample edit or benchmark result.
+Only approved demo JPEGs belong in `showcase/assets/`. Originals, private library metadata, editing runs, and a separate local RapidRAW checkout stay outside this repository's public source. The banner is original vector artwork, not a sample edit or benchmark result.
 
 </details>
 
@@ -252,3 +258,5 @@ Photos, private library metadata, editing runs, and a separate local RapidRAW ch
 </p>
 
 Original code, documentation, and vector artwork are [MIT licensed](LICENSE). Referenced research and third-party projects retain their own terms. RapidRAW is a separate project under its own AGPL-3.0 license.
+
+Showcase photographs are excluded from the MIT license; their copyright holders reserve all rights. See the [photo terms](showcase/LICENSE).
