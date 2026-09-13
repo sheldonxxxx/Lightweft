@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add a public photo showcase with the first Milky Way demo group, responsive before-and-after comparisons, and support for future collections and photo aspect ratios.
+- Add a public photo showcase following galaxy-photo selection from an 80,000+ collection through to finished edits, with responsive before-and-after comparisons and support for future collections and photo aspect ratios.
 - Add a manually triggered GitHub Pages workflow and validate approved demo JPEGs, metadata, comparison dimensions, and the site's explicit runtime files.
 
 - Require explicit permission before using generative image services; preserve the original scene and resolution for ordinary photo edits and local compositing.

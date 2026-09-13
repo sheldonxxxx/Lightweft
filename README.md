@@ -32,7 +32,7 @@ Use it for RAW photo editing, colour grading, landscape and wildlife photography
 
 For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
 
-[Explore the photo demos](https://sheldonxxxx.github.io/Lightweft/) for aligned before-and-after comparisons, beginning with **Under the Milky Way**. The before images are unadjusted RAW renders from the same editor. See the [showcase guide](showcase/README.md) to add a collection or preview the gallery locally.
+[Explore the photo demos](https://sheldonxxxx.github.io/Lightweft/), beginning with **Under the Milky Way**: a photographer with an 80,000+ photo collection who kept putting off the edit asked GPT-6 Astra to select galaxy photographs and give them an impactful treatment. Compare what it chose with the finished results. The before images are unadjusted RAW renders from the same editor. See the [showcase guide](showcase/README.md) to add a collection or preview the gallery locally.
 
 ## Install in one command
 
