@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const sizes = '(min-width: 1400px) 1280px, 92vw';
+  const sizes = '(min-width: 1024px) 800px, 78.2vw';
   const cardSizes = '(min-width: 1400px) 620px, (min-width: 760px) 44vw, 92vw';
   const collections = document.getElementById('collections');
 

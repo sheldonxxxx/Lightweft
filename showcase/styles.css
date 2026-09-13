@@ -60,7 +60,7 @@ h1,h2,h3 {font-family:var(--serif);font-weight:400;line-height:1.08;}
 .collection-story {max-width:780px;margin-top:22px;font-size:14px;}
 .collection-story summary {cursor:pointer;width:fit-content;color:var(--gold);font-size:12px;padding:3px 0;}
 .collection-story p {color:var(--muted);line-height:1.7;margin-top:16px;}
-.photo-story {margin-bottom:76px;}
+.photo-story {width:85%;max-width:800px;margin-inline:auto;margin-bottom:76px;}
 .photo-heading {display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:end;margin-bottom:24px;}
 .photo-heading h3 {font-size:clamp(28px,3vw,37px);letter-spacing:-.02em;display:flex;gap:23px;align-items:baseline;margin:0;}
 .photo-heading p {font-size:14px;color:var(--muted);max-width:480px;line-height:1.65;margin:0;}
@@ -321,7 +321,8 @@ h1,h2,h3 {font-family:var(--serif);font-weight:400;line-height:1.08;}
   .photo-heading {display:block;margin-bottom:18px;}
   .photo-heading h3 {font-size:29px;gap:13px;margin-bottom:16px;}
   .photo-heading p {font-size:13px;}
-  .photo-story {margin-bottom:55px;}
+  .photo-story {width:100%;margin-bottom:55px;}
+  .comparison,.fallback-photo {width:85%;margin-inline:auto;}
   .image-label {top:10px;padding:4px 8px;font-size:9px;}
   .image-label-before {left:10px;}
   .image-label-after {right:10px;}
