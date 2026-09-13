@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Refresh the README introduction and banner to explain the roles of Lightweft, RapidRAW MCP, and connected photo libraries.
 - Redesign the showcase around AI workflows for studying a photo library, editing selected photos, and creating custom presets, with a growing demo directory and workflow-specific stories.
 - Add four Style Builder photo demonstrations with matched base/preset comparisons, responsive images, and a guide to developing a consistent personal palette.
 - Support accurate per-side comparison labels and descriptions while preserving existing nightscape comparisons.

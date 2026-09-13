@@ -1,11 +1,8 @@
 <p align="center">
-  <img src="assets/readme-hero.svg" alt="Lightweft — artistic direction, personal style and visual review for AI photo editing" width="100%">
+  <img src="assets/readme-hero.svg" alt="Lightweft guides your AI to plan edits, create your presets, and review results. Your photo library supplies the photos; the optional RapidRAW MCP companion edits and exports them." width="100%">
 </p>
 
-<h1 align="center">Lightweft — AI Photo Editing Workspace</h1>
-<p align="center"><em>Thoughtful edits. Any editor.</em></p>
-<p align="center"><strong>Artistic direction, personal style, and visual review for AI photo editing.</strong></p>
-<p align="center">Agent skills · Local review app · Tools you choose</p>
+<h1 align="center">Lightweft — AI Photo Editing Workflow</h1>
 
 <p align="center">
   <a href="skills/photo-edit-master/SKILL.md"><img alt="Agent skill: photo-edit-master" src="https://img.shields.io/badge/Agent_Skill-photo--edit--master-203e47?style=flat-square"></a>
@@ -17,7 +14,7 @@
 <p align="center">
   <a href="#install-in-one-command">Install</a> ·
   <a href="#what-the-skill-brings">Explore the skill</a> ·
-  <a href="https://sheldonxxxx.github.io/Lightweft/">Photo demos</a> ·
+  <a href="https://sheldonxxxx.github.io/Lightweft/">Workflow demos</a> ·
   <a href="#one-workspace-for-review-and-personal-style">Review workspace</a> ·
   <a href="#optional-companion-rapidraw-mcp">RapidRAW companion</a> ·
   <a href="#macos-quick-start">macOS setup</a>
@@ -25,15 +22,15 @@
 
 ---
 
-## Give every photograph its own direction
+## An AI workflow for your photo library
 
-**Lightweft helps an AI agent decide what a photograph should become—and judge whether the edit gets there.** It reads the relationships between subject, light, colour, space, and atmosphere, then turns them into a clear edit intention, visible priorities, and details worth protecting.
+**Tell your agent what you want.** Lightweft guides its artistic decisions, helps develop presets tailored to your photos, and provides a workspace for comparing edits and refining them together.
 
-Use it for RAW photo editing, colour grading, landscape and wildlife photography, nightscapes, portraits, or a second opinion on an existing edit. Pair its artistic judgment with **any photo-editing tool you or your agent can operate**. Your editor supplies the controls; the skill supplies the direction and critique.
+The optional [**RapidRAW MCP companion**](#optional-companion-rapidraw-mcp) gives your agent native tools to inspect RAW photographs, apply edits and masks, and export the results. **Lightweft guides the workflow; RapidRAW performs the edits.** Install and connect the companion separately, or use another editor your agent can operate. Library access comes through separately connected tools, such as Immich in these demos.
+
+[See the AI workflows in action](https://sheldonxxxx.github.io/Lightweft/). In [**Under the Milky Way**](https://sheldonxxxx.github.io/Lightweft/#under-the-milky-way), an agent finds library photos and edits them through RapidRAW MCP. In [**Style Builder**](https://sheldonxxxx.github.io/Lightweft/#style-builder), it studies a sample of one photographer’s library and creates presets tailored to their photos and preferences. Follow the workflow, compare the results, and use the same approach with your own library.
 
 For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
-
-[See the AI workflows in action](https://sheldonxxxx.github.io/Lightweft/). **Under the Milky Way** shows an agent finding and editing library photos. **Style Builder** shows an agent studying photos from a personal library and creating custom presets. Each demo explains the workflow and includes results you can compare.
 
 ## Install in one command
 
