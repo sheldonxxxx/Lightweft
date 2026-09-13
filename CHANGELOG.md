@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Prevent the showcase hero's photo count from overlapping its comparison link in shorter windows.
 - Add a public photo showcase featuring two galaxy photographs selected through targeted Immich searches, with responsive before-and-after comparisons and support for future collections and photo aspect ratios.
 - Add a manually triggered GitHub Pages workflow and validate approved demo JPEGs, metadata, comparison dimensions, and the site's explicit runtime files.
 - Bring visitors directly to the photo comparisons, clarify Lightweft's role and photographer feedback, and improve social-preview readability.
