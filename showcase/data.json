@@ -91,13 +91,23 @@
             ]
           }
         }
-      ]
+      ],
+      "category": "Photo editing",
+      "summary": "An AI agent finds photographs in the library, plans the edits, and checks the results in RapidRAW.",
+      "cover": "starlit-ridge",
+      "story": {
+        "title": "Behind this collection",
+        "paragraphs": [
+          "From a library of more than 80,000 photographs, GPT-6 Astra used targeted Immich searches to choose these two nightscapes and direct their edits in RapidRAW.",
+          "Exposure, colour and local light shaped the final images. Denoising cleaned up the sky, with some softening of faint detail. The photographer requested a later lift to the house and its reflection in Woodland Mirror. No sky was generated or replaced."
+        ]
+      }
     },
     {
       "id": "style-builder",
       "number": "02",
-      "title": "Style Builder \u2014 four ways to shape a photograph",
-      "subtitle": "Four film-inspired presets, each paired with a scene that suits it. Compare the base rendering with the same photograph plus its saved preset. Both sides share the same preparation and framing; the colour and tone of the preset are the only change.",
+      "title": "Style Builder",
+      "subtitle": "Your AI agent studies your photos, explores editing styles, and creates presets for your library. These four examples came from one photographer’s Canon RAW collection. Compare each base rendering with the same photo plus its custom preset.",
       "photos": [
         {
           "id": "quiet-story",
@@ -283,7 +293,18 @@
             "description": "After Hours preset applied to the same base rendering"
           }
         }
-      ]
+      ],
+      "category": "Custom presets",
+      "summary": "Your AI agent studies photos from your library and creates presets tailored to your photos and preferences.",
+      "cover": "garden-reverie",
+      "story": {
+        "title": "How the agent made these presets",
+        "paragraphs": [
+          "The agent reviewed a sample of Canon RAW photos from the photographer’s Immich library, researched film-inspired looks, and tested the presets across different subjects and lighting. Quiet Story, Amber Days, Garden Reverie and After Hours are four results of that process.",
+          "The goal is to create a consistent style for your own photos. The agent compares alternative edits and uses your feedback to refine the presets. Exposure and other corrections can still be adjusted for each photograph.",
+          "Each comparison here keeps the same base preparation and framing on both sides. Only the saved preset changes. The four example preset files are not included with the Style Builder skill."
+        ]
+      }
     }
   ]
 }

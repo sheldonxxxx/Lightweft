@@ -2,6 +2,7 @@
 
 (() => {
   const sizes = '(min-width: 1400px) 1280px, 92vw';
+  const cardSizes = '(min-width: 1400px) 620px, (min-width: 760px) 44vw, 92vw';
   const collections = document.getElementById('collections');
 
   function element(tag, className, text) {
@@ -11,10 +12,10 @@
     return node;
   }
 
-  function imageSource(image, source) {
+  function imageSource(image, source, displaySizes = sizes) {
     image.src = source.src;
     image.srcset = source.srcset.map(item => `${item.src} ${item.width}w`).join(', ');
-    image.sizes = sizes;
+    image.sizes = displaySizes;
   }
 
   function largest(source) {
@@ -28,14 +29,40 @@
     return {label: photo[side].label ?? defaults.label, description: photo[side].description ?? defaults.description};
   }
 
-  function makePhoto(photo, index, groupId) {
+  function collectionCard(group, index) {
+    const cover = group.cover ? group.photos.find(photo => photo.id === group.cover) : group.photos[0];
+    const card = element('a', 'collection-card');
+    card.href = `#${group.id}`;
+    const title = element('h3', '', group.title);
+    title.id = `card-${group.id}-title`;
+    card.setAttribute('aria-labelledby', title.id);
+    const frame = element('div', 'collection-card-image');
+    const image = element('img');
+    imageSource(image, cover.after, cardSizes);
+    image.width = cover.width;
+    image.height = cover.height;
+    image.loading = index < 2 ? 'eager' : 'lazy';
+    image.decoding = 'async';
+    const side = sideText(cover, 'after');
+    image.alt = `${side.label} — ${side.description}: ${cover.alt}`;
+    frame.append(image);
+    const copy = element('div', 'collection-card-copy');
+    const footer = element('div', 'card-footer');
+    footer.append(element('span', '', 'See the workflow ↗'));
+    copy.append(element('p', 'card-kicker', group.category ?? 'Photo collection'),
+      title, element('p', 'card-summary', group.summary ?? group.subtitle), footer);
+    card.append(frame, copy);
+    return card;
+  }
+
+  function makePhoto(photo, groupId) {
     const before = sideText(photo, 'before');
     const after = sideText(photo, 'after');
     const article = element('article', 'photo-story');
     const heading = element('div', 'photo-heading');
     const title = element('h3');
     title.id = `${groupId}-${photo.id}-title`;
-    title.append(element('span', 'photo-index', String(index + 1).padStart(2, '0')), document.createTextNode(photo.title));
+    title.textContent = photo.title;
     heading.append(title, element('p', '', photo.description));
     article.append(heading);
 
@@ -138,11 +165,19 @@
       source.srcset.every(item => checkedFields(item, ['src', 'width']) && localImage(item.src) && Number.isInteger(item.width) && item.width > 0);
   }
 
+  function validDiscovery(group) {
+    const text = value => typeof value === 'string' && value.trim().length > 0;
+    return ['category', 'summary'].every(field => !Object.hasOwn(group, field) || text(group[field])) &&
+      (!Object.hasOwn(group, 'cover') || (text(group.cover) && group.photos.some(photo => photo.id === group.cover))) &&
+      (!Object.hasOwn(group, 'story') || (checkedFields(group.story, ['title', 'paragraphs']) && text(group.story.title) &&
+        Array.isArray(group.story.paragraphs) && group.story.paragraphs.length > 0 && group.story.paragraphs.every(text)));
+  }
+
   function validData(data) {
     const slug = value => typeof value === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
     const text = value => typeof value === 'string' && value.trim().length > 0;
     return checkedFields(data, ['schemaVersion', 'groups']) && data.schemaVersion === 1 && Array.isArray(data.groups) && data.groups.length > 0 &&
-      data.groups.every(group => checkedFields(group, ['id', 'number', 'title', 'subtitle', 'photos'])) &&
+      data.groups.every(group => checkedFields(group, ['id', 'number', 'title', 'subtitle', 'photos'], ['category', 'summary', 'cover', 'story'])) &&
       new Set(data.groups.map(group => group.id)).size === data.groups.length &&
       data.groups.every(group => slug(group.id) && text(group.number) && text(group.title) && text(group.subtitle) &&
         Array.isArray(group.photos) && group.photos.length > 0 &&
@@ -150,7 +185,7 @@
         new Set(group.photos.map(photo => photo.id)).size === group.photos.length &&
         group.photos.every(photo => slug(photo.id) && text(photo.title) && text(photo.description) && text(photo.alt) &&
           Number.isSafeInteger(photo.width) && photo.width > 0 && Number.isSafeInteger(photo.height) && photo.height > 0 &&
-          validSource(photo.before) && validSource(photo.after)));
+          validSource(photo.before) && validSource(photo.after)) && validDiscovery(group));
   }
 
   async function load() {
@@ -160,9 +195,9 @@
       const data = await response.json();
       if (!validData(data)) throw new Error('Invalid photo collection');
       const fragment = document.createDocumentFragment();
-      const nav = document.getElementById('collection-nav');
-      const navLinks = document.createDocumentFragment();
-      for (const group of data.groups) {
+      const directory = document.getElementById('collection-directory');
+      const cards = document.createDocumentFragment();
+      for (const [index, group] of data.groups.entries()) {
         const section = element('section', 'photo-group');
         section.id = group.id;
         const headingId = `${group.id}-title`;
@@ -170,21 +205,24 @@
         const heading = element('div', 'group-heading');
         const groupTitle = element('h2', '', group.title);
         groupTitle.id = headingId;
-        heading.append(element('p', 'eyebrow', `Collection ${group.number} / ${String(group.photos.length).padStart(2, '0')} photographs`), groupTitle, element('p', 'group-description', group.subtitle));
+        const back = element('a', 'back-to-collections', 'All workflows');
+        back.href = '#photographs';
+        heading.append(back, groupTitle, element('p', 'group-description', group.subtitle));
+        if (group.story) {
+          const story = element('details', 'collection-story');
+          story.append(element('summary', '', group.story.title), ...group.story.paragraphs.map(text => element('p', '', text)));
+          heading.append(story);
+        }
         section.append(heading);
-        group.photos.forEach((photo, index) => section.append(makePhoto(photo, index, group.id)));
+        group.photos.forEach(photo => section.append(makePhoto(photo, group.id)));
         fragment.append(section);
-        const link = element('a', '', `${group.number} · ${group.title}`);
-        link.href = `#${group.id}`;
-        navLinks.append(link);
+        cards.append(collectionCard(group, index));
       }
       collections.replaceChildren(fragment);
-      nav.replaceChildren(navLinks);
-      nav.hidden = data.groups.length < 2;
-      document.getElementById('hero-count').textContent = `${String(data.groups[0].photos.length).padStart(2, '0')} photographs`;
+      directory.replaceChildren(cards);
       if (window.location.hash) {
         const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-        if (target && collections.contains(target)) target.scrollIntoView();
+        if (target) target.scrollIntoView();
       }
     } catch {
       // The static photographs and direct image links remain available.

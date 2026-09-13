@@ -69,6 +69,68 @@ class ShowcaseTests(unittest.TestCase):
         self.save()
         self.assertTrue((self.build() / 'data.json').is_file())
 
+    def test_collection_discovery_fields_are_optional_and_preserved(self):
+        original = copy.deepcopy(self.data['groups'][0])
+        options = {'category': 'Artistic direction', 'summary': 'A considered nightscape edit.', 'cover': 'ridge',
+                   'story': {'title': 'About this collection', 'paragraphs': ['A clear intention.', 'A careful comparison.']}}
+        for fields in ({}, *({key: value} for key, value in options.items()), options):
+            with self.subTest(fields=fields):
+                self.data['groups'][0] = {**copy.deepcopy(original), **fields}
+                self.save()
+                output = self.build()
+                self.assertEqual(json.loads((output / 'data.json').read_text()), self.data)
+                self.assertEqual({path.relative_to(output).as_posix() for path in output.rglob('*') if path.is_file()},
+                                 set(build_showcase.RUNTIME) | {self.before, self.after, build_showcase.SHARE_IMAGE})
+
+    def test_invalid_collection_discovery_text_is_rejected(self):
+        group = self.data['groups'][0]
+        for field in ('category', 'summary', 'cover'):
+            for value in ('', ' \n\t', None, 42, False, [], {}):
+                with self.subTest(field=field, value=value):
+                    group[field] = value
+                    with self.assertRaisesRegex(ValueError, 'nonempty strings'):
+                        build_showcase.asset_references(self.data)
+                    del group[field]
+
+    def test_cover_must_reference_a_photo_in_its_own_group(self):
+        first = self.data['groups'][0]
+        second = copy.deepcopy(first)
+        second.update(id='reflections', number='02', title='Reflections')
+        second['photos'][0]['id'] = 'water'
+        self.data['groups'].append(second)
+        for cover in ('missing', 'water', 'assets/nightscapes/ridge-after.jpg', 'https://example.com/cover.jpg'):
+            with self.subTest(cover=cover):
+                first['cover'] = cover
+                with self.assertRaisesRegex(ValueError, 'photo id in the same group'):
+                    build_showcase.asset_references(self.data)
+        first['cover'] = 'ridge'
+        second['cover'] = 'water'
+        build_showcase.asset_references(self.data)
+
+    def test_invalid_collection_stories_fail_before_replacing_output(self):
+        output = self.build()
+        snapshot = (output / 'data.json').read_bytes()
+        stories = [None, [], 'A story', {}, {'title': 'About'}, {'paragraphs': ['Text']},
+                   {'title': ' ', 'paragraphs': ['Text']}, {'title': 42, 'paragraphs': ['Text']},
+                   {'title': 'About', 'paragraphs': []}, {'title': 'About', 'paragraphs': 'Text'},
+                   {'title': 'About', 'paragraphs': [None]}, {'title': 'About', 'paragraphs': ['Text', ' ']},
+                   {'title': 'About', 'paragraphs': [{}]}, {'title': 'About', 'paragraphs': ['Text'], 'html': '<p>Text</p>'}]
+        for story in stories:
+            with self.subTest(story=story):
+                self.data['groups'][0]['story'] = story
+                self.save()
+                with self.assertRaises(ValueError):
+                    self.build()
+                self.assertEqual((output / 'data.json').read_bytes(), snapshot)
+
+    def test_unknown_collection_fields_are_rejected(self):
+        for field in ('coverImage', 'url', 'html', 'summmary'):
+            with self.subTest(field=field):
+                self.data['groups'][0][field] = 'Unrecognised field'
+                with self.assertRaisesRegex(ValueError, 'unsupported gallery fields'):
+                    build_showcase.asset_references(self.data)
+                del self.data['groups'][0][field]
+
     def test_side_labels_and_descriptions_are_optional_and_preserved(self):
         before = self.data['groups'][0]['photos'][0]['before']
         after = self.data['groups'][0]['photos'][0]['after']

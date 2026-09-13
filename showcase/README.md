@@ -1,6 +1,6 @@
 # Add a demo group
 
-The gallery reads [data.json](data.json). Append a group to its `groups` array; keep existing group and photo IDs stable so links continue to work. The frontend renders every group through the same comparison controls.
+The gallery reads [data.json](data.json). Append a group to its `groups` array; keep existing group and photo IDs stable so links continue to work. Each group gets a preview card and its own comparison section.
 
 [Explore the gallery](https://sheldonxxxx.github.io/Lightweft/).
 
@@ -31,7 +31,30 @@ Export JPEGs in sRGB at matching responsive widths, such as 960, 1600, and 2400 
 
 Place only approved demo JPEGs in `assets/<collection-name>/`. Use generic lowercase names with hyphens, such as `ridge-before-1600.jpg`; avoid camera filenames, dates, and library identifiers.
 
-Each group contains `id`, `number`, `title`, `subtitle`, and `photos`. Each photo contains `id`, `title`, `description`, `alt`, `width`, `height`, `before`, and `after`. Set `width` and `height` to the positive integer dimensions of the final export, for example 2400 and 1600. The gallery uses their aspect ratio, so portrait, square, and panoramic photographs keep their framing. Every responsive image must match that ratio, allowing one pixel of resize rounding. Each side has a default `src` and a `srcset` array:
+Each group contains `id`, `number`, `title`, `subtitle`, and a nonempty `photos` array. Optional fields shape its preview and introduction:
+
+| Field | Value | When omitted |
+| --- | --- | --- |
+| `category` | A short, nonempty label, such as `Artistic direction` | `Photo collection` |
+| `summary` | A short, nonempty preview description | The group's `subtitle` |
+| `cover` | A photo ID from the same group | The first photograph |
+| `story` | An object with a nonempty `title` and a nonempty `paragraphs` array of nonempty strings | No expandable story |
+
+The preview uses the cover photograph's `after` image and responsive sources. It links to the group's stable `#id`; each comparison section links back to **All workflows**. A story adds an expandable introduction above the comparisons, for example:
+
+```json
+{
+  "title": "How the agent edited these photos",
+  "paragraphs": [
+    "The brief was to make the light easier to read while preserving the atmosphere.",
+    "Compare each edit with its starting rendering to see the change and its tradeoffs."
+  ]
+}
+```
+
+Story content is plain text, not HTML. A cover must reference an existing photograph in its group; it cannot be an image path or an external URL. Unknown fields and empty optional values are rejected. Keep the card category and summary concise so visitors can quickly choose a collection.
+
+Each photo contains `id`, `title`, `description`, `alt`, `width`, `height`, `before`, and `after`. Set `width` and `height` to the positive integer dimensions of the final export, for example 2400 and 1600. The gallery uses their aspect ratio, so portrait, square, and panoramic photographs keep their framing. Every responsive image must match that ratio, allowing one pixel of resize rounding. Each side has a default `src` and a `srcset` array:
 
 ```json
 {
@@ -53,6 +76,8 @@ Image paths are relative to this directory. External image URLs, absolute paths,
 ## Check and publish
 
 Follow the [preview and validation commands](#preview-locally), then inspect the gallery at desktop and phone widths. Check both comparison sides, keyboard operation, captions, and image loading. After staging the reviewed files, run `.venv/bin/python scripts/check_public_repo.py` from the repository root to check the exact publication content.
+
+[index.html](index.html) contains the static fallback shown when JavaScript or gallery data is unavailable. Keep its collection previews, photographs and direct links consistent with the data; the build copies this fallback rather than generating it. The live frontend fills `#collection-directory` and `#collections` from `data.json`.
 
 The build copies only `index.html`, `styles.css`, `app.js`, `data.json`, the referenced JPEGs, and the social preview to `_site`. All photographs remain outside the code's MIT license; see the [photo terms](LICENSE). Only add images whose public display you are authorized to approve.
 

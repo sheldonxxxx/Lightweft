@@ -42,8 +42,16 @@ def asset_references(data):
         raise ValueError('gallery requires schemaVersion 1 and at least one group')
     assets, declared_widths, groups = {SHARE_IMAGE}, {}, set()
     for group in data['groups']:
-        checked_fields(group, ('id', 'number', 'title', 'subtitle', 'photos'))
+        checked_fields(group, ('id', 'number', 'title', 'subtitle', 'photos'), ('category', 'summary', 'cover', 'story'))
         text_fields(group, ('id', 'number', 'title', 'subtitle'))
+        text_fields(group, (field for field in ('category', 'summary', 'cover') if field in group))
+        if 'story' in group:
+            story = group['story']
+            checked_fields(story, ('title', 'paragraphs'))
+            text_fields(story, ('title',))
+            if not isinstance(story['paragraphs'], list) or not story['paragraphs'] or any(
+                    not isinstance(paragraph, str) or not paragraph.strip() for paragraph in story['paragraphs']):
+                raise ValueError('collection story paragraphs must be a nonempty array of nonempty strings')
         if not SEGMENT.fullmatch(group['id']) or group['id'] in groups:
             raise ValueError('group ids must be unique generic names')
         groups.add(group['id'])
@@ -81,6 +89,8 @@ def asset_references(data):
                 widths_by_side.append(widths)
             if widths_by_side[0] != widths_by_side[1]:
                 raise ValueError('before and after must provide matching responsive widths')
+        if 'cover' in group and group['cover'] not in photos:
+            raise ValueError('collection cover must reference a photo id in the same group')
     return assets, declared_widths
 
 

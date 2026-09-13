@@ -33,7 +33,7 @@ Use it for RAW photo editing, colour grading, landscape and wildlife photography
 
 For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
 
-[Explore the photo demos](https://sheldonxxxx.github.io/Lightweft/), beginning with **Under the Milky Way**. A photographer with 80,000+ photos kept putting off the editing. GPT-6 Astra used targeted Immich searches to select two galaxy photographs, then directed impactful edits in RapidRAW. Compare the unadjusted RAW renders with the finished photographs. No sky was generated or replaced.
+[See the AI workflows in action](https://sheldonxxxx.github.io/Lightweft/). **Under the Milky Way** shows an agent finding and editing library photos. **Style Builder** shows an agent studying photos from a personal library and creating custom presets. Each demo explains the workflow and includes results you can compare.
 
 ## Install in one command
 
@@ -121,7 +121,7 @@ Use [photo-style-builder](skills/photo-style-builder/SKILL.md) to explore a pers
 npx skills add sheldonxxxx/lightweft --skill photo-style-builder
 ```
 
-[See Style Builder in photographs](https://sheldonxxxx.github.io/Lightweft/#style-builder): Quiet Story, Amber Days, Garden Reverie, and After Hours each pair a saved film-inspired preset with a suitable scene. Compare the same base rendering with and without the preset. These are personal study examples; the presets are not bundled with the skill.
+[See the Style Builder workflow](https://sheldonxxxx.github.io/Lightweft/#style-builder): an AI agent studies photos from your library, explores editing styles, and creates presets tailored to your photos and preferences. Quiet Story, Amber Days, Garden Reverie, and After Hours demonstrate one personal study. Compare the same base rendering with and without each preset; these example preset files are not bundled with the skill.
 
 ## Bring your favourite editor
 
