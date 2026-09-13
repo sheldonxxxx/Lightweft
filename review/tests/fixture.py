@@ -29,7 +29,7 @@ def fixture(root):
         (root / (name + '.png')).write_bytes(png(w, h, warm))
     (root / 'recipe.json').write_text('{"schema":"qa-recipe","exposure":0.25}\n')
     return {'schemaVersion': 1, 'id': 'fixture', 'title': 'Review studio · generated QA', 'cases': [
-        {'id': 'landscape', 'title': 'Light and texture', 'category': 'landscape', 'aligned': True, 'defaultView': 'side', 'intent': 'Compare light and texture in this generated test image.', 'variants': [
+        {'id': 'landscape', 'title': 'Light and texture', 'category': 'landscape', 'aligned': True, 'defaultView': 'side', 'metadata': {'sequenceGroup': 'qa-sequence', 'sequenceOrder': 2, 'sequenceLabel': 'A test sequence'}, 'intent': 'Compare light and texture in this generated test image.', 'variants': [
             {'id': 'base', 'label': 'Foundation', 'role': 'baseline', 'image': 'base.png', 'full': 'base-full.png'},
             {'id': 'warm', 'label': 'Warm direction', 'role': 'candidate', 'image': 'edit.png', 'full': 'edit-full.png', 'recipe': 'recipe.json', 'recipeFormat': 'qa-recipe'},
             {'id': 'earlier', 'label': 'Earlier reference', 'role': 'reference', 'image': 'base.png', 'defaultView': 'single'}],
@@ -37,7 +37,7 @@ def fixture(root):
         {'id': 'sphere', 'title': 'Generated full sphere', 'category': 'panorama', 'aligned': True, 'defaultView': 'side', 'metadata': {'sphereView': {'yaw': 0, 'pitch': 0, 'hfov': 75}}, 'variants': [
             {'id': 'base', 'label': 'Sphere foundation', 'role': 'baseline', 'image': 'sphere-base.png', 'metadata': {'projection': 'equirectangular'}},
             {'id': 'edit', 'label': 'Sphere candidate', 'role': 'candidate', 'image': 'sphere-edit.png', 'metadata': {'projection': 'equirectangular'}}]},
-        {'id': 'portrait', 'title': 'A different frame', 'category': 'portrait', 'aligned': False, 'defaultView': 'wipe', 'variants': [
+        {'id': 'portrait', 'title': 'A different frame', 'category': 'portrait', 'aligned': False, 'defaultView': 'wipe', 'metadata': {'sequenceGroup': 'qa-sequence', 'sequenceOrder': 1, 'sequenceLabel': 'A test sequence'}, 'variants': [
             {'id': 'base', 'label': 'Original frame', 'role': 'baseline', 'image': 'base.png'},
             {'id': 'crop', 'label': 'Changed frame', 'role': 'candidate', 'image': 'portrait.png'}]}]}
 

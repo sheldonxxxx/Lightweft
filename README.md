@@ -113,6 +113,8 @@ Open `http://127.0.0.1:8765`. Follow the [review guide](review/README.md) to add
 
 Use [photo-style-builder](skills/photo-style-builder/SKILL.md) to explore a personal look with an agent. The master skill supplies a convincing image-specific base; the style builder develops your preferences through rendered alternatives and feedback. Save qualitative preferences as a workspace edit profile, or save a real editor recipe as a preset with provenance and reuse limits. Personal taste stays in your workspace, independently of the shared master skill.
 
+For a film interpretation, the [film selection guide](skills/photo-style-builder/references/film-emulation.md) explains when to try six RapidRAW emulations, what to protect, and when to retain the base. Agents can suggest an available film from the photograph's light, colour and intended mood, then compare its actual rendering. Sample observations and physical-film background are kept distinct; no film is a universal preset for a genre.
+
 ```sh
 npx skills add sheldonxxxx/lightweft --skill photo-style-builder
 ```

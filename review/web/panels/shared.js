@@ -18,7 +18,7 @@ export function checkboxes(ctx, definitions = [['overview', 'Overall photograph'
   }
   return checks;
 }
-export function feedback(ctx) {
+export function feedback(ctx, {title = 'Your review', compact = false} = {}) {
   const current = ctx.review();
   const options = [['accepted', 'Accept'], ['revise', 'Refine'], ['rejected', 'Pass']];
   const decisions = el('div', {class: 'decision-group', role: 'group', 'aria-label': 'Your decision'});
@@ -31,9 +31,12 @@ export function feedback(ctx) {
     decisions.append(b);
   }
   const note = el('textarea', {rows: 4, placeholder: 'What works? What should the next edit change?', 'aria-label': 'Review note', onInput: e => ctx.update({note: e.target.value})}); note.value = current.note || '';
-  return el('section', {class: 'inspector-section'}, el('div', {class: 'section-heading'}, el('h3', {}, 'Your review'), el('span', {class: 'eyebrow'}, ctx.blind ? 'Selected version' : ctx.right.label)),
+  return el('section', {class: 'inspector-section'}, el('div', {class: 'section-heading'}, el('h3', {}, title), el('span', {class: 'eyebrow'}, ctx.blind ? 'Selected version' : ctx.right.label)),
     current.stale && el('p', {class: 'notice'}, 'This version changed. Review the new image before carrying forward your decision.'),
-    decisions, field('Notes for the next edit', note), el('span', {class: 'field-label'}, 'Viewed at'), checkboxes(ctx));
+    decisions, field('Notes for the next edit', note),
+    compact ? el('p', {class: 'field-hint'}, 'Feedback saves automatically for this look.') : null,
+    compact ? el('details', {class: 'style-checks'}, el('summary', {}, 'Inspection checks'), checkboxes(ctx)) :
+      [el('span', {class: 'field-label'}, 'Viewed at'), checkboxes(ctx)]);
 }
 export function contextCard(ctx) {
   const qa = typeof ctx.photo.qa === 'string' ? ctx.photo.qa : ctx.photo.qa?.summary;

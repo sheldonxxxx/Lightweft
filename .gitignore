@@ -26,6 +26,8 @@
 !/skills/photo-edit-master/references/*.md
 !/skills/photo-style-builder/
 !/skills/photo-style-builder/SKILL.md
+!/skills/photo-style-builder/references/
+!/skills/photo-style-builder/references/*.md
 
 # Collection workflow and synthetic tests.
 !/workflow/
@@ -60,3 +62,5 @@
 !/review/tests/store.test.mjs
 
 !/review/tests/sphere.test.mjs
+!/review/tests/compare.test.mjs
+!/review/tests/sequence.test.mjs

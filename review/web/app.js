@@ -78,7 +78,8 @@ function renderPanel() {
   const photo = currentPhoto();
   if (!photo) { main.append(el('div', {class: 'empty-state'}, el('span', {class: 'empty-symbol'}, '◫'), el('h2', {}, 'A little more room to look.'), el('p', {}, store.dataset ? 'Adjust the filters to bring your photographs back into view.' : 'Add a review collection to begin. Your agent can bring in previous reviews, style candidates, and detail comparisons.'), button('Import collection', importCollection, {class: 'primary'}))); return; }
   const left = photo.variants.find(v => v.id === ui.leftId), right = photo.variants.find(v => v.id === ui.rightId);
-  for (const [key, label] of [['leftId', 'Compare'], ['rightId', 'With']]) pairControls.append(field(label,
+  const pairFields = ui.panel === 'style' ? [['leftId', 'Compare']] : [['leftId', 'Compare'], ['rightId', 'With']];
+  for (const [key, label] of pairFields) pairControls.append(field(label,
     select(`${label} version`, photo.variants.map((v, index) => ({value: v.id, label: ui.blind ? `Version ${index + 1}` : v.label})), ui[key], value => {ui[key] = value; renderPanel();})));
   const blindButton = button(ui.blind ? '◉ Reveal names' : '◎ Hide names', () => {ui.blind = !ui.blind; renderPanel();}, {'aria-label': ui.blind ? 'Reveal names' : 'Hide names', 'aria-pressed': ui.blind ? 'true' : 'false', class: 'blind-button', title: 'Hide version names for a less biased comparison'});
   pairControls.append(blindButton);
@@ -174,7 +175,7 @@ async function showLibrary() {
 }
 function shortcuts() {
   dialog('A few useful shortcuts', el('div', {class: 'shortcut-list'},
-    [['← / →', 'Previous / next photograph'], ['Space (hold)', 'Temporarily show the other version'], ['B', 'Swap the comparison sides'], ['1 / 2 / 3 / 4', 'Reviewer / Style builder / Detail lab / 360 review'], ['Drag', 'Pan both images together at 100% or above']].map(([key, description]) => el('p', {}, el('kbd', {}, key), el('span', {}, description)))));
+    [['← / →', 'Previous / next photograph'], ['Space (hold)', 'Temporarily show the other version'], ['B', 'Swap the comparison sides'], ['1 / 2 / 3 / 4', 'Reviewer / Style builder / Detail lab / 360 review'], ['Scroll / pinch', 'Zoom around the pointer'], ['Drag', 'Pan both images together at any numeric zoom']].map(([key, description]) => el('p', {}, el('kbd', {}, key), el('span', {}, description)))));
 }
 function buildShell() {
   saveStatus = el('span', {class: 'save-status', role: 'status'}, 'Connecting…');

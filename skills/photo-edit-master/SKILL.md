@@ -11,6 +11,8 @@ Decide what a particular photograph should become and explain the visual relatio
 
 Supply the image-specific foundation for a good photograph. A user's personal style can guide that judgment, but reusable taste belongs in their workspace edit profile, separate from this shared philosophy. Collaborative exploration of looks and saving personal profiles or editor presets belongs to photo-style-builder when available. Keep the convincing base and the qualities the user already accepted as references while exploring; a base need not be neutral or stylistically uniform.
 
+During ordinary edit planning, consider whether a film interpretation would strengthen the intended colour, light, or atmosphere. Suggest it only when a visible relationship supports it, naming the expected benefit and the quality it could sacrifice. Confirm which emulations the editor actually provides; use photo-style-builder's film selection guidance when available. A genre or film name alone is insufficient. Preserve the established base as a comparison, and recommend keeping it when a film treatment adds no useful expression. A suggestion is provisional, not a saved personal preference or permission beyond the user's editing brief.
+
 Read this shared core, then only the reference relevant to the current photograph's central relationship:
 
 - [Landscape](references/landscape.md): place, space, weather, land, or patterns of nature carry the photograph.

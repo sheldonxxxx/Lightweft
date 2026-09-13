@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Add read-only Set review for explicit photo sequences, comparing common variant IDs without substituting missing looks and linking back to individual review.
+
+- Simplify Style builder around choosing rendered looks from a wrapping card grid and leaving feedback; remove style naming and artifact-saving forms, tuck away inspection checks, and retain earlier style notes.
+
+- Add smooth pointer-centred photo zoom and custom percentages, show the actual Fit scale, and keep image pixel scaling consistent across zoom levels without disrupting matched preview comparisons.
+
+- Add conditional film-emulation recommendations, a six-look selection guide with sample observations and primary sources, and optional film suggestions during image-specific edit planning.
+
 - Require explicit permission before using generative image services; preserve the original scene and resolution for ordinary photo edits and local compositing.
 
 - Open confirmed 360° comparison pairs in the interactive spherical viewer automatically in Photo reviewer.

@@ -75,13 +75,14 @@ The import registers paths and metadata; it does not move, edit, or delete sourc
 | Page | Use it for |
 | --- | --- |
 | Photo reviewer | Whole-image comparisons with automatic spherical viewing for 360° pairs, edit intention and limits, user decisions, and links to available exports and recipes |
-| Style builder | Distinct rendered directions, personal preference notes, and saving profiles or editor presets |
+| Style builder | Choose a rendered look, compare it with the base, and leave feedback for the next iteration |
 | Detail lab | Zoom and matched crop inspection, with separate detail and denoise observation checklists |
 | 360 review | Synchronized spherical viewpoints, longitude seams, horizon and pole inspection |
+| Set review | Read-only comparison of the same looks across an explicitly grouped sequence, with links back to individual photographs |
 
 All pages share the same collection, selected comparison pair, and candidate feedback. Search the collection, filter by genre, format, group, or decision, and use the collection selector to move between studies. The page URL retains the collection, photograph, and review page.
 
-The shared comparison surface includes side-by-side and single-image views, an aligned before/after divider dragged directly over the photograph, side swapping, full screen, and hidden version names. Fit-to-view supports overall judgment; 100%, 200%, and 400% support synchronized panning. At 100%, one image pixel occupies one CSS pixel. Full exports are used when available; a magnified preview does not establish native detail. Drag the divider line or its centre handle to compare; at native zoom, drag elsewhere on the image to pan. Focus the divider and use arrow keys for fine adjustment, Shift + arrow keys for larger steps, or Home / End to reveal either side. The divider is disabled when alignment is unconfirmed or image dimensions differ.
+The shared comparison surface includes side-by-side and single-image views, an aligned before/after divider dragged directly over the photograph, side swapping, full screen, and hidden version names. Scroll or pinch a trackpad over the photograph to zoom smoothly around the pointer, or enter a percentage from 0.1% to 1600%. Fit returns to the whole photograph and displays its actual magnification; a numeric zoom stays fixed when the viewer resizes. At 100%, one image pixel occupies one CSS pixel. Comparisons use full exports when both versions provide them; otherwise they use the review images to retain a matched comparison. Single-image mode uses the selected full export when available. Sources stay consistent across zoom levels, so leaving Fit preserves the same pixel scale; a magnified preview does not establish native detail. Drag the divider line or its centre handle to compare; at any numeric zoom, drag elsewhere on the image to pan both versions together. Focus the divider and use arrow keys for fine adjustment, Shift + arrow keys for larger steps, or Home / End to reveal either side. The divider is disabled when alignment is unconfirmed or image dimensions differ.
 
 | Shortcut | Action |
 | --- | --- |
@@ -89,15 +90,16 @@ The shared comparison surface includes side-by-side and single-image views, an a
 | Hold Space | Temporarily show the other version |
 | B | Swap comparison sides |
 | 1 / 2 / 3 / 4 | Open Photo reviewer / Style builder / Detail lab / 360 review |
-| Drag at 100% or above | Pan the compared images together |
+| Scroll / trackpad pinch over the photograph | Zoom around the pointer |
+| Drag at any numeric zoom | Pan the compared images together |
 
 Feedback saves automatically to the workspace, with a browser draft available if saving fails. The save status shows whether the workspace has received it. On a concurrent update, loading the newer version retains a separate recovery draft and opens the earlier feedback as JSON for reconciliation. Exports provide copy, select, and download controls so in-app browsers need not rely on downloads. “Follow agent updates” refreshes published candidates while there are no unsaved edits. Feedback can also be imported as JSON.
 
 Use the edit reviewer to compare source or base against candidates, inspect the whole photograph, and record the gain, cost, and requested revision. Fine-detail checks belong to the same decision: a successful export or an agent's preferred candidate does not establish user acceptance.
 
-The style builder records the direction, qualities to keep, qualities to avoid, and intended scope. These notes give the agent concrete guidance for the next set of renders. Keep personal style separate from the shared [master editing philosophy](../skills/photo-edit-master/SKILL.md). Use the [style builder skill](../skills/photo-style-builder/SKILL.md) for the collaborative workflow.
+In Style builder, select a look from the wrapping card grid below the photograph, compare it with the chosen base, and use Accept, Refine, or Pass with one feedback note. Selecting a thumbnail only changes the viewed look; it does not record acceptance. Feedback saves automatically for each version. Inspection checks are tucked into a disclosure, and any earlier structured style notes remain readable. Naming styles and saving reusable artifacts are separate from this comparison flow. Keep personal style separate from the shared [master editing philosophy](../skills/photo-edit-master/SKILL.md). Use the [style builder skill](../skills/photo-style-builder/SKILL.md) for the collaborative workflow.
 
-Save the artifact that matches the result:
+When the photographer asks to retain a reusable style, the agent can save the appropriate artifact through the profile API below. Saved artifacts remain available in the Style library:
 
 | Artifact | Meaning | Reuse |
 | --- | --- | --- |
@@ -105,6 +107,24 @@ Save the artifact that matches the result:
 | Editor preset | An actual recipe exported by the editor | Requires that editor's supported format and a suitable scope of adjustments |
 
 A profile is not a set of invented slider values. A preset is not a prose description. To enable preset export, a variant needs a `recipe` path and `recipeFormat`, and should identify editor/version and validation provenance in `metadata`. The server checks that the recipe exists and snapshots its exact bytes with a SHA-256 hash. It cannot establish whether an arbitrary editor recipe is reusable: the editing agent must verify the recipe against the candidate and document its limits. Scene-specific crop, masks, retouching, and adaptive settings require a supported and validated reuse method before inclusion in a general preset. Saving a style does not itself mark the candidate accepted; keep drafts and confirmed preferences clearly described.
+
+## Review a sequence
+
+Set review displays the selected comparison versions across related photographs in the same collection. Each column keeps one exact variant ID throughout the set; a missing version is shown as a gap, never replaced by a different look. Images retain their full framing and load as review previews. Open an individual photograph for full-resolution comparison, detail inspection or feedback. Viewing a set does not save acceptance or change any photo decisions.
+
+Declare each member's group and optional order and display label in case metadata:
+
+```json
+"metadata": {
+  "sequenceGroup": "evening-walk",
+  "sequenceOrder": 1,
+  "sequenceLabel": "An evening walk"
+}
+```
+
+Use a group to describe a real episode or an intentional editorial relationship. Genre and split labels do not create a sequence. Finite numeric `sequenceOrder` values sort first; ties and unspecified orders retain manifest order. The first labelled member in that order supplies the set label. Keep the same label across members and use common variant IDs such as `base`, `style-a` and `style-b`. The version selectors use the current photograph's IDs, and hidden names remain hidden in the set columns. Ungrouped photographs display a prompt to prepare a sequence.
+
+The panel is available at `?dataset=your-collection&case=your-photo&panel=set`. It is registered alongside the existing four pages; their numeric shortcuts remain unchanged. Set conclusions can be retained in separate agent evidence while individual decisions continue through the established feedback contract.
 
 ## Review full-sphere photographs
 
@@ -199,4 +219,4 @@ For repeatable browser checks without changing photo feedback, start the [dispos
 python3 review/tests/fixture.py --port 8766
 ```
 
-Open `http://127.0.0.1:8766`. It contains generated images with aligned versions, a changed frame, full exports, a detail region, an earlier reference, a sample recipe, and generated full spheres. In 360 review, inspect the seam and both poles, compare synchronized views, and export angle coordinates. Check comparison modes, native zoom and pan, disabled wipe for changed framing, and notes/decisions after reload. Use Style builder to save both artifact types and inspect their downloads. Check Detail lab and a narrow viewport. Closing the fixture server removes its temporary workspace. These checks exercise the application; they do not establish the aesthetic success of a private edit or validate a RAW decoder.
+Open `http://127.0.0.1:8766`. It contains generated images with aligned versions, a changed frame, full exports, a detail region, an earlier reference, a sample recipe, and generated full spheres. In 360 review, inspect the seam and both poles, compare synchronized views, and export angle coordinates. Check comparison modes, native zoom and pan, disabled wipe for changed framing, and notes/decisions after reload. In Style builder, switch looks, save a decision and note, and reload to check that feedback stays with the selected version. Confirm that inspection checks expand and that the duplicate candidate selector and style-saving form are absent. In Set review, check that the changed frame precedes the landscape, missing versions leave visible gaps, hidden names stay hidden, and photo links return to Photo reviewer. The sphere is deliberately ungrouped. Profile and preset creation are covered by the server tests. Check Detail lab and a narrow viewport. Closing the fixture server removes its temporary workspace. These checks exercise the application; they do not establish the aesthetic success of a private edit or validate a RAW decoder.

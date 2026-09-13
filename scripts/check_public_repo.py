@@ -17,6 +17,7 @@ EXACT = {
     'CHANGELOG.md', 'skills/photo-style-builder/SKILL.md',
     'review/README.md', 'review/server.py', 'review/cli.py', 'review/import_legacy.py',
     'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs', 'review/tests/sphere.test.mjs',
+    'review/tests/compare.test.mjs', 'review/tests/sequence.test.mjs',
     'tests/test_review.py', 'tests/test_review_import.py',
 }
 PATTERNS = {
@@ -49,7 +50,8 @@ def check(working_tree=False):
         path = PurePosixPath(name)
         count += 1
         allowed_reference = (
-            path.parent == PurePosixPath('skills/photo-edit-master/references')
+            path.parent in (PurePosixPath('skills/photo-edit-master/references'),
+                            PurePosixPath('skills/photo-style-builder/references'))
             and path.suffix == '.md' and not path.name.startswith('.')
         )
         allowed_web = (
