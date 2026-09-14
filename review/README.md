@@ -1,22 +1,40 @@
 # Lightweft Review
 
-A shared local workspace for reviewing AI photo edits, developing personal style, and checking detail. It displays existing renders and gives the photographer and agent a common record of candidates, feedback, and decisions. Python serves the application and stores the workspace; browser modules provide extensible review panels. No package installation or frontend build is required.
+A local workspace for comparing photo edits, developing a personal style, and checking detail. Bring renders from your editor, compare versions in the browser, and leave feedback your AI agent can use for the next edit. Your photographs, decisions, and saved styles stay in your workspace.
+
+Review is part of [Lightweft](../README.md) and works with existing image exports from any editor. RapidRAW and Insta360 are [independent optional companions](../docs/ecosystem.md); neither is required to run it. Python serves the application and stores its data. No package installation, account, or frontend build is required.
+
+Start with [getting started](../docs/getting-started.md) for the complete editing loop, or use this guide for review setup and the agent contract.
+
+## Try the demo
+
+Use Python 3.10+ on macOS or Linux. From the repository root, run:
+
+```sh
+python3 review/tests/fixture.py --port 8766
+```
+
+Open <http://127.0.0.1:8766>. The demo contains synthetic patterns, comparison versions, detail crops, a sequence, and full spheres. Try switching versions, leaving a note, and opening another review page. This demonstrates the interface; the patterns are not examples of photographic edit quality. Stop the server with Ctrl+C to remove its temporary workspace and feedback.
 
 ## Run locally
 
-Use Python 3.10+ on macOS or Linux, from the repository root:
+For your own photographs, start a persistent workspace from the repository root:
 
 ```sh
 python3 review/server.py --workspace .local/review --media-root . --port 8765
 ```
 
-Open `http://127.0.0.1:8765`. Keep the server running during review. `--workspace` holds local review state; `--media-root` is the directory against which image and recipe paths resolve. The server exposes only registered media and rejects paths that traverse directories or symlinks. The listener is restricted to loopback; this is a local application, not a hosted multi-user service.
+Open <http://127.0.0.1:8765> and keep the server running during review. `--workspace` holds local review state; `--media-root` is the directory against which image and recipe paths resolve. The server exposes only registered media and rejects paths that traverse directories or symlinks. It listens on loopback for use on your own computer. Stop it with Ctrl+C; this workspace and its feedback remain on disk.
 
 The application reads browser-compatible renders. Export RAW photographs through your editor first and retain their originals and editable state. Browser display depends on the display, browser, and exported colour profile; use native exports and matched detail when judging texture or processing artifacts.
 
 ## Add a review
 
-Create a JSON manifest with a stable dataset ID, case IDs, and variant IDs. Paths are relative to the selected media root. The paths below are placeholders for your own rendered exports:
+In the viewer, **Add a collection** or **Import** explains both routes: ask your agent to register exported images, or choose an existing collection JSON. If the workspace is empty, **Follow agent updates** opens the first collection when your agent adds it.
+
+Export a baseline and a candidate from your editor into `.local/renders/`. Create a JSON manifest with a stable collection ID, photograph IDs, and version IDs. The API calls these a **dataset**, **cases**, and **variants**. Paths are relative to the selected media root; with `--media-root .`, they resolve from the repository root.
+
+Save the following as `.local/style-study.json`, replacing the image paths with your own exports. Use `aligned: true` only when both images share the same framing and registration; use `false` for different crops or viewpoints.
 
 ```json
 {
@@ -38,15 +56,13 @@ Create a JSON manifest with a stable dataset ID, case IDs, and variant IDs. Path
           "id": "base",
           "label": "Established base",
           "role": "baseline",
-          "image": ".local/renders/example-base.jpg",
-          "full": ".local/renders/example-base-full.jpg"
+          "image": ".local/renders/example-base.jpg"
         },
         {
           "id": "warm-v1",
           "label": "Warm light",
           "role": "candidate",
           "image": ".local/renders/example-warm-v1.jpg",
-          "full": ".local/renders/example-warm-v1-full.jpg",
           "description": "Warmer illuminated areas with restrained shadow colour.",
           "metadata": {
             "parentVariantId": "base",
@@ -61,14 +77,16 @@ Create a JSON manifest with a stable dataset ID, case IDs, and variant IDs. Path
 }
 ```
 
-Save your manifest in the local workspace and import it:
+Import the manifest from a second terminal:
 
 ```sh
 python3 review/cli.py import .local/style-study.json \
   --workspace .local/review --media-root . --id style-study
 ```
 
-The import registers paths and metadata; it does not move, edit, or delete source photographs. Keep rendered versions at distinct paths so old decisions continue to refer to the images actually reviewed. Preserve the base and any accepted rendition when adding a new candidate.
+Select **Personal style study** in the collection selector, or open <http://127.0.0.1:8765/?dataset=style-study&case=example&panel=review>. The import registers paths and metadata; it does not move, edit, or delete source photographs. Keep rendered versions at distinct paths so old decisions continue to refer to the images actually reviewed. Preserve the base and accepted versions when adding a new candidate. The CLI also works while the browser server is stopped.
+
+For large photographs, each variant can point `image` to a smaller review preview and `full` to the full export. Both files must exist when imported. Use browser-compatible formats such as JPEG, PNG, or WebP; TIFF and AVIF display support depends on the browser. RAW decoding and edit rendering belong to your editor.
 
 ## Review and build a style
 
@@ -82,7 +100,13 @@ The import registers paths and metadata; it does not move, edit, or delete sourc
 
 All pages share the same collection, selected comparison pair, and candidate feedback. Search the collection, filter by genre, format, group, or decision, and use the collection selector to move between studies. The page URL retains the collection, photograph, and review page.
 
-The shared comparison surface includes side-by-side and single-image views, an aligned before/after divider dragged directly over the photograph, side swapping, full screen, and hidden version names. Scroll or pinch a trackpad over the photograph to zoom smoothly around the pointer, or enter a percentage from 0.1% to 1600%. Fit returns to the whole photograph and displays its actual magnification; a numeric zoom stays fixed when the viewer resizes. At 100%, one image pixel occupies one CSS pixel. Comparisons use full exports when both versions provide them; otherwise they use the review images to retain a matched comparison. Single-image mode uses the selected full export when available. Sources stay consistent across zoom levels, so leaving Fit preserves the same pixel scale; a magnified preview does not establish native detail. Drag the divider line or its centre handle to compare; at any numeric zoom, drag elsewhere on the image to pan both versions together. Focus the divider and use arrow keys for fine adjustment, Shift + arrow keys for larger steps, or Home / End to reveal either side. The divider is disabled when alignment is unconfirmed or image dimensions differ.
+The comparison surface offers side-by-side and single-image views, an aligned before/after divider, side swapping, full screen, and hidden version names.
+
+**Reference** selects the comparison image; **Reviewing** selects the version that receives your decision and notes. Swapping the displayed sides keeps that review target unchanged. If a search or filter hides every photograph, **Clear filters** restores the collection. Save status remains visible on smaller screens.
+
+- **Zoom:** scroll or pinch a trackpad over the photograph, or enter a percentage from 0.1% to 1600%. Fit shows the whole image and its actual magnification. At 100%, one image pixel occupies one CSS pixel; numeric zoom stays fixed when the viewer resizes.
+- **Inspect detail:** paired comparisons load full exports when both versions provide them; otherwise they use the review images. Single-image mode uses its full export when available. The selected source stays consistent across zoom levels, so a magnified preview still has preview detail.
+- **Compare and pan:** drag the divider line or its centre handle to reveal either image. At any numeric zoom, drag elsewhere to pan both images together. Focus the divider for arrow-key adjustments, Shift + arrow keys for larger steps, and Home / End to reveal either side. The divider is disabled when alignment is unconfirmed or dimensions differ.
 
 | Shortcut | Action |
 | --- | --- |
@@ -124,7 +148,7 @@ Declare each member's group and optional order and display label in case metadat
 
 Use a group to describe a real episode or an intentional editorial relationship. Genre and split labels do not create a sequence. Finite numeric `sequenceOrder` values sort first; ties and unspecified orders retain manifest order. The first labelled member in that order supplies the set label. Keep the same label across members and use common variant IDs such as `base`, `style-a` and `style-b`. The version selectors use the current photograph's IDs, and hidden names remain hidden in the set columns. Ungrouped photographs display a prompt to prepare a sequence.
 
-The panel is available at `?dataset=your-collection&case=your-photo&panel=set`. It is registered alongside the existing four pages; their numeric shortcuts remain unchanged. Set conclusions can be retained in separate agent evidence while individual decisions continue through the established feedback contract.
+The panel is available at `?dataset=your-collection&case=your-photo&panel=set`. Open it through the page navigation; numeric shortcuts select the other four pages. Record any overall sequence conclusions in your workspace, and save individual decisions on each photograph.
 
 ## Review full-sphere photographs
 
@@ -150,11 +174,14 @@ Set `aligned: true` only when the compared images represent the same framing and
 | --- | --- |
 | `GET /api/workspace` | Dataset summaries and saved profiles/presets |
 | `GET /api/datasets/:id` | Current dataset, feedback, and version |
-| `PUT /api/datasets/:id` | Replace a manifest with `{ "version": currentVersion, "dataset": manifest }` |
+| `PUT /api/datasets/:id` | Create with `{ "version": 0, "dataset": manifest }`, or replace using the current version |
 | `PUT /api/datasets/:id/feedback` | Save feedback with `{ "version": currentVersion, "feedback": feedback }` |
 | `GET /api/datasets/:id/feedback/export` | Download agent-readable feedback |
 | `POST /api/profiles` | Save `{ name, kind, datasetId, caseId, variantId, description, preferences, assetRevision? }`; `kind` is `profile` or `preset`; include the selected variant's revision to guard against a stale selection |
+| `GET /api/profiles/:id` | Read a saved profile or preset's metadata and provenance |
 | `GET /api/profiles/:id/export` | Download a qualitative profile or the preserved recipe bytes |
+
+Use the local server URL as the API base and send `Content-Type: application/json` with mutations. Cross-origin browser requests are rejected. A stale dataset version returns HTTP 409. The CLI is the simplest way to register exports from an agent with local filesystem access; no MCP connection is required for Review.
 
 Feedback is keyed by case ID and then variant ID. Entries include `decision` (`accepted`, `revise`, `rejected`, or empty), `note`, `checks`, `style`, and asset revision metadata. Style notes contain `direction`, `keep`, `avoid`, and `scope`. The decision and technical check status are independent: checks record what was inspected, not an automatic image-quality assessment. When an asset or its review context changes, earlier feedback becomes stale and its decision and checks are cleared while notes remain available.
 
@@ -169,13 +196,20 @@ python3 review/cli.py feedback-export style-study \
   --workspace .local/review --media-root . --output .local/feedback.json
 ```
 
-`feedback-import DATASET FILE --version N` imports an exported feedback file using the current destination version returned by `show`; add the same workspace and media-root arguments. The file must name the same dataset, and stale versions are rejected. Browser collection import accepts a native manifest; use the CLI to migrate legacy formats.
+To restore or reconcile exported feedback, first read the current dataset with `show`, then import using its current destination version. Replace `N` with that integer:
+
+```sh
+python3 review/cli.py feedback-import style-study .local/feedback.json \
+  --workspace .local/review --media-root . --version N
+```
+
+The file must name the same dataset, and stale versions are rejected. Feedback import replaces the dataset's feedback map, so preserve any newer decisions when reconciling files. Browser collection import accepts a native manifest; use the CLI to migrate legacy formats.
 
 Workspace data lives in `state.json`, recipe snapshots in `presets/`, and the process lock in `.lock`. Writes are atomic and dataset updates are versioned to guard against concurrent overwrites. Keep the workspace and its associated media together in your private backup process; public source contains no populated review data.
 
-## Migrate existing helper reviews
+## Import other review formats
 
-Import existing review manifests into a named dataset and use the shared app for subsequent iterations. The importer normalises supported legacy layouts into the same case/variant/region contract. Keep historical helpers and evidence until the imported images and crops have been checked in the new application.
+The importer converts supported review formats into the same dataset/case/variant/region contract. Keep the source manifests and exports until the imported images and crops have been checked.
 
 Supported inputs include the native schema above, a gallery manifest with case/variant `views`, a run's case-state JSON or `cases` directory, a source suite manifest with `assets`, and older HTML reviews containing an inert `galleryData` JSON payload. The HTML importer parses that payload without executing page scripts. Embedded images require byte-identical original exports in the gallery's directory tree; it does not extract new image files, and missing or changed exports stop import. Historical crop metadata remains context, with alignment unconfirmed.
 
@@ -200,7 +234,7 @@ Register a page in the [panel registry](web/panels/index.js) with `{ id, label, 
 
 The context contains `dataset`, `photo`, `left`, `right`, and view state. `review()` reads the selected candidate's feedback; `update(patch)` queues its next save; `flush()` waits for persistence. `selectCandidate`, `inspectRegion`, `setRegion`, and `setDetailTool` connect specialised views to shared navigation. Reuse the [shared comparison and feedback helpers](web/panels/shared.js) and [comparison surface](web/compare.js) for image viewing. Keep stored inspection flags in `checks` and qualitative preferences in `style`; use a schema change for new data with different semantics.
 
-The [server](server.py) uses the Python standard library. The [browser store](web/store.js) owns autosave, conflict state, and draft recovery. Browser code is served directly from `web/`. Review data and image paths are local state, not source fixtures. Use generated images and invented identities in tests.
+The [server](server.py) uses the Python standard library. The [browser store](web/store.js) owns autosave, conflict state, and draft recovery. Browser code is served directly from `web/`. Use synthetic patterns and invented identities in tests, keeping photographs and populated review data in your local workspace.
 
 Run the repository checks from its root:
 
@@ -208,10 +242,9 @@ Run the repository checks from its root:
 python3 -m unittest discover -s tests -v
 node --test review/tests/*.test.mjs
 python3 scripts/check_public_repo.py --working-tree
-python3 scripts/check_public_repo.py
 ```
 
-The browser-state tests use Node.js 22+ and need no packages. They cover queued saves, collection-switch timing, conflicts, canonical server revisions, and workspace-isolated draft recovery. The default publication check reads the Git index; `--working-tree` checks tracked and unignored source before staging. See [contributing](../CONTRIBUTING.md) for staging and review.
+The browser tests use Node.js 22+ and need no packages. They cover comparison behavior, sphere geometry, sequence grouping, queued saves, conflicts, and workspace-isolated draft recovery. `--working-tree` checks tracked and unignored source before staging. See [contributing](../CONTRIBUTING.md) for the final staged-file check.
 
 For repeatable browser checks without changing photo feedback, start the [disposable fixture](tests/fixture.py):
 
@@ -219,4 +252,13 @@ For repeatable browser checks without changing photo feedback, start the [dispos
 python3 review/tests/fixture.py --port 8766
 ```
 
-Open `http://127.0.0.1:8766`. It contains generated images with aligned versions, a changed frame, full exports, a detail region, an earlier reference, a sample recipe, and generated full spheres. In 360 review, inspect the seam and both poles, compare synchronized views, and export angle coordinates. Check comparison modes, native zoom and pan, disabled wipe for changed framing, and notes/decisions after reload. In Style builder, switch looks, save a decision and note, and reload to check that feedback stays with the selected version. Confirm that inspection checks expand and that the duplicate candidate selector and style-saving form are absent. In Set review, check that the changed frame precedes the landscape, missing versions leave visible gaps, hidden names stay hidden, and photo links return to Photo reviewer. The sphere is deliberately ungrouped. Profile and preset creation are covered by the server tests. Check Detail lab and a narrow viewport. Closing the fixture server removes its temporary workspace. These checks exercise the application; they do not establish the aesthetic success of a private edit or validate a RAW decoder.
+Open <http://127.0.0.1:8766> and verify the behavior your change affects:
+
+- Compare aligned versions, zoom and pan, then open the changed frame and confirm the divider is disabled.
+- In Style builder, switch looks, save a decision and note, and reload to confirm feedback stays with the selected version. Expand the inspection checks and verify earlier notes remain readable.
+- In Detail lab, inspect the matched crop and check both full-image and detail navigation.
+- In 360 review, inspect the seam and both poles, compare synchronized views, and export angle coordinates.
+- In Set review, confirm the changed frame precedes the landscape, missing versions leave gaps, hidden names stay hidden, and photo links return to Photo reviewer. The sphere has no sequence group.
+- Repeat the affected flow in a narrow viewport and with keyboard navigation.
+
+Profile and preset creation are covered by the server tests. Closing the fixture server removes its temporary workspace. These checks exercise the application; they do not establish photographic edit quality or RAW decoder compatibility.

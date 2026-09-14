@@ -1,5 +1,5 @@
 # Public source allowlist. Everything else stays local, including photos,
-# manifests, editing runs, credentials, and the independent RapidRAW checkout.
+# manifests, editing runs, credentials, and independent companion checkouts.
 *
 
 # Repository documentation and validation.
@@ -15,6 +15,9 @@
 !/.github/workflows/validate.yml
 !/assets/
 !/assets/readme-hero.svg
+!/docs/
+!/docs/getting-started.md
+!/docs/ecosystem.md
 !/scripts/
 !/scripts/check_public_repo.py
 

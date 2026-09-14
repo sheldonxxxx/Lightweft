@@ -227,3 +227,116 @@ textarea:disabled {
 @media(max-width:1100px) { .set-grid { grid-template-columns:minmax(0,1fr); } }
 @media(max-width:720px) { .set-comparison { gap:14px; } .set-photo-caption { padding:8px; gap:5px; font-size:10px; } .set-version-heading h3 { font-size:12px; } .set-version-heading .muted { font-size:10px; } }
 @media(max-width:420px) { .set-comparison { grid-template-columns:minmax(0,1fr); gap:24px; } .set-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+.panel-layout .panel-heading {
+  min-height: 48px;
+  padding-bottom: 16px;
+}
+.panel-layout .panel-heading h2 {
+  line-height: 32px;
+}
+.panel-layout .inspector {
+  margin-top: 48px;
+}
+.feedback-heading {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+}
+.feedback-heading .eyebrow {
+  max-width: 100%;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.rail-heading .import-button {
+  padding: 6px 9px;
+  font-size: 11px;
+  background: transparent;
+}
+.mobile-import {
+  display: none;
+}
+.setup-content > * + * {
+  margin-top: 10px;
+}
+.setup-content > h3 {
+  margin-top: 20px;
+}
+
+@media (min-width: 1700px) {
+  .panel-layout .panel-heading {
+    min-height: 56px;
+  }
+  .panel-layout .panel-heading h2 {
+    line-height: 40px;
+  }
+  .panel-layout .inspector {
+    margin-top: 56px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .panel-layout .inspector {
+    margin-top: 0;
+  }
+  .page-tabs {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .page-tab,
+  .navigation {
+    flex-shrink: 0;
+  }
+  .workspace-switch {
+    flex: 1;
+    min-width: 0;
+  }
+  .brand,
+  .top-actions {
+    flex-shrink: 0;
+  }
+  .top-actions {
+    gap: 8px;
+  }
+  .save-status {
+    display: block;
+    max-width: 110px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 10px 16px;
+    padding-block: 12px;
+  }
+  .workspace-switch {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+  }
+  .top-actions {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+  .save-status {
+    max-width: none;
+    min-width: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+  .studio {
+    min-height: 0;
+  }
+  .mobile-import {
+    display: inline-flex;
+  }
+}

@@ -13,7 +13,7 @@ export function styleBuilder(ctx) {
   const previous = Object.entries({direction: 'Direction', keep: 'Keep', avoid: 'Avoid', scope: 'Scope'})
     .filter(([key]) => ctx.review().style?.[key]);
   const element = el('div', {class: 'panel-layout style-layout'},
-    el('div', {class: 'view-column'}, heading(ctx, 'Style builder', 'Compare looks. Tell me what to refine.'), viewer.root,
+    el('div', {class: 'view-column'}, heading(ctx), viewer.root,
       el('section', {class: 'below-view'}, el('div', {class: 'section-heading'}, el('h3', {}, 'Choose a look'),
         el('span', {class: 'muted'}, `${ctx.photo.variants.length} versions`)), variants)),
     el('aside', {class: 'inspector style-inspector', 'aria-label': 'Style feedback'},

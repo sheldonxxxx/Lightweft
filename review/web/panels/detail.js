@@ -23,7 +23,7 @@ export function detailLab(ctx) {
   });
   const toolSelect = select('Inspection panel', Object.entries(tools).map(([value, spec]) => ({value, label: spec.label})), tool, value => { tool = value; ctx.setDetailTool(value); updateChecks(); });
   updateChecks(); updateNote();
-  const element = el('div', {class: 'panel-layout'}, el('div', {class: 'view-column'}, heading(ctx, 'Detail lab', 'A closer look, with the whole image in mind.'),
+  const element = el('div', {class: 'panel-layout'}, el('div', {class: 'view-column'}, heading(ctx),
     el('div', {class: 'detail-controls'}, field('Inspection', toolSelect), field('Matched region', regionSelect)), mount, note,
     !regions.length && el('div', {class: 'empty-inline'}, el('h3', {}, 'No matched crops for this pair yet'), el('p', {}, 'Your agent can add named regions for eyes, texture, sky, or any area that needs a closer look. Full-image zoom is available above.'))),
     el('aside', {class: 'inspector', 'aria-label': 'Detail inspection'}, el('section', {class: 'inspector-section'}, el('span', {class: 'eyebrow'}, 'Inspect & preserve'), el('h3', {}, 'Detail observations'), el('p', {class: 'muted'}, 'Record only what you have inspected. These checks stay with the selected version.'), checklist), feedback(ctx)));

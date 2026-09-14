@@ -6,6 +6,7 @@ const store = new ReviewStore();
 const params = new URLSearchParams(location.search);
 const ui = {workspace: {datasets: [], profiles: []}, photoId: params.get('case') || '', panel: params.get('panel') || 'review', leftId: '', rightId: '', regionId: '', detailTool: 'zoom', query: '', category: '', decision: '', format: '', split: '', blind: false, live: true};
 let activePanel, libraryButton, collectionSelect, main, rail, list, saveStatus, warning, tabs, pairControls, count, summary;
+let navigationButtons = [], feedbackButtons = [];
 let loading = false;
 const candidates = photo => photo.variants.filter(v => v.role === 'candidate');
 const candidate = photo => candidates(photo).at(-1) || photo.variants.at(-1);
@@ -43,7 +44,7 @@ function renderList() {
     const chosen = candidate(photo), decision = store.review(photo.id, chosen.id).decision;
     const row = button('', () => choosePhoto(photo.id), {class: 'photo-row', 'data-case': photo.id, 'aria-current': photo.id === ui.photoId ? 'true' : 'false', 'aria-label': photo.title || `Photograph ${photo.id}`});
     row.append(el('img', {src: media(chosen.image), alt: '', loading: 'lazy'}),
-      el('span', {class: 'photo-row-copy'}, el('span', {class: 'photo-row-title'}, photo.title || `Photograph ${photo.id}`), el('small', {}, `${photo.id} · ${pretty(photo.category || photo.format || 'Photo')}`)),
+      el('span', {class: 'photo-row-copy'}, el('span', {class: 'photo-row-title'}, photo.title || `Photograph ${photo.id}`), (photo.category || photo.format) && el('small', {}, pretty(photo.category || photo.format))),
       el('span', {class: `status-dot ${decision || 'pending'}`, title: pretty(decision || 'pending'), 'aria-label': pretty(decision || 'pending')}, decision === 'accepted' ? '✓' : decision === 'revise' ? '↻' : ''));
     list.append(row);
   }
@@ -61,6 +62,12 @@ function updateListStatus() {
   }
 }
 function applyFilters() { normalizeSelection(); renderList(); renderPanel(); }
+function clearFilters() {
+  ui.query = ''; ui.category = ''; ui.decision = ''; ui.format = ''; ui.split = '';
+  document.querySelector('#search').value = '';
+  renderFilters(); applyFilters();
+  document.querySelector('#search').focus();
+}
 function renderFilters() {
   const mount = document.querySelector('#facets'); mount.replaceChildren();
   for (const [key, label] of [['category', 'Genre'], ['format', 'Format'], ['split', 'Group']]) {
@@ -71,17 +78,27 @@ function renderFilters() {
   mount.append(select('Review status', [{value: '', label: 'All decisions'}, {value: 'pending', label: 'Unreviewed'}, {value: 'accepted', label: 'Accepted'}, {value: 'revise', label: 'Needs refinement'}, {value: 'rejected', label: 'Passed'}], ui.decision, value => {ui.decision = value; applyFilters();}));
 }
 function renderTabs() {
-  tabs.replaceChildren(...panels.map(panel => button(`${panel.icon}  ${panel.label}`, () => {ui.panel = panel.id; ui.regionId = ''; renderTabs(); renderPanel();}, {class: 'page-tab', role: 'tab', 'aria-selected': panel.id === ui.panel ? 'true' : 'false', 'aria-controls': 'main', id: `tab-${panel.id}`, tabIndex: panel.id === ui.panel ? '0' : '-1'})));
+  tabs.replaceChildren(...panels.map(panel => button(panel.label, () => {ui.panel = panel.id; ui.regionId = ''; renderTabs(); renderPanel();}, {class: 'page-tab', role: 'tab', 'aria-selected': panel.id === ui.panel ? 'true' : 'false', 'aria-controls': 'main', id: `tab-${panel.id}`, tabIndex: panel.id === ui.panel ? '0' : '-1'})));
 }
 function renderPanel() {
   activePanel?.destroy?.(); activePanel = null; main.replaceChildren(); pairControls.replaceChildren();
   const photo = currentPhoto();
-  if (!photo) { main.append(el('div', {class: 'empty-state'}, el('span', {class: 'empty-symbol'}, '◫'), el('h2', {}, 'A little more room to look.'), el('p', {}, store.dataset ? 'Adjust the filters to bring your photographs back into view.' : 'Add a review collection to begin. Your agent can bring in previous reviews, style candidates, and detail comparisons.'), button('Import collection', importCollection, {class: 'primary'}))); return; }
+  navigationButtons.forEach(node => {node.disabled = filters().length < 2;});
+  feedbackButtons.forEach(node => {node.disabled = !store.dataset;});
+  document.querySelector('#search').disabled = !store.dataset;
+  if (!photo) {
+    const filtered = !!store.dataset?.cases.length;
+    main.append(el('div', {class: 'empty-state'},
+      el('h2', {}, filtered ? 'No photographs match' : 'Start your first photo review'),
+      el('p', {}, filtered ? 'Clear your search and filters to see the collection again.' : 'Compare exports from your editor and leave feedback for the next edit. Ask your agent to add them here, or import a collection JSON file.'),
+      button(filtered ? 'Clear filters' : 'Add a collection', filtered ? clearFilters : importCollection, {class: 'primary'})));
+    return;
+  }
   const left = photo.variants.find(v => v.id === ui.leftId), right = photo.variants.find(v => v.id === ui.rightId);
-  const pairFields = ui.panel === 'style' ? [['leftId', 'Compare']] : [['leftId', 'Compare'], ['rightId', 'With']];
+  const pairFields = ui.panel === 'style' ? [['leftId', 'Reference']] : ui.panel === 'set' ? [['leftId', 'First'], ['rightId', 'Second']] : [['leftId', 'Reference'], ['rightId', 'Reviewing']];
   for (const [key, label] of pairFields) pairControls.append(field(label,
     select(`${label} version`, photo.variants.map((v, index) => ({value: v.id, label: ui.blind ? `Version ${index + 1}` : v.label})), ui[key], value => {ui[key] = value; renderPanel();})));
-  const blindButton = button(ui.blind ? '◉ Reveal names' : '◎ Hide names', () => {ui.blind = !ui.blind; renderPanel();}, {'aria-label': ui.blind ? 'Reveal names' : 'Hide names', 'aria-pressed': ui.blind ? 'true' : 'false', class: 'blind-button', title: 'Hide version names for a less biased comparison'});
+  const blindButton = button(ui.blind ? 'Reveal names' : 'Hide names', () => {ui.blind = !ui.blind; renderPanel();}, {'aria-label': ui.blind ? 'Reveal names' : 'Hide names', 'aria-pressed': ui.blind ? 'true' : 'false', class: 'blind-button', title: 'Hide version names for a less biased comparison'});
   pairControls.append(blindButton);
   const panel = panels.find(item => item.id === ui.panel) || panels[0]; ui.panel = panel.id;
   main.setAttribute('aria-labelledby', `tab-${panel.id}`);
@@ -125,20 +142,35 @@ function status() {
   if (store.dataset) updateListStatus();
 }
 function exportFeedback() { if (store.dataset) exportJSON(`${store.dataset.id}-feedback.json`, store.export()); }
-function chooseJSON(onFile) {
+function chooseJSON(onFile, onError = catchError) {
   const input = el('input', {type: 'file', accept: '.json,application/json'});
   input.addEventListener('change', async () => {
     try { if (input.files[0]) await onFile(JSON.parse(await input.files[0].text())); }
-    catch (error) {catchError(error);}
+    catch (error) {onError(error);}
   }); input.click();
 }
 function importCollection() {
-  chooseJSON(async data => {
-    await store.flush(); const dataset = data.dataset || data;
-    if (ui.workspace.datasets.some(item => item.id === dataset.id)) throw new Error('That collection already exists. Ask your agent to publish a versioned update, or import with a new ID.');
-    await api(`/api/datasets/${encodeURIComponent(dataset.id)}`, {method: 'PUT', body: JSON.stringify({dataset, version: 0})});
-    await refreshLibrary(); await loadDataset(dataset.id);
-  });
+  const errorText = el('p', {class: 'notice', role: 'alert', hidden: true});
+  const content = el('div', {class: 'setup-content'},
+    el('p', {}, 'A collection groups photographs and their rendered versions. Your image files stay on this computer.'),
+    el('h3', {}, 'Ask your agent'),
+    el('p', {}, 'Tell your agent which base render and edited versions to compare, then ask: “Add these exports to my Lightweft review workspace.” Close this message and keep the viewer open while your agent prepares the collection.'),
+    el('h3', {}, 'Already have a collection file?'),
+    el('p', {}, 'Choose the collection JSON prepared by your agent or the review setup guide. It lists existing image files; photographs and RAW files cannot be imported directly.'),
+    el('details', {}, el('summary', {}, 'Preparing a collection yourself'),
+      el('p', {}, 'Follow “Add a review” in review/README.md in your Lightweft checkout. Image paths are relative to the server’s --media-root folder, not the JSON file. Export RAW files as JPEG, PNG, or WebP first.')),
+    errorText);
+  const modal = dialog('Add a review collection', content, button('Choose collection JSON', () => {
+    errorText.hidden = true;
+    chooseJSON(async data => {
+      const dataset = data?.dataset || data;
+      if (!dataset || typeof dataset.id !== 'string' || !Array.isArray(dataset.cases)) throw new Error('Choose a collection JSON with an ID and photographs. A feedback export or editor recipe cannot be used here.');
+      await store.flush();
+      if (ui.workspace.datasets.some(item => item.id === dataset.id)) throw new Error('That collection already exists. Ask your agent to update it, or use a new collection ID.');
+      await api(`/api/datasets/${encodeURIComponent(dataset.id)}`, {method: 'PUT', body: JSON.stringify({dataset, version: 0})});
+      await refreshLibrary(); await loadDataset(dataset.id); modal.close();
+    }, error => {errorText.textContent = error.message; errorText.hidden = false;});
+  }, {class: 'primary'}));
 }
 function importFeedback() {
   if (!store.dataset) return;
@@ -155,16 +187,16 @@ function importFeedback() {
 async function refreshLibrary() {
   ui.workspace = await api('/api/workspace');
   if (collectionSelect) {
-    collectionSelect.replaceChildren(...ui.workspace.datasets.map(item => el('option', {value: item.id}, item.title)));
+    collectionSelect.replaceChildren(...(ui.workspace.datasets.length ? ui.workspace.datasets.map(item => el('option', {value: item.id}, item.title)) : [el('option', {value: ''}, 'No collections yet')]));
     collectionSelect.value = store.dataset?.id || ui.workspace.datasets[0]?.id || '';
     collectionSelect.disabled = !ui.workspace.datasets.length;
   }
-  if (libraryButton) libraryButton.textContent = `◈ Style library${ui.workspace.profiles.length ? ` · ${ui.workspace.profiles.length}` : ''}`;
+  if (libraryButton) libraryButton.textContent = `Style library${ui.workspace.profiles.length ? ` · ${ui.workspace.profiles.length}` : ''}`;
 }
 async function showLibrary() {
   try { await refreshLibrary(); } catch (error) {catchError(error); return;}
   const content = el('div', {class: 'library-grid'});
-  if (!ui.workspace.profiles.length) content.append(el('div', {class: 'empty-inline'}, el('h3', {}, 'Your style, collected over time.'), el('p', {}, 'Save a visual profile or an editor preset from the Style builder. They will be available here and to your agent.')));
+  if (!ui.workspace.profiles.length) content.append(el('div', {class: 'empty-inline'}, el('h3', {}, 'Keep the looks you want to use again'), el('p', {}, 'Choose a look and leave feedback in Style builder. Then ask your agent to save your reviewed preferences as an edit profile, or a supported editor recipe as a preset. Saved styles appear here.')));
   for (const profile of ui.workspace.profiles) {
     content.append(el('article', {class: 'library-card'}, el('span', {class: 'eyebrow'}, profile.kind === 'preset' ? 'Editor preset' : 'Edit profile'), el('h3', {}, profile.name),
       profile.description && el('p', {}, profile.description),
@@ -179,17 +211,17 @@ function shortcuts() {
 }
 function buildShell() {
   saveStatus = el('span', {class: 'save-status', role: 'status'}, 'Connecting…');
-  libraryButton = button('◈ Style library', showLibrary, {class: 'library-button', 'aria-label': 'Style library'});
+  libraryButton = button('Style library', showLibrary, {class: 'library-button', 'aria-label': 'Style library'});
   collectionSelect = select('Review collection', [], '', loadDataset, {class: 'collection-select'});
-  const top = el('header', {class: 'topbar'}, el('a', {class: 'brand', href: '/'}, el('img', {src: '/icon.svg', alt: '', width: 30, height: 30}), el('span', {}, 'lightweft', el('small', {}, 'REVIEW STUDIO'))),
+  const top = el('header', {class: 'topbar'}, el('a', {class: 'brand', href: '/'}, el('img', {src: '/icon.svg', alt: '', width: 30, height: 30}), el('span', {}, 'lightweft')),
     el('div', {class: 'workspace-switch'}, el('span', {class: 'eyebrow'}, 'Workspace collection'), collectionSelect),
     el('div', {class: 'top-actions'}, saveStatus, libraryButton, button('?', shortcuts, {class: 'icon-button', 'aria-label': 'Keyboard shortcuts'})));
   count = el('span', {}); summary = el('small', {});
   list = el('nav', {class: 'photo-list', 'aria-label': 'Photographs'});
-  rail = el('aside', {class: 'collection-rail'}, el('div', {class: 'rail-heading'}, el('span', {class: 'eyebrow'}, 'The collection'), button('+', importCollection, {class: 'icon-button', 'aria-label': 'Import collection'})),
+  rail = el('aside', {class: 'collection-rail'}, el('div', {class: 'rail-heading'}, el('span', {class: 'eyebrow'}, 'The collection'), button('Import', importCollection, {class: 'import-button', 'aria-label': 'Import collection'})),
     el('input', {id: 'search', type: 'search', placeholder: 'Find a photograph…', 'aria-label': 'Search photographs', onInput: e => {ui.query = e.target.value; applyFilters();}}),
     el('div', {id: 'facets', class: 'filter-grid'}), el('div', {class: 'collection-count'}, count, summary), list,
-    el('footer', {class: 'rail-footer'}, el('div', {class: 'rail-footer-actions'}, button('Export feedback', exportFeedback), button('Import feedback', importFeedback)),
+    el('footer', {class: 'rail-footer'}, el('div', {class: 'rail-footer-actions'}, button('Import', importCollection, {class: 'mobile-import', 'aria-label': 'Import collection'}), feedbackButtons = [button('Export feedback', exportFeedback), button('Import feedback', importFeedback)]),
       el('label', {class: 'live-control'}, el('input', {type: 'checkbox', checked: ui.live, onChange: e => {ui.live = e.target.checked;}}), 'Follow agent updates'),
       el('span', {class: 'field-hint'}, 'Feedback and styles stay in this workspace.')));
   tabs = el('nav', {class: 'page-tabs', role: 'tablist', 'aria-label': 'Review tools'});
@@ -202,7 +234,7 @@ function buildShell() {
   pairControls = el('div', {class: 'pair-controls'});
   warning = el('div', {class: 'warning-banner', role: 'alert', hidden: true});
   main = el('main', {id: 'main', tabIndex: '-1', role: 'tabpanel'});
-  const work = el('div', {class: 'work-area'}, el('div', {class: 'work-toolbar'}, tabs, el('div', {class: 'navigation'}, button('←', () => navigate(-1), {'aria-label': 'Previous photograph', class: 'icon-button'}), button('→', () => navigate(1), {'aria-label': 'Next photograph', class: 'icon-button'}))), warning, pairControls, main);
+  const work = el('div', {class: 'work-area'}, el('div', {class: 'work-toolbar'}, tabs, el('div', {class: 'navigation'}, navigationButtons = [button('←', () => navigate(-1), {'aria-label': 'Previous photograph', class: 'icon-button'}), button('→', () => navigate(1), {'aria-label': 'Next photograph', class: 'icon-button'})])), warning, pairControls, main);
   document.querySelector('#app').replaceChildren(top, el('div', {class: 'studio'}, rail, work)); renderTabs();
 }
 store.addEventListener('status', status);
@@ -229,5 +261,9 @@ try {
 } catch (error) {catchError(error); renderPanel();}
 setInterval(async () => {
   if (!ui.live || loading || document.hidden || document.querySelector('dialog[open]') || store.dirty || store.saving) return;
-  try {await refreshLibrary(); if (await store.refresh()) announce('The collection was updated.');} catch { /* Preserve the current review while disconnected. */ }
+  try {
+    await refreshLibrary();
+    if (!store.dataset && ui.workspace.datasets.length) await loadDataset(ui.workspace.datasets[0].id);
+    else if (await store.refresh()) announce('The collection was updated.');
+  } catch { /* Preserve the current review while disconnected. */ }
 }, 10000);

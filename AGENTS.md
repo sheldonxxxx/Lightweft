@@ -1,5 +1,11 @@
 # AI photo editing workflow
 
+## Project boundaries
+
+Lightweft is the central workspace for artistic direction, personal style, and rendered photo review. RapidRAW and Insta360 AI Toolkit are independent, optional companion projects with their own setup, licenses, and verification records. Keep their application-specific instructions in their respective repositories; link to them from Lightweft. Changes in a companion checkout belong to that repository, not the root Git history. Describe available capabilities separately from the ecosystem's future direction.
+
+## Editing integration
+
 You are authorized to make any changes to RapidRAW and its MCP integration that you judge necessary to improve the AI photo editing workflow. This includes changes to the RapidRAW application, MCP tools, and supporting workflow code. Proceed with these improvements without asking for separate permission for each change.
 
 ## Image generation requires permission
@@ -13,6 +19,21 @@ You are authorized to make any changes to RapidRAW and its MCP integration that 
 - Choose `defaultView` for each review case: `single` for mask visualisations, or `side` / `wipe` for adjustment comparisons according to the inspection. Use variant overrides when mask renders and photo edits share a case.
 - Keep review state, photographs, and personal style artifacts in the user's ignored workspace. Preserve historical review evidence, but do not create new standalone helper websites for workflows the shared app can handle.
 - The master editing skill supplies an image-specific foundation. Use [photo-style-builder](skills/photo-style-builder/SKILL.md) for collaborative personal style exploration, with profiles and actual editor recipes kept separate from shared philosophy.
+
+## Storage discipline
+
+- Measure physical free space on the output volume before and after large batches. Reserve at least 20 GiB before starting benchmark or bulk-render runs; estimate unique output sizes as well as input sizes.
+- Reuse verified model assets through the companion editor's model cache, on the same volume as the workspaces for clone savings. Keep isolated workspaces, but use independent filesystem clones for large local fixture and source copies where supported. Do not use hard links for editable photographs or replace review assets with symlinks.
+- Reuse a build target for the same toolchain and configuration. Prefer non-incremental builds without debug symbols for validation; opt into larger development caches only when needed.
+- Keep accepted edits, recipes, original sources, review decisions, and reproducibility manifests. Prune only known rebuildable caches after confirming no active writer; completed experiments should be archived with checksum verification before local removal.
+- Put archive and retention records in the ignored workspace. Keep current review references usable and verify them after any storage migration.
+
+## Product manager review of public-facing material
+
+- Before finalizing or publishing any public-facing material, have a separate agent acting as a product manager review it. This applies to product naming, websites, demos, README files, documentation, social posts, release notes, and promotional images or videos.
+- Review for the intended audience: a clear value proposition, natural and compelling headlines, understandable messaging, professional presentation, and marketability appropriate to the material's purpose. Keep claims accurate and supported, and protect private information.
+- Review rendered pages and media when visual presentation matters. Address material findings before delivery or publication.
+- This is an internal agent review; it does not require an additional round of user permission.
 
 ## Public repository files
 

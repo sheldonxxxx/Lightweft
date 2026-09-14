@@ -31,10 +31,10 @@ export function feedback(ctx, {title = 'Your review', compact = false} = {}) {
     decisions.append(b);
   }
   const note = el('textarea', {rows: 4, placeholder: 'What works? What should the next edit change?', 'aria-label': 'Review note', onInput: e => ctx.update({note: e.target.value})}); note.value = current.note || '';
-  return el('section', {class: 'inspector-section'}, el('div', {class: 'section-heading'}, el('h3', {}, title), el('span', {class: 'eyebrow'}, ctx.blind ? 'Selected version' : ctx.right.label)),
+  return el('section', {class: 'inspector-section'}, el('div', {class: 'section-heading feedback-heading'}, el('h3', {}, title), el('span', {class: 'eyebrow'}, ctx.blind ? 'Selected version' : ctx.right.label)),
     current.stale && el('p', {class: 'notice'}, 'This version changed. Review the new image before carrying forward your decision.'),
     decisions, field('Notes for the next edit', note),
-    compact ? el('p', {class: 'field-hint'}, 'Feedback saves automatically for this look.') : null,
+    el('p', {class: 'field-hint'}, 'Your decision and notes save automatically for this version.'),
     compact ? el('details', {class: 'style-checks'}, el('summary', {}, 'Inspection checks'), checkboxes(ctx)) :
       [el('span', {class: 'field-label'}, 'Viewed at'), checkboxes(ctx)]);
 }
@@ -53,7 +53,7 @@ export function contextCard(ctx) {
 }
 export function artifacts(ctx) {
   const items = [['image', 'Review image'], ['full', 'Full resolution'], ['recipe', 'Editor recipe']];
-  return el('section', {class: 'inspector-section'}, el('h3', {}, 'Artifacts'), el('div', {class: 'artifact-links'}, items.filter(([key]) => ctx.right[key]).map(([key, label]) =>
+  return el('section', {class: 'inspector-section'}, el('h3', {}, 'Files'), el('div', {class: 'artifact-links'}, items.filter(([key]) => ctx.right[key]).map(([key, label]) =>
     el('a', {href: media(ctx.right[key]), target: '_blank', rel: 'noopener'}, label, el('span', {}, '↗')))));
 }
 export function regionCards(ctx, onSelect) {
@@ -65,6 +65,6 @@ export function regionCards(ctx, onSelect) {
       el('small', {}, region.width && region.height ? `${region.width} × ${region.height}` : 'Detail view'));
   }));
 }
-export function heading(ctx, eyebrow, description) {
-  return el('div', {class: 'panel-heading'}, el('div', {}, el('span', {class: 'eyebrow'}, eyebrow), el('h2', {}, ctx.photo.title || `Photograph ${ctx.photo.id}`)), el('p', {}, description));
+export function heading(ctx) {
+  return el('div', {class: 'panel-heading'}, el('h2', {}, ctx.photo.title || `Photograph ${ctx.photo.id}`));
 }

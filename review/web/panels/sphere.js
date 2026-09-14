@@ -12,7 +12,7 @@ export function sphereReview(ctx) {
     initialView:views.get(key) ?? ctx.right.metadata?.sphereView ?? ctx.photo.metadata?.sphereView,
     onView:view => views.set(key, {...view})}) : null;
   const element = el('div', {class:'panel-layout'},
-    el('div', {class:'view-column'}, heading(ctx, '360 review', 'Explore the whole sphere and compare one viewpoint at a time.'),
+    el('div', {class:'view-column'}, heading(ctx),
       viewer ? viewer.root : el('p', {class:'empty-panel'}, 'Choose panorama variants marked as equirectangular. A flat reframe belongs in Photo reviewer; a 2:1 ratio alone does not establish a full sphere.')),
     el('aside', {class:'inspector','aria-label':'360 photo review'}, contextCard(ctx),
       hasSphere && el('section', {class:'inspector-section'}, el('h3', {}, 'Sphere inspection'), checkboxes(ctx, [['sphereSeam','Longitude seam'],['sphereHorizon','Horizon around the sphere'],['sphereZenith','Zenith'],['sphereNadir','Nadir'],['sphereNearObjects','Near objects and stitching']])), feedback(ctx), artifacts(ctx)));

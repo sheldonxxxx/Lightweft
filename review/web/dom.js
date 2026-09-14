@@ -48,6 +48,18 @@ export function dialog(title, content, footer) {
   const node = el('dialog', { class: 'dialog', 'aria-label': title },
     el('header', {}, el('h2', {}, title), button('×', () => node.close(), {class: 'icon-button', 'aria-label': 'Close dialog'})), content,
     footer && el('footer', {}, footer));
+  let startedOnBackdrop = false;
+  const isBackdrop = event => {
+    const bounds = node.getBoundingClientRect();
+    return event.target === node && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom);
+  };
+  node.addEventListener('pointerdown', event => {startedOnBackdrop = event.button === 0 && isBackdrop(event);});
+  node.addEventListener('pointercancel', () => {startedOnBackdrop = false;});
+  node.addEventListener('click', event => {
+    const dismiss = startedOnBackdrop && isBackdrop(event);
+    startedOnBackdrop = false;
+    if (dismiss) node.close();
+  });
   node.addEventListener('close', () => node.remove());
   document.body.append(node); node.showModal(); return node;
 }

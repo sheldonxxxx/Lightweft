@@ -1,256 +1,128 @@
 <p align="center">
-  <img src="assets/readme-hero.svg" alt="Lightweft — art direction for AI photo editing, with the tools you choose" width="100%">
+  <img src="assets/readme-hero.svg" alt="Lightweft — your workspace for AI photo editing. Find a direction, shape a style, and review every edit." width="100%">
 </p>
 
-<h1 align="center">Lightweft — AI Photo Editing Skill</h1>
-<p align="center"><em>Thoughtful edits. Any editor.</em></p>
-<p align="center"><strong>A tool-agnostic AI photo editing skill for thoughtful, expressive photographs.</strong></p>
-<p align="center">Image-specific art direction · Colour and light · Composition · Visual critique</p>
+<h1 align="center">Lightweft</h1>
+<p align="center"><strong>Your workspace for AI photo editing.</strong></p>
+<p align="center">Artistic direction · Personal style · Visual review · Tools you choose</p>
 
 <p align="center">
-  <a href="skills/photo-edit-master/SKILL.md"><img alt="Agent skill: photo-edit-master" src="https://img.shields.io/badge/Agent_Skill-photo--edit--master-203e47?style=flat-square"></a>
-  <a href="#bring-your-favourite-editor"><img alt="Tool agnostic" src="https://img.shields.io/badge/Tools-Your_Choice-9a6044?style=flat-square"></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-53615f?style=flat-square"></a>
-  <a href=".github/workflows/validate.yml"><img alt="Source validation workflow" src="https://img.shields.io/badge/Validation-Source_Checks-6b665d?style=flat-square"></a>
+  <a href="skills/photo-edit-master/SKILL.md"><img alt="Installable agent skills" src="https://img.shields.io/badge/Agent_Skills-Ready-203e47?style=flat-square"></a>
+  <a href="review/README.md"><img alt="Local review app" src="https://img.shields.io/badge/Review-Local-9a6044?style=flat-square"></a>
+  <a href="https://github.com/sheldonxxxx/lightweft/actions/workflows/validate.yml"><img alt="Source validation" src="https://github.com/sheldonxxxx/lightweft/actions/workflows/validate.yml/badge.svg"></a>
 </p>
 
 <p align="center">
-  <a href="#install-in-one-command">Install</a> ·
-  <a href="#what-the-skill-brings">Explore the skill</a> ·
-  <a href="#optional-companion-rapidraw-mcp">RapidRAW companion</a> ·
-  <a href="#macos-quick-start">macOS setup</a>
+  <a href="#get-started">Get started</a> ·
+  <a href="#three-projects-one-connected-workflow">The ecosystem</a> ·
+  <a href="review/README.md">Review guide</a> ·
+  <a href="docs/ecosystem.md#where-were-going">Our vision</a>
 </p>
-
----
 
 ## Give every photograph its own direction
 
-**Lightweft helps an AI agent decide what a photograph should become—and judge whether the edit gets there.** It reads the relationships between subject, light, colour, space, and atmosphere, then turns them into a clear edit intention, visible priorities, and details worth protecting.
+**Lightweft brings the creative loop together: understand a photograph, edit with your chosen tools, compare the rendered result, and refine it through feedback.** Its agent skills supply artistic judgment and help develop your personal style. Its local review app gives you and your agent a shared place to inspect the work.
 
-Use it for RAW photo editing, colour grading, landscape and wildlife photography, nightscapes, portraits, or a second opinion on an existing edit. Pair its artistic judgment with **any photo-editing tool you or your agent can operate**. Your editor supplies the controls; the skill supplies the direction and critique.
+Start here whether you are refining one RAW photograph, exploring several looks, reviewing a set, or working with a full 360° panorama. Lightweft is an open-source workspace for photographers using AI agents and for developers building photo workflows. You bring the agent and editor; Lightweft supplies the direction and review loop.
 
-For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
+## Get started
 
-## Install in one command
+### Install the skill in one command
+
+Install the artistic direction skill with Node.js/npm and the [Skills CLI](https://github.com/vercel-labs/skills#readme):
 
 ```sh
 npx skills add sheldonxxxx/lightweft --skill photo-edit-master
 ```
 
-Choose your agent when prompted. The [Skills CLI](https://github.com/vercel-labs/skills#readme) supports project installation by default; add `--global` for a user-level installation.
+Choose your agent when prompted. **The skill supplies artistic direction; it needs a connected editor to make actual edits.** Pair it with the **[RapidRAW MCP fork](https://github.com/sheldonxxxx/RapidRAW)**: follow its [MCP setup guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) to build the fork with MCP enabled, connect it to your agent, and install the `rapidraw-mcp` execution skill. The command above does not install or connect the editor.
 
-Then give your agent a photograph and a brief:
+**Or outsource the setup side quest:** give your AI agent this README and say:
 
-> Use photo-edit-master to develop this photograph with my available editor. Choose a clear artistic direction, explain the visible priorities, and protect the relationships that make the scene convincing. Review the finished edit at viewing size and matched native detail.
+> Set up Lightweft and the RapidRAW MCP fork for me. Install both skills, follow the fork's setup guide to build and connect the editor, and verify the MCP connection. Let me know when we're ready for our first photo.
 
-<details>
-<summary><strong>Try a more specific brief</strong></summary>
+Once your editor is connected, give your agent a photograph:
 
-**Landscape**
+> Use photo-edit-master to find a clear direction for this photograph. Explain what should change and what gives the scene its character. Make the edit with my available editor, then compare the result at viewing size and native detail.
 
-> Make the distant ridges and changing weather carry the image. Preserve the feeling of depth and keep the foreground from competing with the light.
+Read the [getting-started guide](docs/getting-started.md) for personal style, manual installation, and other editing options.
 
-**Wildlife**
+### Try the review workspace
 
-> Give the animal a clear presence while keeping its habitat meaningful. Check the eyes, fur or feathers, and the transition into the surroundings.
+With **Python 3.10+ on macOS or Linux**, run the disposable demo:
 
-**Nightscape**
+```sh
+git clone https://github.com/sheldonxxxx/lightweft.git
+cd lightweft
+python3 review/tests/fixture.py --port 8766
+```
 
-> Strengthen the relationship between the stars and this place. Keep faint sky detail believable and make the foreground readable without flattening the night.
+Open [localhost:8766](http://127.0.0.1:8766). Compare versions, try the wipe and native zoom, choose a look in Style builder, and explore a sphere. The demo uses synthetic patterns to show the controls; it is not a photographic editing showcase. It needs no agent, SDK, Docker, or editor. Stop with **Ctrl+C**; the demo workspace is temporary.
 
-**Refine an edit**
+For your own photographs, follow [your first review](docs/getting-started.md#review-your-own-photographs). The app displays editor exports and saves feedback; RAW development and editing happen in your chosen tool.
 
-> Keep the colour and contrast I liked in the earlier version. Correct the distracting halo, then compare both the affected edge and the whole photograph.
+## What you can do today
 
-</details>
-
-## What the skill brings
-
-<table>
-<tr>
-<td width="50%" valign="top">
-<h3>◉ Read the photograph</h3>
-<p>Find the image's strongest quality, the obstacle to its impact, and the relationships that give it meaning.</p>
-</td>
-<td width="50%" valign="top">
-<h3>↗ Choose a direction</h3>
-<p>Turn a broad brief into visible priorities, a coherent treatment, and clear signs of excessive processing.</p>
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-<h3>◇ Protect what matters</h3>
-<p>Preserve credible light, material texture, atmosphere, context, and the photographer's intention.</p>
-</td>
-<td width="50%" valign="top">
-<h3>◎ Critique the result</h3>
-<p>Compare source and candidate, identify the gain and its cost, and refine against the version the photographer valued.</p>
-</td>
-</tr>
-</table>
-
-### One shared philosophy, different photographic relationships
-
-| Genre | What carries the photograph |
+| You want to… | Lightweft provides |
 | :--- | :--- |
-| [Landscape](skills/photo-edit-master/references/landscape.md) | Place, depth, weather, land, and natural structure |
-| [Wildlife](skills/photo-edit-master/references/wildlife.md) | An animal's presence, behaviour, and habitat |
-| [Nightscapes](skills/photo-edit-master/references/nightscapes.md) | The connection between a starry sky and a terrestrial place |
-| [People](skills/photo-edit-master/references/people.md) | Faces, gesture, skin, and relationships among people |
-| [Still life](skills/photo-edit-master/references/still-life.md) | Colour, light, texture, food, flowers, and material |
+| Make an edit with a clear purpose | [Photo Edit Master](skills/photo-edit-master/SKILL.md): image-specific plans and critique grounded in light, colour, composition, and atmosphere |
+| Discover your personal style | [Photo Style Builder](skills/photo-style-builder/SKILL.md): rendered alternatives, feedback, and guidance for workspace profiles or actual editor presets |
+| Compare the work, including fine detail | [Photo reviewer and Detail lab](review/README.md): single, side-by-side, and wipe views; matched detail regions; decisions and notes |
+| Judge a group or a 360° photograph | [Set and 360° review](review/README.md): explicit sequences, shared looks, synchronized sphere views, seam and pole inspection |
+| Improve an editing integration | [Workflow toolkit](workflow/README.md): collection building, provenance checks, and repeatable regression inputs |
 
-The skill uses selective reading: a shared core plus the reference relevant to the photograph. [Master studies](skills/photo-edit-master/references/master-studies.md) provide deeper context and distinguish testimony, observation, and inference. The guidance contains no fixed slider recipes or mandatory look.
+The shared philosophy has focused guidance for [landscapes](skills/photo-edit-master/references/landscape.md), [wildlife](skills/photo-edit-master/references/wildlife.md), [nightscapes](skills/photo-edit-master/references/nightscapes.md), [people](skills/photo-edit-master/references/people.md), [still life](skills/photo-edit-master/references/still-life.md), and [spherical photographs](skills/photo-edit-master/references/spherical.md). There is no mandatory look or fixed slider recipe.
 
-## One workspace for review and personal style
+## Three projects, one connected workflow
 
-The [local review application](review/README.md) brings edit comparisons, style exploration, denoise review, and detail inspection into one extensible workspace. Agents publish rendered candidates; photographers compare them and save feedback and selections for the next iteration. Start it from this repository with Python 3.10+ on macOS or Linux:
+**Lightweft is the central entrypoint. RapidRAW and Insta360 AI Toolkit are independent, optional tools.** Each has its own repository, installation, license, and use outside this ecosystem.
 
-```sh
-python3 review/server.py --workspace .local/review --media-root . --port 8765
+```mermaid
+flowchart TB
+    L["Lightweft · direction, personal style, and review"]
+    A["Your agent or a human editor"]
+    R["RapidRAW · RAW development and editing"]
+    I["Insta360 AI Toolkit · panorama preparation"]
+    E["Another editor or processing workflow"]
+    L -->|"Creative brief"| A
+    A --> R
+    A --> I
+    A --> E
+    I -.->|"Optional prepared derivative"| R
+    R -->|"Rendered candidates"| L
+    I -->|"Panorama previews"| L
+    E -->|"Rendered candidates"| L
 ```
 
-Open `http://127.0.0.1:8765`. Follow the [review guide](review/README.md) to add your images or import an existing review manifest. The app displays existing editor exports; it does not decode RAW files or perform edits itself.
+| Project | Use it for | Start there |
+| :--- | :--- | :--- |
+| **Lightweft** · this repository | Direction, style exploration, and shared review with any editor that can supply suitable exports | [Getting started](docs/getting-started.md) |
+| **[RapidRAW](https://github.com/sheldonxxxx/RapidRAW)** · independent editor fork | Native RAW processing, reversible edits, masks, denoising, and exports; an optional MCP bridge lets an agent operate the engine | [MCP setup and tested paths](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) |
+| **[Insta360 AI Toolkit](https://github.com/sheldonxxxx/insta360-ai-toolkit)** · independent toolkit | Saved-photo stitching, HDR, orientation, Studio DNG workflows, and a standalone panorama viewer | [Choose a processing route](https://github.com/sheldonxxxx/insta360-ai-toolkit#readme) |
 
-Use [photo-style-builder](skills/photo-style-builder/SKILL.md) to explore a personal look with an agent. The master skill supplies a convincing image-specific base; the style builder develops your preferences through rendered alternatives and feedback. Save qualitative preferences as a workspace edit profile, or save a real editor recipe as a preset with provenance and reuse limits. Personal taste stays in your workspace, independently of the shared master skill.
+**The companion workflows have bounded test evidence.** RapidRAW's MCP records cover macOS/Metal and a specific Linux/NVIDIA setup; Windows and packaged MCP releases remain untested. Insta360's records cover selected INSP processing in Linux containers on Apple Silicon and x86-64 Linux, plus a separate native macOS Studio DNG route. Vendor SDK access is required for the SDK route, and direct SDK DNG stitching did not pass image acceptance. See the [compatibility and evidence guide](docs/ecosystem.md#compatibility-and-evidence) before setting up either tool.
 
-For a film interpretation, the [film selection guide](skills/photo-style-builder/references/film-emulation.md) explains when to try six RapidRAW emulations, what to protect, and when to retain the base. Agents can suggest an available film from the photograph's light, colour and intended mood, then compare its actual rendering. Sample observations and physical-film background are kept distinct; no film is a universal preset for a genre.
+The connection is a workflow through your agent, exported images, recipes, and review manifests. There is no bundled installer or automatic discovery of these tools. You can use Lightweft alone, either companion alone, or all three together.
 
-```sh
-npx skills add sheldonxxxx/lightweft --skill photo-style-builder
-```
+## Your photographs, your judgment
 
-## Bring your favourite editor
+The review app serves registered local exports on loopback and stores feedback in your workspace. Your agent or model provider has its own data-handling settings; using local review does not mean every AI interaction stays on your machine.
 
-```text
-                               LIGHTWEFT
-                      intention · priorities · critique
-                                   │
-                    Your agent or a human editor
-                                   │
-               ┌───────────────────┴───────────────────┐
-        Your preferred editor                   RapidRAW + MCP
-      available controls or API                optional companion
-               └───────────────────┬───────────────────┘
-                            Render → Review
-```
+Keep originals intact and work on editable state or derivatives. Judge the actual rendered image, including the cost of an edit to texture, atmosphere, and scene meaning. Ordinary photographic editing does not authorize generative changes; agree on those explicitly. Preserve the original scene and resolution unless your brief calls for a different output, such as a selected perspective from a sphere.
 
-Use the plan in Lightroom, darktable, Photoshop, a command-line workflow, or another editor. Automated execution depends on the controls, API, or separate execution skill available to your agent. **The planning skill is independent of RapidRAW and does not automatically add integrations to other applications.**
+## Build with Lightweft
 
-## Optional companion: RapidRAW MCP
+Our vision is an **AI photo editing universe with Lightweft at its center**: more tools and photographic workflows connected by clear artistic intent, reviewable results, and your feedback. The current foundation is deliberately modular. Read [the ecosystem and direction](docs/ecosystem.md) for today's boundaries and where contributions can help.
 
-<p>
-  <a href="https://github.com/sheldonxxxx/RapidRAW"><img alt="RapidRAW: optional companion" src="https://img.shields.io/badge/RapidRAW-Optional_Companion-203e47?style=flat-square"></a>
-  <a href="https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/VERIFICATION.md"><img alt="MCP workflow tested on macOS" src="https://img.shields.io/badge/MCP_Workflow-macOS_Tested-53615f?style=flat-square"></a>
-</p>
-
-[**My RapidRAW fork**](https://github.com/sheldonxxxx/RapidRAW) is the tested execution companion for this skill. Its native MCP bridge lets a vision-capable agent inspect RAW photographs, make reversible edits, build masks, compare versions, run denoising jobs, and export the result through RapidRAW's own processing engine.
-
-| Lightweft | RapidRAW execution skill |
+| Resource | Purpose |
 | :--- | :--- |
-| Chooses the artistic intention | Translates that intention into native operations |
-| Explains what should change and what to protect | Maintains sessions, revisions, masks, and editable state |
-| Critiques the rendered photograph | Returns previews, native detail, comparisons, and exports |
+| [Getting started](docs/getting-started.md) | Install skills, review your first pair, and choose optional tools |
+| [Review guide](review/README.md) | Panels, manifests, CLI/API, feedback, and extension points |
+| [Workflow guide](workflow/README.md) | Build and verify local regression collections |
+| [Contributing](CONTRIBUTING.md) | Development checks and contribution boundaries |
+| [Changelog](CHANGELOG.md) | Changes to Lightweft |
 
-Install the companion separately:
+Questions, workflow ideas, or a reproducible issue? [Share feedback](https://github.com/sheldonxxxx/lightweft/issues).
 
-```sh
-npx skills add sheldonxxxx/RapidRAW --skill rapidraw-mcp
-```
-
-**Tested on macOS with Metal and a source-built MCP-enabled binary. Windows has not been tested for this MCP workflow.** Linux and packaged MCP releases are also untested. The [verification record](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/VERIFICATION.md) separates protocol tests, real native processing, visual checks, and remaining limits.
-
-### macOS quick start
-
-**1 · Prepare the build tools**
-
-Use macOS 13+ with a Metal-capable GPU, Node.js 22.12+, and [Rust via rustup](https://www.rust-lang.org/tools/install). Install Apple's Command Line Tools if needed:
-
-```sh
-xcode-select --install
-```
-
-See [Tauri's macOS prerequisites](https://v2.tauri.app/start/prerequisites/#macos) for the native toolchain requirements.
-
-**2 · Build the fork and its MCP server**
-
-```sh
-git clone https://github.com/sheldonxxxx/RapidRAW.git
-cd RapidRAW
-
-rustup toolchain install 1.98.1 --profile minimal
-npm ci
-npm run build
-CARGO_PROFILE_DEV_DEBUG=0 cargo +1.98.1 build \
-  --manifest-path src-tauri/Cargo.toml --features mcp --locked
-npm ci --prefix mcp
-npm run build --prefix mcp
-```
-
-This produces the debug binary used by the tested setup. The `mcp` feature is required; the upstream downloadable app does not include this fork's bridge. Native build dependencies may download on the first build.
-
-**3 · Connect your agent**
-
-Add a stdio server in your agent's MCP settings. For hosts using `mcpServers` JSON, the configuration has this shape:
-
-```json
-{
-  "mcpServers": {
-    "rapidraw": {
-      "command": "/absolute/path/to/node",
-      "args": [
-        "/absolute/path/to/RapidRAW/mcp/dist/index.js",
-        "--binary", "/absolute/path/to/RapidRAW/src-tauri/target/debug/RapidRAW",
-        "--workspace", "/absolute/path/to/rapidraw-photo-jobs"
-      ]
-    }
-  }
-}
-```
-
-Replace the examples with real absolute paths; `command -v node` locates Node. Use the actual Cargo output location if you set `CARGO_TARGET_DIR`. Keep the job workspace separate from your originals. Other MCP hosts may use a different configuration format with the same command and arguments.
-
-Restart or reconnect your agent, then ask it to call **`rapidraw_capabilities`**. Installing the skill and connecting the MCP server are separate steps. Local AI tools may need models installed through the bridge; ordinary grading and geometric masks can work without them.
-
-**4 · Make your first edit**
-
-> Use photo-edit-master for artistic direction and rapidraw-mcp for execution. Inspect this photo, choose a treatment, preserve the original, and compare the rendered result before exporting.
-
-For connection recovery, model setup, and detailed test commands, see the fork's [MCP guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) and [execution skill](https://github.com/sheldonxxxx/RapidRAW/tree/main/skills/rapidraw-mcp).
-
-## For skill authors and workflow builders
-
-The optional [RAW regression toolkit](workflow/README.md) builds a private catalogue from your CR3/DNG inputs and existing previews. It checks hashes, file identity, capture groups, and recorded provenance. It is useful for regression work alongside visual review; it does not score aesthetic quality.
-
-<details>
-<summary><strong>Repository map and validation commands</strong></summary>
-
-| Path | Purpose |
-| :--- | :--- |
-| `skills/photo-edit-master/` | Generic planning and critique skill, with research references |
-| `skills/photo-style-builder/` | Collaborative personal style exploration and workspace profiles |
-| `review/` | Local review server, browser panels, and session contract |
-| `workflow/` | Local suite builder, catalogue, verifier, and blank templates |
-| `tests/` | Synthetic integrity and portability tests |
-| `scripts/check_public_repo.py` | Public-source boundaries and common private-data checks |
-
-Python 3.10+; standard library only:
-
-```sh
-python3 -m unittest discover -s tests -v
-python3 scripts/check_public_repo.py
-```
-
-Photos, private library metadata, editing runs, and a separate local RapidRAW checkout stay outside this repository's public source. The banner is original vector artwork, not a sample edit or benchmark result.
-
-</details>
-
----
-
-<p align="center"><strong>Make what matters more perceptible. Preserve what gives it meaning.</strong></p>
-<p align="center">
-  <a href="skills/photo-edit-master/SKILL.md">Read the skill</a> ·
-  <a href="CONTRIBUTING.md">Contribute</a> ·
-  <a href="https://github.com/sheldonxxxx/lightweft/issues">Share feedback</a>
-</p>
-
-Original code, documentation, and vector artwork are [MIT licensed](LICENSE). Referenced research and third-party projects retain their own terms. RapidRAW is a separate project under its own AGPL-3.0 license.
+Original code, documentation, and vector artwork are [MIT licensed](LICENSE). The banner is illustrative vector artwork. Referenced research and third-party projects retain their own terms; RapidRAW uses AGPL-3.0, and Insta360's vendor SDK has separate terms.
