@@ -40,7 +40,13 @@ npx skills add sheldonxxxx/lightweft --skill photo-edit-master
 
 Choose your agent when prompted. The [Skills CLI](https://github.com/vercel-labs/skills#readme) supports project installation by default; add `--global` for a user-level installation.
 
-Then give your agent a photograph and a brief:
+**The skill supplies artistic direction; it needs a connected editor to make actual edits.** Pair it with the **[RapidRAW MCP fork](https://github.com/sheldonxxxx/RapidRAW)**: follow its [MCP setup guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) to build the fork with MCP enabled, connect it to your agent, and install the `rapidraw-mcp` execution skill. The command above does not install or connect the editor.
+
+**Or outsource the setup side quest:** give your AI agent this README and say:
+
+> Set up Lightweft and the RapidRAW MCP fork for me. Install both skills, follow the fork's setup guide to build and connect the editor, and verify the MCP connection. Let me know when we're ready for our first photo.
+
+Once your editor is connected, give your agent a photograph and a brief:
 
 > Use photo-edit-master to develop this photograph with my available editor. Choose a clear artistic direction, explain the visible priorities, and protect the relationships that make the scene convincing. Review the finished edit at viewing size and matched native detail.
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Clarify the RapidRAW MCP setup needed for agent-driven editing alongside the one-command skill install, and add a prompt for delegating setup to an AI agent.
 - Make showcase photo comparisons smaller and centered while preserving the full image and usable controls.
 - Refresh the README introduction and banner to explain the roles of Lightweft, RapidRAW MCP, and connected photo libraries.
 - Redesign the showcase around AI workflows for studying a photo library, editing selected photos, and creating custom presets, with a growing demo directory and workflow-specific stories.
