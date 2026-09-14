@@ -236,12 +236,13 @@ The context contains `dataset`, `photo`, `left`, `right`, and view state. `revie
 
 The [server](server.py) uses the Python standard library. The [browser store](web/store.js) owns autosave, conflict state, and draft recovery. Browser code is served directly from `web/`. Use synthetic patterns and invented identities in tests, keeping photographs and populated review data in your local workspace.
 
-Run the repository checks from its root:
+First install the [development prerequisites](../CONTRIBUTING.md#develop-and-test), then run the repository checks from its root:
 
 ```sh
-python3 -m unittest discover -s tests -v
+.venv/bin/python -m unittest discover -s tests -v
 node --test review/tests/*.test.mjs
-python3 scripts/check_public_repo.py --working-tree
+.venv/bin/python scripts/check_public_repo.py --working-tree
+.venv/bin/python scripts/check_public_repo.py
 ```
 
 The browser tests use Node.js 22+ and need no packages. They cover comparison behavior, sphere geometry, sequence grouping, queued saves, conflicts, and workspace-isolated draft recovery. `--working-tree` checks tracked and unignored source before staging. See [contributing](../CONTRIBUTING.md) for the final staged-file check.

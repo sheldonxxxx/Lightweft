@@ -75,7 +75,7 @@ Never publish generated catalogues, manifests, or populated evaluations from a p
 
 ## Verify changes to these tools
 
-From the repository root:
+First install and activate the [development prerequisites](../CONTRIBUTING.md#develop-and-test), including Pillow for public showcase checks. Then run from the repository root:
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_workflow.py' -v

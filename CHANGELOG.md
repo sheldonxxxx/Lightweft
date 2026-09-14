@@ -8,6 +8,23 @@
 - Add a getting-started guide for skills, the disposable review demo, and a first persistent comparison; document the ecosystem and project responsibilities.
 - Refresh the repository banner and documentation navigation, and align contribution checks with the complete browser test suite.
 
+### Public showcase and setup
+
+- Clarify the RapidRAW MCP setup needed for agent-driven editing alongside the one-command skill install, and add a prompt for delegating setup to an AI agent.
+- Make showcase photo comparisons smaller and centered while preserving the full image and usable controls.
+- Refresh the README introduction and banner to explain the roles of Lightweft, RapidRAW MCP, and connected photo libraries.
+- Redesign the showcase around AI workflows for studying a photo library, editing selected photos, and creating custom presets, with a growing demo directory and workflow-specific stories.
+- Add four Style Builder photo demonstrations with matched base/preset comparisons, responsive images, and a guide to developing a consistent personal palette.
+- Support accurate per-side comparison labels and descriptions while preserving existing nightscape comparisons.
+
+- Prevent the showcase hero's photo count from overlapping its comparison link in shorter windows.
+- Add a public photo showcase featuring two galaxy photographs selected through targeted Immich searches, with responsive before-and-after comparisons and support for future collections and photo aspect ratios.
+- Add a manually triggered GitHub Pages workflow and validate approved demo JPEGs, metadata, comparison dimensions, and the site's explicit runtime files.
+- Bring visitors directly to the photo comparisons, clarify Lightweft's role and photographer feedback, and improve social-preview readability.
+- Document Pillow setup for contributor checks and require a product manager agent review of public-facing material.
+- Present Lightweft's skills and local review app together, with companion setup linked to its owning repository.
+- Link the master studies and nightscape guidance to primary artist, museum, interview, and research sources.
+
 ### Photo review
 
 - Allow review dialogs to close by clicking the background, without dismissing them when interacting with their content.

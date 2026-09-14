@@ -4,7 +4,7 @@ A nightscape joins a celestial field to a terrestrial place. The foreground can 
 
 ## Different aims, shared relationships
 
-Babak Tafreshi describes landmarks as a way to connect viewers to otherwise abstract celestial sights. In his account he favours a rendering resembling unaided observing. Royce Bair instead explains how his camera records greater brightness and how interpretation can reveal stars already captured. His NightScapes approach makes the landscape recognizable alongside the sky. These are differing artistic aims, not competing universal standards.
+[Babak Tafreshi's nightscape essay](https://skyandtelescope.org/astronomy-resources/tips-for-shooting-great-nightscapes/) describes landmarks as a way to connect viewers to otherwise abstract celestial sights. In his account he favours a rendering resembling unaided observing. [Royce Bair's comparison of camera and naked-eye views](https://intothenightphoto.blogspot.com/2013/02/view-milky-way-with-your-naked-eye.html) instead explains how his camera records greater brightness and how interpretation can reveal stars already captured. His NightScapes approach makes the landscape recognizable alongside the sky. These are differing artistic aims, not competing universal standards.
 
 Our synthesis permits a richly descriptive sky beyond naked-eye appearance when it is supported by the photograph. It also permits a quieter experience of darkness. Choose what makes this encounter compelling. Credibility depends on coherent recorded relationships, not obligatory dimness, a blue sky, or imitation of a master's palette.
 
@@ -12,7 +12,7 @@ Our synthesis permits a richly descriptive sky beyond naked-eye appearance when 
 
 A cleaner sky can reveal depth by making dark intervals less restless. But the brightest stars alone do not account for the field: faint groupings, relative brightness, colour differences, and recorded shapes contribute to its character. Smoothness becomes a loss when it suppresses recognizable faint stars, merges neighbours, or gives every star the same emphatic edge.
 
-Bair's preference for points describes his chosen capture approach; he also appreciates trails. An existing short streak is therefore not automatically a defect to erase or reshape. Star shape may reflect the recorded motion or optics. Preserve the distinction between interpreting the capture and inventing a different one. Adam Woodworth's discussion of noise and star rendering likewise makes their tradeoff concrete, including the possibility of grainy or blocky large prints after heavy cleanup.
+[Bair's preference for points](https://intothenightphoto.blogspot.com/2014/01/photographing-milky-way-nightscapes.html) describes his chosen capture approach; he also appreciates trails. An existing short streak is therefore not automatically a defect to erase or reshape. Star shape may reflect the recorded motion or optics. Preserve the distinction between interpreting the capture and inventing a different one. [Adam Woodworth's discussion of noise and star rendering](https://adamwoodworth.substack.com/p/star-stacking-for-pinpoint-stars) likewise makes their tradeoff concrete, including the possibility of grainy or blocky large prints after heavy cleanup.
 
 ## Coherent structure and uncertain mottling
 
@@ -32,4 +32,4 @@ After strengthening sky contrast, compare the land with its previous treatment: 
 
 ## Processing evidence is not a final source limit
 
-Woodworth distinguishes information captured across independent exposures from detail that remains unrecorded; cleaner appearance and additional captured evidence are different achievements. Our deduction for editing is to separate a failed treatment from exhausted source potential. A noisy preview or unsuccessful contrast change does not prove that better RAW interpretation is impossible. Equally, a promising plan does not establish recovered detail. Keep uncertain recovery claims conditional while making decisive choices about the sky–land relationship the image already supports.
+[Woodworth distinguishes information captured across independent exposures from detail that remains unrecorded](https://adamwoodworth.substack.com/p/star-stacking-for-pinpoint-stars); cleaner appearance and additional captured evidence are different achievements. Our deduction for editing is to separate a failed treatment from exhausted source potential. A noisy preview or unsuccessful contrast change does not prove that better RAW interpretation is impossible. Equally, a promising plan does not establish recovered detail. Keep uncertain recovery claims conditional while making decisive choices about the sky–land relationship the image already supports.

@@ -1,44 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title desc">
-  <title id="title">Lightweft — your workspace for AI photo editing.</title>
-  <desc id="desc">An editorial composition in ivory, copper, and midnight blue. An abstract landscape sits within a photographic frame, surrounded by fine aperture rings.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="660" viewBox="0 0 1600 660" role="img" aria-labelledby="title desc">
+  <title id="title">Lightweft — pro-level photo editing. Just talk to your AI.</title>
+  <desc id="desc">Lightweft guides your AI to plan edits, create your presets, review results and refine them with your feedback. A separately connected photo library, such as Immich, supplies photographs. The optional RapidRAW MCP companion edits and exports them, returning results for review.</desc>
   <defs>
-    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#ddb99a"/><stop offset="1" stop-color="#f2dfbd"/></linearGradient>
-    <linearGradient id="land" x2="1" y2="1"><stop stop-color="#425f66"/><stop offset="1" stop-color="#203e47"/></linearGradient>
-    <clipPath id="frame"><rect x="1000" y="88" width="448" height="368" rx="4"/></clipPath>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="m1 1 8 4-8 4" fill="none" stroke="#cdb873" stroke-width="1.5" stroke-linejoin="round"/>
+    </marker>
   </defs>
-  <rect width="1600" height="560" rx="16" fill="#f5f0e7"/>
-  <path d="M910 0H1584Q1600 0 1600 16V544Q1600 560 1584 560H910Z" fill="#142c34"/>
-  <g fill="none" stroke="#9eb0ac" stroke-width="1" opacity=".22">
-    <circle cx="1224" cy="272" r="256"/><circle cx="1224" cy="272" r="232"/>
-    <path d="M924 272H1524M1224 0V548"/>
-    <path d="M940 72L1510 478M941 478L1510 72"/>
+  <rect width="1600" height="660" rx="14" fill="#0a1513"/>
+  <g fill="none" stroke="#cdb873" stroke-width="2.2" stroke-linecap="round">
+    <path d="M66 58h28m-14-14v28M70 48l20 20m0-20L70 68"/>
+  </g>
+  <g font-family="Georgia, 'Times New Roman', serif" fill="#eeeade">
+    <text x="108" y="71" font-size="40">Lightweft</text>
+    <text x="64" y="171" font-size="70" letter-spacing="-1.5">Pro-level photo editing.</text>
+    <text x="64" y="250" font-size="70" letter-spacing="-1.5">Just talk to your AI.</text>
+  </g>
+  <path d="M64 290H1536" stroke="#35443b"/>
+
+  <rect x="64" y="352" width="280" height="180" rx="10" fill="#0c1b17" stroke="#465249" stroke-width="1.5"/>
+  <rect x="440" y="326" width="720" height="220" rx="10" fill="#11271f" stroke="#cdb873" stroke-width="2"/>
+  <rect x="1256" y="352" width="280" height="180" rx="10" fill="#0c1b17" stroke="#465249" stroke-width="1.5"/>
+
+  <g font-family="Georgia, 'Times New Roman', serif" fill="#eeeade">
+    <text x="90" y="405" font-size="32">Photo library</text>
+    <text x="480" y="384" font-size="39">Lightweft guides your AI</text>
+    <text x="1282" y="432" font-size="28">RapidRAW MCP</text>
   </g>
   <g font-family="Arial, Helvetica, sans-serif">
-    <path d="M72 69h18m-9-9v18" stroke="#9f694a" stroke-width="2"/>
-    <text x="106" y="76" fill="#6b665d" font-size="16" letter-spacing="3">LIGHTWEFT</text>
-    <text x="72" y="207" fill="#182f36" font-size="88" font-family="Georgia, 'Times New Roman', serif" letter-spacing="-3">Every edit,</text>
-    <text x="72" y="303" fill="#9a6044" font-size="88" font-family="Georgia, 'Times New Roman', serif" font-style="italic" letter-spacing="-3">with intention.</text>
-    <text x="76" y="367" fill="#53615f" font-size="24">Your workspace for AI photo editing.</text>
-    <text x="76" y="402" fill="#53615f" font-size="24">Find a direction. Shape a style. Review every edit.</text>
-    <path d="M76 452H821" stroke="#cec8ba"/>
-    <text x="76" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">OBSERVE</text>
-    <text x="256" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">DIRECT</text>
-    <text x="422" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">EDIT</text>
-    <text x="568" y="495" fill="#716a5c" font-size="13" letter-spacing="2.3">REFINE</text>
-    <path d="M195 490h22m-5-4 5 4-5 4m141-4h22m-5-4 5 4-5 4m134-4h22m-5-4 5 4-5 4" fill="none" stroke="#a19885"/>
+    <text x="90" y="449" fill="#eeeade" font-size="25">e.g. Immich</text>
+    <text x="90" y="493" fill="#b4beb3" font-size="22">Supplies photos</text>
+    <text x="480" y="441" fill="#eeeade" font-size="26">Plan edits · Create your presets</text>
+    <text x="480" y="493" fill="#eeeade" font-size="26">Review results · Refine together</text>
+    <text x="1282" y="391" fill="#cdb873" font-size="20" letter-spacing=".5">OPTIONAL EDITOR</text>
+    <text x="1282" y="479" fill="#b4beb3" font-size="24">Edits and exports</text>
   </g>
-  <g clip-path="url(#frame)">
-    <rect x="1000" y="88" width="448" height="368" fill="url(#sky)"/>
-    <circle cx="1327" cy="170" r="39" fill="#faf0cf"/>
-    <path d="M972 344 1060 258 1120 303 1220 187 1380 365 1480 250V470H972Z" fill="#afbab0"/>
-    <path d="m1100 333 120  -146 160 178-108-77-44 17-51-57-44 60Z" fill="#dbe0c9"/>
-    <path d="m970 397 131-99 85 45 102-26 192 100v80H970Z" fill="#6f8a86"/>
-    <path d="M983 468 1056 385 1118 413 1256 324 1360 410 1490 386V485H983Z" fill="url(#land)"/>
-    <path d="m1256 324-46 111-8 40" fill="none" stroke="#b4c4b5" stroke-width="2" opacity=".7"/>
-    <path d="M1000 334h448" stroke="#f4ecd8" opacity=".14"/>
+
+  <g fill="none" stroke="#cdb873" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M356 448H426"/>
+    <path d="M1172 448H1242"/>
+    <path d="M1396 545v30q0 13-13 13H813q-13 0-13-13v-16"/>
   </g>
-  <g fill="none" stroke="#d9d0b7" stroke-width="2">
-    <path d="M981 124V69h55m377 0h54v55m0 296v55h-54m-377 0h-55v-55"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#cdb873" font-size="20" text-anchor="middle">
+    <text x="391" y="425">Photos</text>
+    <text x="1207" y="425">Edit plan</text>
+    <text x="1098" y="574">Results for review</text>
   </g>
-  <text x="1001" y="505" fill="#c1c6b8" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="2.5">LIGHT / COLOUR / ATMOSPHERE</text>
 </svg>

@@ -23,9 +23,12 @@ Extend the shared Review application when a new inspection needs a specialised p
 
 Use Python 3.10+ on macOS or Linux and Node.js 22+ for browser-module tests. Review and collection tools use the Python standard library; the browser modules need no package installation or build step. Run a [disposable review demo](review/README.md#try-the-demo) for interface work.
 
-From the repository root:
+Install Pillow for the approved showcase JPEG checks, then run from the repository root:
 
 ```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install Pillow==12.2.0
 python3 -m unittest discover -s tests -v
 node --test review/tests/*.test.mjs
 python3 scripts/check_public_repo.py --working-tree
@@ -53,8 +56,10 @@ git diff --cached
 
 ## Publication boundary
 
-`.gitignore` uses a source allowlist because this workspace may also contain private photo libraries and editing runs. New public files require a deliberate allowlist change in both `.gitignore` and [the publication checker](scripts/check_public_repo.py). Keep those boundaries consistent so files visible to Git also pass publication validation. Never force-add originals, personal rendered photos, EXIF dumps, library manifests, session/recipe data, credentials, local database configuration, or independent companion checkouts. Use invented identifiers and synthetic test bytes in examples.
+`.gitignore` uses a source allowlist because this workspace may also contain private photo libraries and editing runs. New public files require a deliberate allowlist change in both `.gitignore` and [the publication checker](scripts/check_public_repo.py). Keep those boundaries consistent so files visible to Git also pass publication validation. Only approved, metadata-stripped demo JPEGs belong in `showcase/assets/`; follow the [showcase guide](showcase/README.md). Never force-add originals, other personal rendered photos, EXIF dumps, library manifests, session/recipe data, credentials, local database configuration, or independent companion checkouts. Use invented identifiers and synthetic test bytes in examples.
 
 Keep private inputs and outputs under `.local/` or another ignored directory. Write documentation for users and contributors, using links to included repository files or public URLs. Exclude private paths, personal photo names, local run evidence, conversation history, and temporary maintenance notes. Read the complete staged diff before publishing; pattern checks cannot prove that every secret or personal detail is absent. Do not paste private manifests or authentication data into issues.
+
+Have a separate agent acting as a product manager review public-facing material for clarity, presentation, accurate claims, and marketability appropriate to its purpose. Address material findings before delivery or publication; see the [review policy](AGENTS.md#product-manager-review-of-public-facing-material).
 
 RapidRAW and the Insta360 toolkit have their own source, installation instructions, licenses, and release processes. Review, commit, and publish changes to each in its own repository.

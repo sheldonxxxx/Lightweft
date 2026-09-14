@@ -67,3 +67,19 @@
 !/review/tests/sphere.test.mjs
 !/review/tests/compare.test.mjs
 !/review/tests/sequence.test.mjs
+
+# Approved public showcase and its validation tools.
+!/.github/workflows/pages.yml
+!/scripts/build_showcase.py
+!/scripts/showcase_media.py
+!/tests/test_showcase.py
+!/showcase/
+!/showcase/README.md
+!/showcase/LICENSE
+!/showcase/index.html
+!/showcase/styles.css
+!/showcase/app.js
+!/showcase/data.json
+!/showcase/assets/
+!/showcase/assets/**/
+!/showcase/assets/**/*.jpg
