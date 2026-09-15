@@ -27,6 +27,7 @@
 
 ### Photo review
 
+- Remove inspection checkboxes from the standard feedback form while keeping them available in compact review panels.
 - Allow review dialogs to close by clicking the background, without dismissing them when interacting with their content.
 - Reduce visual clutter around photographs by removing repeated page headings, taglines, thumbnail IDs, and decorative label icons.
 - Clarify first-run collection setup and JSON import errors, and open the first agent-added collection automatically when following updates.
@@ -44,12 +45,15 @@
 
 ### Editing guidance
 
+- Apply supported personal preferences from accepted edits and feedback to subsequent photographs, with guidance for checking whether learning transfers.
+- Add collection selection and sequencing guidance, and refine wildlife tonal separation and scene lighting judgment.
+- Clarify editor discretion for distraction removal and native-detail repair checks; whole-image generation and separate generated assets still require explicit permission.
 - Add guidance for compact per-photo checkpoints, selective state retrieval, and continuing rendered reviews after a context reset.
 
 - Add the photo-style-builder skill for collaborative look exploration, qualitative workspace profiles, and validated editor preset provenance.
 - Separate personal style development from the master skill's image-specific editing foundation, and route ongoing review through the shared application.
 - Add conditional film-emulation recommendations, a six-look selection guide with sample observations and primary sources, and optional film suggestions during image-specific edit planning.
-- Require explicit permission before using generative image services; preserve the original scene and resolution for ordinary photo edits and local compositing.
+- Preserve original photographs, sidecars, retained scene content, and source resolution during editing and cleanup.
 
 ### Collection tools
 

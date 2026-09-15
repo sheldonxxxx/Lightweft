@@ -34,6 +34,12 @@ The optional [**RapidRAW MCP companion**](#optional-companion-rapidraw-mcp) give
 
 For 360° photographs, the [spherical composition guidance](skills/photo-edit-master/references/spherical.md) distinguishes an immersive edit from choosing a perspective photograph. The [shared review application](review/README.md) supports synchronized spherical comparisons, seam and pole inspection, and viewing-coordinate export alongside ordinary photo review.
 
+## Why I built this
+
+I'm a beginner photographer, not a master. I often struggle to decide how to edit my photos, so I built Lightweft to explore how AI can help me find a direction, try different edits, and learn what works. This project grows out of that learning process, and I hope it helps others who feel just as unsure where to start.
+
+Contributions from experienced photographers and masters of the craft are especially welcome. Your advice, critiques, and editing knowledge can help make this a better resource for everyone learning along the way.
+
 ## Install in one command
 
 ```sh

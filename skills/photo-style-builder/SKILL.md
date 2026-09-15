@@ -1,11 +1,17 @@
 ---
 name: photo-style-builder
-description: Explore a photographer's personal editing style through rendered alternatives and feedback, including film-emulation recommendations, then save a workspace-local edit profile or a validated editor preset. Use for collaborative style development, look comparisons, and refinement of existing personal preferences; ordinary image-specific planning belongs to photo-edit-master.
+description: Learn and apply a photographer's taste from accepted edits, visual references, and review feedback. Use for successive edits or batches with an existing personal profile, learning from corrections, collaborative look comparisons, film-emulation recommendations, and saving workspace-local profiles or validated editor presets. Works with photo-edit-master for image-specific judgment.
 ---
 
 # Photo Style Builder
 
-Build a personal style with the user through actual photographs. Keep the reusable preference in the user's workspace so it can evolve independently of shared editing philosophy.
+Learn a personal style with the user through actual photographs, then apply supported preferences to subsequent work. Keep personal evidence and preferences in the user's workspace so they can evolve independently of shared editing philosophy.
+
+## Learn, apply, or explore
+
+For a returning photographer, an existing profile, or feedback from earlier edits, read [learning and applying taste](references/taste-learning.md). This applies during ordinary editing, not only when the user explicitly asks to explore a style. Use the current brief, accepted visual examples, and relevant corrections to choose one strong first delivery. Do the necessary experimentation and comparison internally; do not reopen settled choices through another menu of looks.
+
+Update the evidence after feedback and distinguish a repeated execution failure from a new preference. Explore alternatives only when a consequential preference remains unresolved or the user requests them. Better first deliveries are the objective; acceptance by the photographer is the evidence, not a guarantee supplied by the skill.
 
 ## Begin from the photograph
 
@@ -23,7 +29,15 @@ Render through the actual editor. Retain a stable ID, parent version, intention,
 
 Compare the whole photograph at its intended size, then matched detail wherever the treatment changes texture, edges, noise, or local contrast. Crops must show the same source region; differences in crop, output dimensions, or processing should remain explicit. Use denoise or zoom panels when they answer a real question. Review native exports before making claims about fine detail.
 
-Read saved feedback and decision state before the next iteration. Translate feedback into the qualities to preserve, change, or test. Keep source, base, and accepted candidates intact; add revisions as new candidates. An agent recommendation is provisional and must not be recorded as user acceptance. User feedback can narrow or redirect the exploration without a fixed quota of iterations.
+Read saved feedback and decision state before the next iteration. Translate feedback into the qualities to preserve, change, or test, and update the taste evidence before applying it to the next photograph. Keep source, base, and accepted candidates intact; add revisions as new candidates. An agent recommendation is provisional and must not be recorded as user acceptance. User feedback can narrow or redirect the exploration without a fixed quota of iterations.
+
+Treat a supplied phone edit or preset example as evidence of the relationships the user values. Identify whether its appeal comes from tonal depth, a restrained palette, a small colour accent, or stronger separation, then reinterpret those relationships through the actual source. A reference's cast, crushed shadows or framing need not become part of the direction. Once the user selects a look, refine the named problem against that version; preserve successful global relationships while testing a local change at both normal viewing size and native detail.
+
+## Continue a book or collection
+
+Before proposing another batch, reconcile the live decisions and notes with the existing accepted references. Keep source selection, permission to edit, approval of an artistic direction, acceptance of a rendered version, and inclusion in the book distinct. An explicit hold or exclusion note controls book inclusion even if an older acceptance remains recorded. Preserve that original evidence instead of silently rewriting it. A new review collection must retain the provenance of carried-forward accepted images; an empty decision counter in the new collection does not mean the earlier acceptance disappeared.
+
+Use photo-edit-master's collection judgment when available. Review accepted images together, identify the roles the next batch should add, and compare new candidates against those needs. Record each source's identity, proposed role, edit potential, relevant detail limit and overlap with existing selections. Publish the proposed batch in the shared reviewer with honest source-render labels and readable selection reasons. When the user requests selection before editing, pause at that concrete selection for approval. Confirmed taste can guide the next batch, but an unreviewed rendition must remain provisional.
 
 ## Save the right kind of style
 

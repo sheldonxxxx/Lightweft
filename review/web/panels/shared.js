@@ -35,8 +35,7 @@ export function feedback(ctx, {title = 'Your review', compact = false} = {}) {
     current.stale && el('p', {class: 'notice'}, 'This version changed. Review the new image before carrying forward your decision.'),
     decisions, field('Notes for the next edit', note),
     el('p', {class: 'field-hint'}, 'Your decision and notes save automatically for this version.'),
-    compact ? el('details', {class: 'style-checks'}, el('summary', {}, 'Inspection checks'), checkboxes(ctx)) :
-      [el('span', {class: 'field-label'}, 'Viewed at'), checkboxes(ctx)]);
+    compact && el('details', {class: 'style-checks'}, el('summary', {}, 'Inspection checks'), checkboxes(ctx)));
 }
 export function contextCard(ctx) {
   const qa = typeof ctx.photo.qa === 'string' ? ctx.photo.qa : ctx.photo.qa?.summary;

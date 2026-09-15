@@ -8,10 +8,12 @@ Lightweft is the central workspace for artistic direction, personal style, and r
 
 You are authorized to make any changes to RapidRAW and its MCP integration that you judge necessary to improve the AI photo editing workflow. This includes changes to the RapidRAW application, MCP tools, and supporting workflow code. Proceed with these improvements without asking for separate permission for each change.
 
-## Image generation requires permission
+## Image generation and photographic cleanup
 
-- This is a photo-editing project. Ask for explicit permission before using imagegen or any other generative image service, including to create a separate sticker or other asset.
-- A request to edit a photograph does not itself authorize image generation. Use photographic editing and local compositing for ordinary edits, preserving the original scene and resolution.
+- Ask for explicit permission before generating or recreating a whole image with ChatGPT ImageGen, or generating a separate image asset such as a sticker. This rule is separate from the editor's discretion to remove distractions through inpainting.
+- Distraction removal is a core editing responsibility. Decide what to remove, subdue, crop out, or retain to make the strongest photograph; do not wait for the user to name distractions or approve cleanup separately. Respect explicit keep instructions and preserve context that strengthens the subject or story. Prefer generative inpainting through the established RapidRAW/ComfyUI connector whenever suitable and available.
+- Fall back to local inpainting when the connector is unavailable, unsuitable, or produces an inferior repair. Inspect the complete repair and retained subject boundaries at native resolution for seams, residual shapes, smeared texture, and damage to feathers, fur, or perches. Restore the better reference if the repair fails; a plausible small preview is insufficient.
+- Preserve original photographs and sidecars, retained scene content, and source resolution. Keep reconstruction confined to the intended cleanup and record its method in the saved edit.
 
 ## Shared review workspace
 

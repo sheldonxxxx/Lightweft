@@ -20,6 +20,8 @@ Black feathers absorb light; a shaded body should still look shaded. Plumage, fu
 
 Texture should serve the body's form and presence. Uniform crispness can compete with gesture; excessive smoothness can make an animal feel manufactured. Rain, spray, dust, and snow may explain movement, shelter, or exposure. A face should belong to the light shared by body and habitat; a face that seems separately illuminated signals excessive emphasis.
 
+When a head reads as one dark mass, first distinguish its important markings from the illumination. A small coloured crown, pale cheek and dark neck can become legible through their relative colour and tone without lifting the whole face. Judge the gain at the photograph's intended viewing size, then inspect whether the accent retains texture and the face remains shaded. An overbright marking, vivid colour patch or circular pool of light can separate the parts while weakening the animal's presence. Do not promise an eye or feather detail that the source does not resolve.
+
 ## Let emotion emerge without inventing evidence
 
 Preserve observable behaviour and the context needed to understand it. An open beak is visible; anger is inferred. A predator need not appear menacing, and a vulnerable animal need not be made pitiable. Posture, gaze, contact, movement, and setting can evoke grief or tenderness without proving the animal experienced either. Visual intensity cannot establish the cause of suffering or substantiate a conservation claim.
