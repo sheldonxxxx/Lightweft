@@ -75,6 +75,8 @@ Once your editor is connected, give your agent a photograph and a brief:
 
 For manual installation, personal style setup, and a first comparison with your own exports, follow the [getting-started guide](docs/getting-started.md).
 
+For longer sessions, use [per-photo checkpoints and selective review](docs/continuing-edits.md) to continue edits without repeatedly loading their complete history.
+
 ## What the skill brings
 
 <table>

@@ -16,7 +16,7 @@ EXACT = {
     'workflow/build_catalogue.py', 'workflow/verify_collection.py', 'workflow/catalogue.css',
     'workflow/selection.example.json', 'workflow/evaluation-template.json',
     'assets/readme-hero.svg',
-    'docs/getting-started.md', 'docs/ecosystem.md',
+    'docs/getting-started.md', 'docs/ecosystem.md', 'docs/continuing-edits.md',
     'CHANGELOG.md', 'skills/photo-style-builder/SKILL.md',
     'review/README.md', 'review/server.py', 'review/cli.py', 'review/import_legacy.py',
     'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs', 'review/tests/sphere.test.mjs',

@@ -44,6 +44,8 @@
 
 ### Editing guidance
 
+- Add guidance for compact per-photo checkpoints, selective state retrieval, and continuing rendered reviews after a context reset.
+
 - Add the photo-style-builder skill for collaborative look exploration, qualitative workspace profiles, and validated editor preset provenance.
 - Separate personal style development from the master skill's image-specific editing foundation, and route ongoing review through the shared application.
 - Add conditional film-emulation recommendations, a six-look selection guide with sample observations and primary sources, and optional film suggestions during image-specific edit planning.
