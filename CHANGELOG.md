@@ -4,6 +4,7 @@
 
 ### Workspace and documentation
 
+- Add prerequisite checks and explicit Codex skill locations, with links to the companion's MCP setup guide and Codex host configuration.
 - Present Lightweft as the central AI photo editing workspace, with independent optional RapidRAW and Insta360 AI Toolkit companions, current compatibility boundaries, and links to each project's setup.
 - Add a getting-started guide for skills, the disposable review demo, and a first persistent comparison; document the ecosystem and project responsibilities.
 - Refresh the repository banner and documentation navigation, and align contribution checks with the complete browser test suite.

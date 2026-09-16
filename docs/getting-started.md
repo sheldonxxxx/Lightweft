@@ -14,6 +14,21 @@
 
 The skills are Markdown instructions and have no editing engine. The local review server uses Python's standard library and POSIX file handling; native Windows is not supported by that server. Node.js 22+ is used for browser-module development tests, not to run the review app.
 
+## Prepare your computer
+
+For the macOS route, install [Python 3.10 or later](https://www.python.org/downloads/macos/) for Review and [Node.js with npm](https://nodejs.org/en/download) for the Skills CLI. Choose Node.js 22.12 or later if you will also build RapidRAW. Use the official macOS installers, complete installation, then open a new terminal. If `git` is unavailable, run `xcode-select --install` and finish Apple's Command Line Tools installation.
+
+Check the terminal you will use for setup:
+
+```sh
+git --version
+node --version
+npm --version
+python3 -c 'import sys; assert sys.version_info >= (3, 10), "Review requires Python 3.10+"; print(sys.version)'
+```
+
+On Linux, install Git, Node/npm and Python through your distribution or their official installation instructions, then run the same checks. Review itself needs no Python package installation. For an agent, install and sign in to your chosen host separately; [Codex setup](https://developers.openai.com/codex/quickstart/) is one option. Native Windows Review remains unsupported.
+
 ## Install the skills
 
 With Node.js/npm available, run these commands from the project where you work with your agent:
@@ -25,7 +40,23 @@ npx skills add sheldonxxxx/lightweft --skill photo-style-builder
 
 Select your agent when prompted. The [Skills CLI](https://github.com/vercel-labs/skills#readme) installs to the project by default; add `--global` for user-level installation. Reconnect or start a new agent session if your host loads skills only at startup.
 
-For a manual install, download or clone this repository and copy the complete [photo-edit-master](../skills/photo-edit-master/SKILL.md) and [photo-style-builder](../skills/photo-style-builder/SKILL.md) directories, including their `references/` folders, into your agent's supported skill location. Hosts without skill discovery can read those files directly. Installing skills alone does not install the review app or either companion.
+For a manual install, download or clone this repository and copy the complete [photo-edit-master](../skills/photo-edit-master/SKILL.md) and [photo-style-builder](../skills/photo-style-builder/SKILL.md) directories, including their `references/` folders, into your agent's supported skill location. Copying skills from an existing checkout requires neither Node/npm nor Python; those prerequisites apply to the CLI, Review, or optional editor you choose. Hosts without skill discovery can read those files directly. Installing skills alone does not install the review app or either companion.
+
+### Manual installation for Codex
+
+From the directory where you will start your photo-editing task, copy the skills into `.agents/skills`. Replace `/absolute/lightweft` with your checkout; use an empty destination or inspect an existing installation before replacing it:
+
+```sh
+mkdir -p .agents/skills
+cp -R /absolute/lightweft/skills/photo-edit-master .agents/skills/
+cp -R /absolute/lightweft/skills/photo-style-builder .agents/skills/
+test -f .agents/skills/photo-edit-master/SKILL.md
+test -f .agents/skills/photo-style-builder/references/taste-learning.md
+```
+
+Codex also discovers user-level skills under `~/.agents/skills`; use that destination if you want them available across projects. Open the project in Codex and check the skill selector for `photo-edit-master` and `photo-style-builder`. Restart Codex if they do not appear. A host without skill discovery can be told to read the installed `SKILL.md` and its linked references directly. See [Codex skill locations](https://developers.openai.com/codex/skills/).
+
+For actual editing in Codex, continue with the companion's [MCP setup guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md), including its separate execution skill and native startup check. Use [Codex MCP configuration](https://developers.openai.com/codex/mcp/) for the host's TOML format.
 
 **Start with one photograph:**
 

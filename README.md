@@ -79,7 +79,7 @@ Once your editor is connected, give your agent a photograph and a brief:
 
 </details>
 
-For manual installation, personal style setup, and a first comparison with your own exports, follow the [getting-started guide](docs/getting-started.md).
+For computer prerequisites, manual Codex skill installation, personal style setup, and a first comparison with your own exports, follow the [getting-started guide](docs/getting-started.md). To connect the editor, follow the companion's [MCP setup guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md) and [Codex host configuration](https://developers.openai.com/codex/mcp/).
 
 For longer sessions, use [per-photo checkpoints and selective review](docs/continuing-edits.md) to continue edits without repeatedly loading their complete history.
 
