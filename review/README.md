@@ -26,6 +26,8 @@ python3 review/server.py --workspace .local/review --media-root . --port 8765
 
 Open <http://127.0.0.1:8765> and keep the server running during review. `--workspace` holds local review state; `--media-root` is the directory against which image and recipe paths resolve. The server exposes only registered media and rejects paths that traverse directories or symlinks. It listens on loopback for use on your own computer. Stop it with Ctrl+C; this workspace and its feedback remain on disk.
 
+To review from another device on your local network (for example a tablet), start with `--bind 0.0.0.0` and open the printed LAN address there. This exposes the workspace to the local network without authentication, so use it only on a trusted network and stop the server when finished.
+
 The application reads browser-compatible renders. Export RAW photographs through your editor first and retain their originals and editable state. Browser display depends on the display, browser, and exported colour profile; use native exports and matched detail when judging texture or processing artifacts.
 
 ## Add a review
@@ -85,6 +87,8 @@ python3 review/cli.py import .local/style-study.json \
 ```
 
 Select **Personal style study** in the collection selector, or open <http://127.0.0.1:8765/?dataset=style-study&case=example&panel=review>. The import registers paths and metadata; it does not move, edit, or delete source photographs. Keep rendered versions at distinct paths so old decisions continue to refer to the images actually reviewed. Preserve the base and accepted versions when adding a new candidate. The CLI also works while the browser server is stopped.
+
+Hide finished experiments with the collection selector's **Disable** button; disabled collections stay in the workspace but are hidden unless **Show disabled** is on. Re-enable them from the viewer or with `python3 review/cli.py enable <id> --workspace .local/review --media-root .` (`disable` hides them the same way). Disabling preserves feedback and bumps the dataset version. The toggle changes collection metadata only, so it also works while a render is temporarily missing.
 
 For large photographs, each variant can point `image` to a smaller review preview and `full` to the full export. Both files must exist when imported. Use browser-compatible formats such as JPEG, PNG, or WebP; TIFF and AVIF display support depends on the browser. RAW decoding and edit rendering belong to your editor.
 
@@ -162,7 +166,7 @@ WebGL sphere viewing interpolates pixels and may reduce large exports to the bro
 
 ## Session and agent contract
 
-The manifest uses `schemaVersion: 1`. Each case contains variants; each variant points to a render rather than embedding image bytes. Useful optional case fields include `category`, `split`, `format`, `intent`, `limits`, `metadata`, and `qa`. Variant roles are `baseline`, `candidate`, or `reference`; optional fields include `full`, `recipe`, `recipeFormat`, `width`, `height`, `description`, and `metadata`.
+The manifest uses `schemaVersion: 1`. Each case contains variants; each variant points to a render rather than embedding image bytes. Useful optional case fields include `category`, `split`, `format`, `intent`, `limits`, `metadata`, and `qa`. Variant roles are `baseline`, `candidate`, or `reference`; optional fields include `full`, `recipe`, `recipeFormat`, `width`, `height`, `description`, and `metadata`. Optional dataset fields are `description` and `disabled`; `disabled: true` hides a finished collection from the selector. A replacement manifest that omits `disabled` keeps the collection's current state, and the dedicated endpoint below toggles it with a version check.
 
 Set a case's optional `defaultView` to `single` (single image), `side` (side by side), or `wipe` (before/after divider). The agent chooses the opening view for each review: use `single` for a mask or overlay inspection, `side` for seeing both versions in full, and `wipe` for comparing aligned adjustments directly. A variant may also set `defaultView`; the selected right-hand variant takes precedence over the case default. This lets mask variants open alone within an adjustment comparison. Single-image mode displays the selected right-hand version.
 
@@ -175,6 +179,7 @@ Set `aligned: true` only when the compared images represent the same framing and
 | `GET /api/workspace` | Dataset summaries and saved profiles/presets |
 | `GET /api/datasets/:id` | Current dataset, feedback, and version |
 | `PUT /api/datasets/:id` | Create with `{ "version": 0, "dataset": manifest }`, or replace using the current version |
+| `PUT /api/datasets/:id/disabled` | Hide or show a collection with `{ "version": currentVersion, "disabled": true or false }` |
 | `PUT /api/datasets/:id/feedback` | Save feedback with `{ "version": currentVersion, "feedback": feedback }` |
 | `GET /api/datasets/:id/feedback/export` | Download agent-readable feedback |
 | `POST /api/profiles` | Save `{ name, kind, datasetId, caseId, variantId, description, preferences, assetRevision? }`; `kind` is `profile` or `preset`; include the selected variant's revision to guard against a stale selection |

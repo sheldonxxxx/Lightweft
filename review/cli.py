@@ -32,7 +32,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
     commands = {}
-    for name in ('import', 'list', 'show', 'feedback-export', 'feedback-import'):
+    for name in ('import', 'list', 'show', 'feedback-export', 'feedback-import', 'disable', 'enable'):
         command = sub.add_parser(name)
         command.add_argument('--workspace', type=Path, default=Path('.local/review'))
         command.add_argument('--media-root', type=Path, required=True)
@@ -42,7 +42,7 @@ def main(argv=None):
     imported.add_argument('--id', required=True, dest='dataset_id')
     imported.add_argument('--title')
     imported.add_argument('--path-map', action='append', default=[], metavar='OLD=NEW')
-    for name in ('show', 'feedback-export', 'feedback-import'):
+    for name in ('show', 'feedback-export', 'feedback-import', 'disable', 'enable'):
         commands[name].add_argument('dataset_id')
     commands['feedback-export'].add_argument('--output', type=Path)
     commands['feedback-import'].add_argument('source', type=Path)
@@ -82,6 +82,9 @@ def main(argv=None):
                 raise ValueError('Feedback export must have matching datasetId and schemaVersion 1')
             result = store.put_feedback(args.dataset_id, data.get('feedback'), args.version)
             print(json.dumps({'id': args.dataset_id, 'version': result['version']}))
+        elif args.command in ('disable', 'enable'):
+            result = store.set_disabled(args.dataset_id, args.command == 'disable')
+            print(json.dumps({'id': args.dataset_id, 'disabled': result['dataset'].get('disabled', False), 'version': result['version']}))
     except (ReviewError, ValueError, OSError) as exc:
         parser.exit(1, f'{exc}\n')
 

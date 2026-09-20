@@ -4,8 +4,9 @@ import {panels} from './panels/index.js';
 
 const store = new ReviewStore();
 const params = new URLSearchParams(location.search);
-const ui = {workspace: {datasets: [], profiles: []}, photoId: params.get('case') || '', panel: params.get('panel') || 'review', leftId: '', rightId: '', regionId: '', detailTool: 'zoom', query: '', category: '', decision: '', format: '', split: '', blind: false, live: true};
-let activePanel, libraryButton, collectionSelect, main, rail, list, saveStatus, warning, tabs, pairControls, count, summary;
+const ui = {workspace: {datasets: [], profiles: []}, photoId: params.get('case') || '', panel: params.get('panel') || 'review', leftId: '', rightId: '', regionId: '', detailTool: 'zoom', query: '', category: '', decision: '', format: '', split: '', blind: false, live: true, showDisabled: false};
+try { ui.showDisabled = localStorage.getItem('lightweft-show-disabled') === '1'; } catch {}
+let activePanel, libraryButton, collectionSelect, showDisabledControl, disabledButton, main, rail, list, saveStatus, warning, tabs, pairControls, count, summary;
 let navigationButtons = [], feedbackButtons = [];
 let loading = false;
 const candidates = photo => photo.variants.filter(v => v.role === 'candidate');
@@ -118,9 +119,9 @@ async function loadDataset(id) {
   if (loading) return; loading = true;
   collectionSelect.disabled = true;
   main.inert = true; main.setAttribute('aria-busy', 'true'); pairControls.inert = true;
-  try { await store.load(id); ui.query = ''; ui.category = ''; ui.decision = ''; ui.format = ''; ui.split = ''; document.querySelector('#search').value = ''; renderFilters(); normalizeSelection(); renderList(); renderPanel(); collectionSelect.value = id; }
-  catch (error) { catchError(error); if (store.dataset) collectionSelect.value = store.dataset.id; }
-  finally {loading = false; collectionSelect.disabled = !ui.workspace.datasets.length; main.inert = false; main.removeAttribute('aria-busy'); pairControls.inert = false;}
+  try { await store.load(id); ui.query = ''; ui.category = ''; ui.decision = ''; ui.format = ''; ui.split = ''; document.querySelector('#search').value = ''; renderFilters(); normalizeSelection(); renderList(); renderPanel(); }
+  catch (error) { catchError(error); }
+  finally {loading = false; renderCollectionOptions(); main.inert = false; main.removeAttribute('aria-busy'); pairControls.inert = false;}
 }
 function status() {
   saveStatus.textContent = store.error ? 'Save needs attention' : store.saving ? 'Saving…' : store.dirty ? 'Unsaved changes' : 'Saved to workspace';
@@ -184,13 +185,52 @@ function importFeedback() {
     store.setRecord(record); renderList(); renderPanel(); announce('Feedback imported.');
   });
 }
+function visibleDatasets() {
+  return ui.workspace.datasets.filter(item => !item.disabled || ui.showDisabled || (store.dataset && item.id === store.dataset.id));
+}
+function renderCollectionOptions() {
+  if (!collectionSelect) return;
+  const visible = visibleDatasets();
+  const hiddenCount = ui.workspace.datasets.length - visible.length;
+  if (!visible.length) {
+    collectionSelect.replaceChildren(el('option', {value: ''}, ui.workspace.datasets.length ? 'No enabled collections' : 'No collections yet'));
+  } else {
+    collectionSelect.replaceChildren(...visible.map(item => el('option', {value: item.id}, item.disabled ? `${item.title} (disabled)` : item.title)));
+  }
+  collectionSelect.value = store.dataset?.id || '';
+  if (!visible.some(item => item.id === collectionSelect.value)) collectionSelect.value = visible[0]?.id || '';
+  collectionSelect.disabled = !visible.length;
+  if (showDisabledControl) {
+    const input = showDisabledControl.querySelector('input');
+    if (input) input.checked = ui.showDisabled;
+    const label = showDisabledControl.querySelector('span');
+    if (label) label.textContent = hiddenCount && !ui.showDisabled ? `Show disabled (${hiddenCount})` : 'Show disabled';
+  }
+  updateDisabledButton();
+}
+function updateDisabledButton() {
+  if (!disabledButton) return;
+  const disabled = !!store.dataset?.disabled;
+  disabledButton.textContent = disabled ? 'Enable' : 'Disable';
+  disabledButton.title = disabled ? 'Enable this collection in the selector' : 'Disable this collection in the selector';
+  disabledButton.setAttribute('aria-label', disabled ? 'Enable this collection' : 'Disable this collection');
+  disabledButton.disabled = !store.dataset;
+}
+async function setCurrentDisabled(disabled) {
+  if (!store.dataset || loading) return;
+  loading = true; collectionSelect.disabled = true; disabledButton.disabled = true;
+  try {
+    await store.flush();
+    const updated = await api(`/api/datasets/${encodeURIComponent(store.dataset.id)}/disabled`, {method: 'PUT', body: JSON.stringify({disabled, version: store.version})});
+    store.setRecord(updated); store.emit('loaded');
+    await refreshLibrary();
+    announce(disabled ? 'Collection disabled. It is hidden unless “Show disabled” is on.' : 'Collection enabled.');
+  } catch (error) { catchError(error); }
+  finally { loading = false; renderCollectionOptions(); }
+}
 async function refreshLibrary() {
   ui.workspace = await api('/api/workspace');
-  if (collectionSelect) {
-    collectionSelect.replaceChildren(...(ui.workspace.datasets.length ? ui.workspace.datasets.map(item => el('option', {value: item.id}, item.title)) : [el('option', {value: ''}, 'No collections yet')]));
-    collectionSelect.value = store.dataset?.id || ui.workspace.datasets[0]?.id || '';
-    collectionSelect.disabled = !ui.workspace.datasets.length;
-  }
+  renderCollectionOptions();
   if (libraryButton) libraryButton.textContent = `Style library${ui.workspace.profiles.length ? ` · ${ui.workspace.profiles.length}` : ''}`;
 }
 async function showLibrary() {
@@ -213,8 +253,11 @@ function buildShell() {
   saveStatus = el('span', {class: 'save-status', role: 'status'}, 'Connecting…');
   libraryButton = button('Style library', showLibrary, {class: 'library-button', 'aria-label': 'Style library'});
   collectionSelect = select('Review collection', [], '', loadDataset, {class: 'collection-select'});
+  disabledButton = button('Disable', () => setCurrentDisabled(!store.dataset?.disabled), {class: 'icon-button', title: 'Disable this collection in the selector'});
+  disabledButton.style.width = 'auto'; disabledButton.style.padding = '0 10px'; disabledButton.style.fontSize = '12px';
+  showDisabledControl = el('label', {class: 'live-control'}, el('input', {type: 'checkbox', checked: ui.showDisabled, onChange: e => { ui.showDisabled = e.target.checked; try { localStorage.setItem('lightweft-show-disabled', ui.showDisabled ? '1' : '0'); } catch {} renderCollectionOptions(); }}), el('span', {}, 'Show disabled'));
   const top = el('header', {class: 'topbar'}, el('a', {class: 'brand', href: '/'}, el('img', {src: '/icon.svg', alt: '', width: 30, height: 30}), el('span', {}, 'lightweft')),
-    el('div', {class: 'workspace-switch'}, el('span', {class: 'eyebrow'}, 'Workspace collection'), collectionSelect),
+    el('div', {class: 'workspace-switch'}, el('span', {class: 'eyebrow'}, 'Workspace collection'), el('div', {class: 'workspace-collection-row'}, collectionSelect, disabledButton), showDisabledControl),
     el('div', {class: 'top-actions'}, saveStatus, libraryButton, button('?', shortcuts, {class: 'icon-button', 'aria-label': 'Keyboard shortcuts'})));
   count = el('span', {}); summary = el('small', {});
   list = el('nav', {class: 'photo-list', 'aria-label': 'Photographs'});
@@ -239,6 +282,7 @@ function buildShell() {
 }
 store.addEventListener('status', status);
 store.addEventListener('loaded', () => {
+  renderCollectionOptions();
   normalizeSelection(); if (store.dataset) renderFilters(); renderList(); renderPanel();
   if (store.recovered) { warning.replaceChildren(el('span', {}, 'An earlier browser draft is available for recovery.'), button('Export older draft', () => exportJSON(`${store.dataset.id}-older-draft.json`, {schemaVersion: 1, workspaceId: store.workspaceId, datasetId: store.dataset.id, ...store.recovered}))); warning.hidden = false; }
 });
@@ -256,14 +300,21 @@ window.addEventListener('beforeunload', event => {if (store.dirty) {event.preven
 buildShell();
 try {
   await refreshLibrary();
-  const requested = params.get('dataset'), id = ui.workspace.datasets.some(item => item.id === requested) ? requested : ui.workspace.datasets[0]?.id;
+  const requested = params.get('dataset');
+  const enabled = ui.workspace.datasets.filter(item => !item.disabled);
+  const fallback = (enabled[0] || ui.workspace.datasets[0])?.id;
+  const id = ui.workspace.datasets.some(item => item.id === requested) ? requested : fallback;
   if (id) await loadDataset(id); else {renderPanel(); saveStatus.textContent = 'Local workspace';}
 } catch (error) {catchError(error); renderPanel();}
 setInterval(async () => {
   if (!ui.live || loading || document.hidden || document.querySelector('dialog[open]') || store.dirty || store.saving) return;
   try {
     await refreshLibrary();
-    if (!store.dataset && ui.workspace.datasets.length) await loadDataset(ui.workspace.datasets[0].id);
+    if (!store.dataset) {
+      const enabled = ui.workspace.datasets.filter(item => !item.disabled);
+      const next = (enabled[0] || visibleDatasets()[0])?.id;
+      if (next) await loadDataset(next);
+    }
     else if (await store.refresh()) announce('The collection was updated.');
   } catch { /* Preserve the current review while disconnected. */ }
 }, 10000);

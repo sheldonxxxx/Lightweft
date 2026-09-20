@@ -166,19 +166,23 @@ class ReviewStore:
             self.hash_cache[path] = (signature, digest)
             return digest
 
-    def validate_asset(self, value, recipe=False):
+    def validate_asset(self, value, recipe=False, require_file=True):
         relative_path(value)
         if PurePosixPath(value).suffix.lower() not in (RECIPE_EXTENSIONS if recipe else IMAGE_EXTENSIONS):
             raise ReviewError('Unsupported recipe file extension' if recipe else 'Use a browser image export (JPEG, PNG, WebP, GIF, AVIF or TIFF)')
-        self.digest(value)
+        if require_file:
+            self.digest(value)
 
-    def validate_dataset(self, dataset):
+    def validate_dataset(self, dataset, require_files=True):
         d = copy.deepcopy(object_value(dataset, 'dataset'))
         if d.get('schemaVersion') != SCHEMA_VERSION:
             raise ReviewError('dataset.schemaVersion must be 1')
         valid_id(d.get('id'), 'dataset.id')
         string_value(d.get('title'), 'dataset.title', 200)
         string_value(d.setdefault('description', ''), 'dataset.description')
+        if 'disabled' in d and not isinstance(d['disabled'], bool):
+            raise ReviewError('dataset.disabled must be boolean')
+        d.setdefault('disabled', False)
         if 'metadata' in d:
             object_value(d['metadata'], 'dataset.metadata')
         cases = d.get('cases')
@@ -223,10 +227,10 @@ class ReviewStore:
                     raise ReviewError('variant.native must be boolean')
                 if variant.get('role') not in ('baseline', 'candidate', 'reference'):
                     raise ReviewError('variant.role must be baseline, candidate or reference')
-                self.validate_asset(variant.get('image'))
+                self.validate_asset(variant.get('image'), require_file=require_files)
                 for key in ('full', 'recipe'):
                     if variant.get(key):
-                        self.validate_asset(variant[key], recipe=key == 'recipe')
+                        self.validate_asset(variant[key], recipe=key == 'recipe', require_file=require_files)
                 for key in ('width', 'height'):
                     if key in variant and (type(variant[key]) is not int or variant[key] <= 0):
                         raise ReviewError(f'variant.{key} must be a positive integer')
@@ -266,7 +270,7 @@ class ReviewStore:
                     if entry.get('variantId') not in vids or entry['variantId'] in seen:
                         raise ReviewError('Region must reference each known variant at most once')
                     seen.add(entry['variantId'])
-                    self.validate_asset(entry.get('image'))
+                    self.validate_asset(entry.get('image'), require_file=require_files)
         return d
 
     def variant_revision(self, case, variant):
@@ -318,7 +322,7 @@ class ReviewStore:
     def workspace_summary(self):
         with self.locked():
             state = self.read()
-            return {'workspaceId': self.workspace_id, 'datasets': [{'id': r['dataset']['id'], 'title': r['dataset']['title'], 'description': r['dataset'].get('description', ''), 'count': len(r['dataset']['cases']), 'version': r['version']} for r in state['datasets'].values()], 'profiles': [self.public_profile(p) for p in state['profiles']]}
+            return {'workspaceId': self.workspace_id, 'datasets': [{'id': r['dataset']['id'], 'title': r['dataset']['title'], 'description': r['dataset'].get('description', ''), 'count': len(r['dataset']['cases']), 'version': r['version'], 'disabled': bool(r['dataset'].get('disabled', False))} for r in state['datasets'].values()], 'profiles': [self.public_profile(p) for p in state['profiles']]}
 
     def get_dataset(self, dataset_id):
         valid_id(dataset_id)
@@ -339,6 +343,8 @@ class ReviewStore:
         with self.locked():
             state = self.read()
             previous = state['datasets'].get(dataset_id)
+            if previous and 'disabled' not in dataset and previous['dataset'].get('disabled'):
+                d['disabled'] = True
             if previous and self.refresh(previous):
                 previous['version'] += 1
                 self.write(state)
@@ -350,6 +356,31 @@ class ReviewStore:
             state['datasets'][dataset_id] = record
             self.write(state)
             return self.envelope(record)
+
+    def set_disabled(self, dataset_id, disabled, version=None):
+        valid_id(dataset_id)
+        if not isinstance(disabled, bool):
+            raise ReviewError('disabled must be boolean')
+        with self.locked():
+            state = self.read()
+            record = state['datasets'].get(dataset_id)
+            if record is None:
+                raise ReviewError('Dataset not found', 404)
+            if self.refresh(record):
+                record['version'] += 1
+                self.write(state)
+            if version is not None and (type(version) is not int or version != record['version']):
+                raise ReviewError('Workspace changed; reload before saving', 409)
+            dataset = copy.deepcopy(record['dataset'])
+            dataset['disabled'] = disabled
+            # A display-only flag change must not require renders to be present;
+            # refresh() still marks any missing media unavailable.
+            validated = self.validate_dataset(dataset, require_files=False)
+            next_record = {'dataset': validated, 'feedback': {}, 'version': record['version'] + 1}
+            self.refresh(next_record, record)
+            state['datasets'][dataset_id] = next_record
+            self.write(state)
+            return self.envelope(next_record)
 
     def put_feedback(self, dataset_id, feedback, version):
         object_value(feedback, 'feedback')
@@ -496,8 +527,8 @@ class ReviewServer(ThreadingHTTPServer):
     allow_reuse_address = True
 
     def __init__(self, address, store, web_root=None):
-        if address[0] not in ('127.0.0.1', 'localhost'):
-            raise ReviewError('Review server must bind to IPv4 loopback')
+        if address[0] not in ('127.0.0.1', 'localhost', '0.0.0.0'):
+            raise ReviewError('Review server must bind to IPv4 loopback or 0.0.0.0')
         self.store = store
         self.web_root = Path(web_root or Path(__file__).parent / 'web').resolve()
         super().__init__(address, ReviewHandler)
@@ -513,11 +544,24 @@ class ReviewHandler(BaseHTTPRequestHandler):
     def trusted_request(self, mutation=False):
         port = self.server.server_address[1]
         host = self.headers.get('Host', '')
-        allowed = {f'127.0.0.1:{port}', f'localhost:{port}'}
-        if port == 80:
-            allowed |= {'127.0.0.1', 'localhost'}
-        if host not in allowed:
-            raise ReviewError('Untrusted Host header', 403)
+        if self.server.server_address[0] == '0.0.0.0':
+            # LAN mode: accept only the address this connection actually arrived
+            # on, plus loopback names. A page served from any other hostname (a
+            # DNS-rebinding origin, for example) is rejected even when its Origin
+            # header matches its forged Host header.
+            name, sep, received = host.rpartition(':')
+            hostname, port_ok = (name, received == str(port)) if sep else (host, port == 80)
+            if hostname.startswith('[') and hostname.endswith(']'):
+                hostname = hostname[1:-1]
+            allowed = {'127.0.0.1', 'localhost', '::1', self.connection.getsockname()[0].lower()}
+            if not port_ok or hostname.lower() not in allowed:
+                raise ReviewError('Untrusted Host header', 403)
+        else:
+            allowed = {f'127.0.0.1:{port}', f'localhost:{port}'}
+            if port == 80:
+                allowed |= {'127.0.0.1', 'localhost'}
+            if host not in allowed:
+                raise ReviewError('Untrusted Host header', 403)
         if self.headers.get('Sec-Fetch-Site') == 'cross-site':
             raise ReviewError('Cross-site requests are not allowed', 403)
         origin = self.headers.get('Origin')
@@ -652,10 +696,12 @@ class ReviewHandler(BaseHTTPRequestHandler):
                 raise ReviewError('Page not found', 404)
             return self.send_file(self.server.web_root, asset)
         if self.command == 'PUT':
-            match = re.fullmatch(r'/api/datasets/([^/]+)(/feedback)?', path)
+            match = re.fullmatch(r'/api/datasets/([^/]+)(/feedback|/disabled)?', path)
             if not match:
                 raise ReviewError('API route not found', 404)
             payload = self.read_json()
+            if match[2] == '/disabled':
+                return self.json_response(store.set_disabled(match[1], payload.get('disabled'), payload.get('version', 0)))
             if match[2]:
                 return self.json_response(store.put_feedback(match[1], payload.get('feedback'), payload.get('version')))
             return self.json_response(store.put_dataset(match[1], payload.get('dataset'), payload.get('version', 0)))
@@ -682,19 +728,39 @@ class ReviewHandler(BaseHTTPRequestHandler):
     do_OPTIONS = handle_request
 
 
+def lan_address():
+    """Best-effort LAN IP for display only; opens no connections."""
+    import socket
+    probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        probe.connect(('10.255.255.255', 1))
+        return probe.getsockname()[0]
+    except OSError:
+        return None
+    finally:
+        probe.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--workspace', type=Path, default=Path('.local/review'))
     parser.add_argument('--media-root', type=Path, required=True, help='Explicit root for manifest-referenced exports')
     parser.add_argument('--port', type=int, default=8765)
+    parser.add_argument('--bind', default='127.0.0.1', choices=('127.0.0.1', 'localhost', '0.0.0.0'),
+                        help='Interface to listen on: loopback (default) or 0.0.0.0 for LAN access')
     args = parser.parse_args()
     if not 0 <= args.port <= 65535:
         parser.error('port must be between 0 and 65535')
     try:
-        server = ReviewServer(('127.0.0.1', args.port), ReviewStore(args.workspace, args.media_root))
+        server = ReviewServer((args.bind, args.port), ReviewStore(args.workspace, args.media_root))
     except (ReviewError, OSError) as exc:
         parser.exit(1, f'{exc}\n')
-    print(f'Photo Review listening at http://127.0.0.1:{server.server_port}', flush=True)
+    if args.bind == '0.0.0.0':
+        lan = lan_address()
+        print(f'Photo Review listening at http://127.0.0.1:{server.server_port}' + (f' and http://{lan}:{server.server_port} (LAN)' if lan else ' on all interfaces (LAN)'), flush=True)
+        print('Warning: 0.0.0.0 exposes your review workspace to the local network without authentication; use only on a trusted network.', flush=True)
+    else:
+        print(f'Photo Review listening at http://127.0.0.1:{server.server_port}', flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

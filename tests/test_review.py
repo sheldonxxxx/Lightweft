@@ -145,6 +145,39 @@ class StoreTests(ReviewFixture, unittest.TestCase):
         with self.assertRaisesRegex(ReviewError, 'Unavailable media'):
             self.store.put_feedback('test', self.feedback(), fresh['version'])
 
+    def test_disable_toggle_preserves_feedback_and_asset_revisions(self):
+        saved = self.store.put_feedback('test', self.feedback(checks={'overview': True}), self.record['version'])
+        revision = saved['dataset']['cases'][0]['variants'][1]['assetRevision']
+        disabled = self.store.set_disabled('test', True)
+        self.assertTrue(disabled['dataset']['disabled'])
+        self.assertEqual(disabled['version'], saved['version'] + 1)
+        self.assertEqual(disabled['feedback'], saved['feedback'])
+        self.assertEqual(disabled['dataset']['cases'][0]['variants'][1]['assetRevision'], revision)
+        self.assertEqual(self.store.workspace_summary()['datasets'][0]['disabled'], True)
+        enabled = self.store.set_disabled('test', False)
+        self.assertFalse(enabled['dataset']['disabled'])
+        self.assertEqual(enabled['feedback']['one']['candidate']['decision'], 'accepted')
+        self.assertEqual(enabled['dataset']['cases'][0]['variants'][1]['assetRevision'], revision)
+        self.assertEqual(self.store.workspace_summary()['datasets'][0]['disabled'], False)
+
+    def test_disable_toggle_works_while_media_is_missing(self):
+        self.store.put_feedback('test', self.feedback(), self.record['version'])
+        (self.media / 'edit.jpg').unlink()
+        disabled = self.store.set_disabled('test', True)
+        self.assertTrue(disabled['dataset']['disabled'])
+        self.assertTrue(disabled['dataset']['cases'][0]['variants'][1]['unavailable'])
+        enabled = self.store.set_disabled('test', False)
+        self.assertFalse(enabled['dataset']['disabled'])
+
+    def test_manifest_replace_without_disabled_field_keeps_state(self):
+        disabled = self.store.set_disabled('test', True)
+        replaced = self.store.put_dataset('test', copy.deepcopy(self.dataset), disabled['version'])
+        self.assertTrue(replaced['dataset']['disabled'])
+        explicit = copy.deepcopy(self.dataset)
+        explicit['disabled'] = False
+        enabled = self.store.put_dataset('test', explicit, replaced['version'])
+        self.assertFalse(enabled['dataset']['disabled'])
+
     def test_validation_rejects_traversal_active_media_symlinks_duplicates(self):
         (self.root / 'outside.jpg').write_bytes(b'private')
         (self.media / 'link.jpg').symlink_to(self.root / 'outside.jpg')
@@ -245,6 +278,23 @@ class StoreTests(ReviewFixture, unittest.TestCase):
         feedback_file.write_text(exported.stdout)
         restored = subprocess.run([sys.executable, str(REPO / 'review/cli.py'), 'feedback-import', 'test', str(feedback_file), '--version', '1', *args], text=True, capture_output=True)
         self.assertEqual(restored.returncode, 0, restored.stderr)
+
+    def test_cli_disable_enable_and_import_inheritance(self):
+        source = self.root / 'dataset.json'
+        source.write_text(json.dumps(self.dataset))
+        args = ['--workspace', str(self.root / 'cli-state'), '--media-root', str(self.media)]
+
+        def run(*command):
+            result = subprocess.run([sys.executable, str(REPO / 'review/cli.py'), *command, *args], text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return json.loads(result.stdout)
+
+        run('import', str(source), '--id', 'test')
+        self.assertIs(run('disable', 'test')['disabled'], True)
+        self.assertIs(run('list')['datasets'][0]['disabled'], True)
+        run('import', str(source), '--id', 'test')
+        self.assertIs(run('show', 'test')['dataset']['disabled'], True)
+        self.assertIs(run('enable', 'test')['disabled'], False)
 
     def test_cli_dispatches_embedded_html_to_inert_importer(self):
         from cli import load_dataset
@@ -348,6 +398,18 @@ class HttpTests(ReviewFixture, unittest.TestCase):
         self.assertIn('attachment', headers['Content-Disposition'])
         self.assertEqual(json.loads(body)['feedback']['one']['candidate']['decision'], 'accepted')
 
+    def test_http_disable_endpoint_guards_versions(self):
+        status, _, body = self.request('PUT', '/api/datasets/test/disabled', {'disabled': True, 'version': 1})
+        self.assertEqual(status, 200)
+        record = json.loads(body)
+        self.assertTrue(record['dataset']['disabled'])
+        self.assertEqual(record['version'], 2)
+        self.assertEqual(json.loads(self.request('GET', '/api/workspace')[2])['datasets'][0]['disabled'], True)
+        self.assertEqual(self.request('PUT', '/api/datasets/test/disabled', {'disabled': False, 'version': 1})[0], 409)
+        self.assertEqual(self.request('PUT', '/api/datasets/test/disabled', {'disabled': 'yes', 'version': 2})[0], 400)
+        status, _, body = self.request('PUT', '/api/datasets/test/disabled', {'disabled': False, 'version': 2})
+        self.assertEqual((status, json.loads(body)['dataset']['disabled']), (200, False))
+
     def test_http_profile_and_preset_export(self):
         payload = {'name': 'Winter', 'kind': 'preset', 'datasetId': 'test', 'caseId': 'one', 'variantId': 'candidate'}
         status, _, body = self.request('POST', '/api/profiles', payload)
@@ -361,7 +423,32 @@ class HttpTests(ReviewFixture, unittest.TestCase):
 
     def test_server_rejects_non_loopback_binding(self):
         with self.assertRaisesRegex(ReviewError, 'loopback'):
-            ReviewServer(('0.0.0.0', 0), self.store, self.web)
+            ReviewServer(('192.0.2.1', 0), self.store, self.web)
+
+    def test_server_allows_lan_binding_without_trusting_foreign_hosts(self):
+        server = ReviewServer(('0.0.0.0', 0), self.store, self.web)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(server.shutdown)
+        lan_port = server.server_address[1]
+
+        def request(headers):
+            conn = HTTPConnection('127.0.0.1', lan_port, timeout=5)
+            self.addCleanup(conn.close)
+            conn.request('GET', '/api/workspace', headers=headers)
+            response = conn.getresponse()
+            status = response.status
+            response.read()
+            conn.close()
+            return status
+
+        self.assertEqual(request({'Host': f'127.0.0.1:{lan_port}'}), 200)
+        # A DNS-rebinding page sends its own hostname consistently in Host and
+        # Origin; the local-address allowlist must still reject it.
+        self.assertEqual(request({'Host': f'evil.example:{lan_port}', 'Origin': f'http://evil.example:{lan_port}', 'Sec-Fetch-Site': 'same-origin'}), 403)
+        self.assertEqual(request({'Host': f'evil.com bad host:{lan_port}'}), 403)
+        self.assertEqual(request({'Host': 'localhost'}), 403)
 
 
 if __name__ == '__main__':
