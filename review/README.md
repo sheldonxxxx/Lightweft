@@ -102,7 +102,7 @@ For large photographs, each variant can point `image` to a smaller review previe
 | 360 review | Synchronized spherical viewpoints, longitude seams, horizon and pole inspection |
 | Set review | Read-only comparison of the same looks across an explicitly grouped sequence, with links back to individual photographs |
 
-All pages share the same collection, selected comparison pair, and candidate feedback. Search the collection, filter by genre, format, group, or decision, and use the collection selector to move between studies. The page URL retains the collection, photograph, and review page.
+All pages share the same collection, selected comparison pair, and candidate feedback. Search the collection, filter by genre, format, group, or decision, and use the collection selector to move between studies. The selector shows each collection’s description, and filters the list as you type when five or more collections are visible. The page URL retains the collection, photograph, and review page.
 
 The comparison surface offers side-by-side and single-image views, an aligned before/after divider, side swapping, full screen, and hidden version names.
 

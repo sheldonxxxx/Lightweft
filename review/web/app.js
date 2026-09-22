@@ -1,12 +1,13 @@
 import {el, button, select, field, media, pretty, dialog, exportJSON, announce} from './dom.js';
 import {ReviewStore, api} from './store.js';
 import {panels} from './panels/index.js';
+import {createCollectionPicker} from './collection.js';
 
 const store = new ReviewStore();
 const params = new URLSearchParams(location.search);
 const ui = {workspace: {datasets: [], profiles: []}, photoId: params.get('case') || '', panel: params.get('panel') || 'review', leftId: '', rightId: '', regionId: '', detailTool: 'zoom', query: '', category: '', decision: '', format: '', split: '', blind: false, live: true, showDisabled: false};
 try { ui.showDisabled = localStorage.getItem('lightweft-show-disabled') === '1'; } catch {}
-let activePanel, libraryButton, collectionSelect, showDisabledControl, disabledButton, main, rail, list, saveStatus, warning, tabs, pairControls, count, summary;
+let activePanel, libraryButton, collectionPicker, showDisabledControl, disabledButton, main, rail, list, saveStatus, warning, tabs, pairControls, count, summary;
 let navigationButtons = [], feedbackButtons = [];
 let loading = false;
 const candidates = photo => photo.variants.filter(v => v.role === 'candidate');
@@ -117,9 +118,9 @@ function navigate(direction) {
 }
 async function loadDataset(id) {
   if (loading) return; loading = true;
-  collectionSelect.disabled = true;
+  collectionPicker.setLocked(true);
   main.inert = true; main.setAttribute('aria-busy', 'true'); pairControls.inert = true;
-  try { await store.load(id); ui.query = ''; ui.category = ''; ui.decision = ''; ui.format = ''; ui.split = ''; document.querySelector('#search').value = ''; renderFilters(); normalizeSelection(); renderList(); renderPanel(); }
+  try { await store.load(id); ui.query = ''; ui.category = ''; ui.decision = ''; ui.format = ''; ui.split = ''; document.querySelector('#search').value = ''; renderFilters(); normalizeSelection(); renderList(); renderPanel(); announce(`Opened collection “${store.dataset.title}”.`); }
   catch (error) { catchError(error); }
   finally {loading = false; renderCollectionOptions(); main.inert = false; main.removeAttribute('aria-busy'); pairControls.inert = false;}
 }
@@ -189,17 +190,14 @@ function visibleDatasets() {
   return ui.workspace.datasets.filter(item => !item.disabled || ui.showDisabled || (store.dataset && item.id === store.dataset.id));
 }
 function renderCollectionOptions() {
-  if (!collectionSelect) return;
+  if (!collectionPicker) return;
   const visible = visibleDatasets();
   const hiddenCount = ui.workspace.datasets.length - visible.length;
-  if (!visible.length) {
-    collectionSelect.replaceChildren(el('option', {value: ''}, ui.workspace.datasets.length ? 'No enabled collections' : 'No collections yet'));
-  } else {
-    collectionSelect.replaceChildren(...visible.map(item => el('option', {value: item.id}, item.disabled ? `${item.title} (disabled)` : item.title)));
-  }
-  collectionSelect.value = store.dataset?.id || '';
-  if (!visible.some(item => item.id === collectionSelect.value)) collectionSelect.value = visible[0]?.id || '';
-  collectionSelect.disabled = !visible.length;
+  collectionPicker.render(visible, store.dataset?.id || '', {
+    empty: ui.workspace.datasets.length ? 'No enabled collections.' : 'No collections yet.',
+    loading,
+    canRevealHidden: hiddenCount > 0 && !ui.showDisabled,
+  });
   if (showDisabledControl) {
     const input = showDisabledControl.querySelector('input');
     if (input) input.checked = ui.showDisabled;
@@ -218,7 +216,7 @@ function updateDisabledButton() {
 }
 async function setCurrentDisabled(disabled) {
   if (!store.dataset || loading) return;
-  loading = true; collectionSelect.disabled = true; disabledButton.disabled = true;
+  loading = true; collectionPicker.setLocked(true); disabledButton.disabled = true;
   try {
     await store.flush();
     const updated = await api(`/api/datasets/${encodeURIComponent(store.dataset.id)}/disabled`, {method: 'PUT', body: JSON.stringify({disabled, version: store.version})});
@@ -252,12 +250,19 @@ function shortcuts() {
 function buildShell() {
   saveStatus = el('span', {class: 'save-status', role: 'status'}, 'Connecting…');
   libraryButton = button('Style library', showLibrary, {class: 'library-button', 'aria-label': 'Style library'});
-  collectionSelect = select('Review collection', [], '', loadDataset, {class: 'collection-select'});
-  disabledButton = button('Disable', () => setCurrentDisabled(!store.dataset?.disabled), {class: 'icon-button', title: 'Disable this collection in the selector'});
-  disabledButton.style.width = 'auto'; disabledButton.style.padding = '0 10px'; disabledButton.style.fontSize = '12px';
+  collectionPicker = createCollectionPicker({
+    onSelect: loadDataset,
+    onShowDisabled: () => {
+      ui.showDisabled = true;
+      try { localStorage.setItem('lightweft-show-disabled', '1'); } catch {}
+      renderCollectionOptions();
+      announce('Disabled collections are now shown.');
+    },
+  });
+  disabledButton = button('Disable', () => setCurrentDisabled(!store.dataset?.disabled), {class: 'collection-action-button', title: 'Disable this collection in the selector'});
   showDisabledControl = el('label', {class: 'live-control'}, el('input', {type: 'checkbox', checked: ui.showDisabled, onChange: e => { ui.showDisabled = e.target.checked; try { localStorage.setItem('lightweft-show-disabled', ui.showDisabled ? '1' : '0'); } catch {} renderCollectionOptions(); }}), el('span', {}, 'Show disabled'));
   const top = el('header', {class: 'topbar'}, el('a', {class: 'brand', href: '/'}, el('img', {src: '/icon.svg', alt: '', width: 30, height: 30}), el('span', {}, 'lightweft')),
-    el('div', {class: 'workspace-switch'}, el('span', {class: 'eyebrow'}, 'Workspace collection'), el('div', {class: 'workspace-collection-row'}, collectionSelect, disabledButton), showDisabledControl),
+    el('div', {class: 'workspace-switch'}, el('span', {class: 'eyebrow'}, 'Workspace collection'), el('div', {class: 'workspace-collection-row'}, collectionPicker.element, disabledButton), showDisabledControl),
     el('div', {class: 'top-actions'}, saveStatus, libraryButton, button('?', shortcuts, {class: 'icon-button', 'aria-label': 'Keyboard shortcuts'})));
   count = el('span', {}); summary = el('small', {});
   list = el('nav', {class: 'photo-list', 'aria-label': 'Photographs'});
@@ -287,7 +292,7 @@ store.addEventListener('loaded', () => {
   if (store.recovered) { warning.replaceChildren(el('span', {}, 'An earlier browser draft is available for recovery.'), button('Export older draft', () => exportJSON(`${store.dataset.id}-older-draft.json`, {schemaVersion: 1, workspaceId: store.workspaceId, datasetId: store.dataset.id, ...store.recovered}))); warning.hidden = false; }
 });
 document.addEventListener('keydown', event => {
-  if (document.querySelector('dialog[open]') || event.altKey || event.ctrlKey || event.metaKey || event.target.closest('input,textarea,select,[role="slider"],[contenteditable="true"]')) return;
+  if (document.querySelector('dialog[open]') || event.altKey || event.ctrlKey || event.metaKey || event.target.closest('input,textarea,select,[role="slider"],[contenteditable="true"],.collection-picker')) return;
   if (event.code === 'Space' && !event.target.closest('button,a')) {event.preventDefault(); activePanel?.viewer?.setBlink(true);}
   if (event.key === 'ArrowRight') {event.preventDefault(); navigate(1);}
   if (event.key === 'ArrowLeft') {event.preventDefault(); navigate(-1);}

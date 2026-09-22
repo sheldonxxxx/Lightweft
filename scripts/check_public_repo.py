@@ -20,7 +20,7 @@ EXACT = {
     'CHANGELOG.md', 'skills/photo-style-builder/SKILL.md',
     'review/README.md', 'review/server.py', 'review/cli.py', 'review/import_legacy.py',
     'review/package.json', 'review/tests/fixture.py', 'review/tests/store.test.mjs', 'review/tests/sphere.test.mjs',
-    'review/tests/compare.test.mjs', 'review/tests/sequence.test.mjs',
+    'review/tests/compare.test.mjs', 'review/tests/sequence.test.mjs', 'review/tests/collection.test.mjs',
     'tests/test_review.py', 'tests/test_review_import.py',
     '.github/workflows/pages.yml', 'scripts/build_showcase.py', 'scripts/showcase_media.py',
     'tests/test_showcase.py', 'showcase/README.md', 'showcase/LICENSE',

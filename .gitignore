@@ -64,6 +64,7 @@
 !/review/tests/
 !/review/tests/fixture.py
 !/review/tests/store.test.mjs
+!/review/tests/collection.test.mjs
 
 !/review/tests/sphere.test.mjs
 !/review/tests/compare.test.mjs

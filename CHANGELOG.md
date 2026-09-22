@@ -28,6 +28,7 @@
 
 ### Photo review
 
+- Replace the plain collection menu with a richer selector: descriptions, disabled badges, type-to-filter search when five or more collections are visible, keyboard list navigation, loading state, and a one-click option to reveal hidden disabled collections when none are enabled.
 - Remove inspection checkboxes from the standard feedback form while keeping them available in compact review panels.
 - Allow review dialogs to close by clicking the background, without dismissing them when interacting with their content.
 - Reduce visual clutter around photographs by removing repeated page headings, taglines, thumbnail IDs, and decorative label icons.
