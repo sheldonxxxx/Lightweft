@@ -11,7 +11,7 @@ let activePanel, libraryButton, collectionPicker, showDisabledControl, disabledB
 let navigationButtons = [], feedbackButtons = [];
 let loading = false;
 const candidates = photo => photo.variants.filter(v => v.role === 'candidate');
-const candidate = photo => candidates(photo).at(-1) || photo.variants.at(-1);
+const candidate = photo => photo.variants.find(v => v.id === photo.selectedVariantId) || candidates(photo).at(-1) || photo.variants.at(-1);
 const currentPhoto = () => store.dataset?.cases.find(photo => photo.id === ui.photoId);
 const reviewCount = () => store.dataset?.cases.filter(photo => Object.values(store.feedback[photo.id] || {}).some(item => item.decision === 'accepted')).length || 0;
 
@@ -43,11 +43,13 @@ function renderList() {
   count.textContent = `${photos.length} photograph${photos.length === 1 ? '' : 's'}`;
   summary.textContent = `${reviewCount()} accepted · ${store.dataset?.cases.length || 0} total`;
   for (const photo of photos) {
-    const chosen = candidate(photo), decision = store.review(photo.id, chosen.id).decision;
-    const row = button('', () => choosePhoto(photo.id), {class: 'photo-row', 'data-case': photo.id, 'aria-current': photo.id === ui.photoId ? 'true' : 'false', 'aria-label': photo.title || `Photograph ${photo.id}`});
+    const chosen = candidate(photo), decision = store.review(photo.id, chosen.id).decision, disabled = !!photo.disabled;
+    const row = button('', () => choosePhoto(photo.id), {class: ['photo-row', disabled && 'is-disabled'].filter(Boolean).join(' '), 'data-case': photo.id, 'aria-current': photo.id === ui.photoId ? 'true' : 'false', 'aria-label': `${photo.title || `Photograph ${photo.id}`} · Selected version: ${chosen.label || chosen.id}${disabled ? ' (disabled)' : ''}`});
+    const statusDot = el('span', {class: `status-dot ${decision || 'pending'}`, title: pretty(decision || 'pending'), 'aria-label': pretty(decision || 'pending')}, decision === 'accepted' ? '✓' : decision === 'revise' ? '↻' : '');
     row.append(el('img', {src: media(chosen.image), alt: '', loading: 'lazy'}),
-      el('span', {class: 'photo-row-copy'}, el('span', {class: 'photo-row-title'}, photo.title || `Photograph ${photo.id}`), (photo.category || photo.format) && el('small', {}, pretty(photo.category || photo.format))),
-      el('span', {class: `status-dot ${decision || 'pending'}`, title: pretty(decision || 'pending'), 'aria-label': pretty(decision || 'pending')}, decision === 'accepted' ? '✓' : decision === 'revise' ? '↻' : ''));
+      el('span', {class: 'photo-row-copy'}, el('span', {class: 'photo-row-title'}, photo.title || `Photograph ${photo.id}`), (photo.category || photo.format) && el('small', {}, pretty(photo.category || photo.format))), statusDot);
+    row.insertBefore(el('span', {class: 'photo-selected-badge', title: `Selected version: ${chosen.label || chosen.id}`, 'aria-label': `Selected version: ${chosen.label || chosen.id}`}, 'Selected'), statusDot);
+    if (disabled) row.insertBefore(el('span', {class: 'photo-disabled-badge', title: 'Disabled', 'aria-label': 'Disabled'}, 'Disabled'), statusDot);
     list.append(row);
   }
   if (!photos.length) list.append(el('p', {class: 'empty-list'}, 'No photographs match your filters.'));
@@ -57,6 +59,15 @@ function updateListStatus() {
   for (const row of list.querySelectorAll('.photo-row')) {
     const photo = store.dataset.cases.find(item => item.id === row.dataset.case);
     if (!photo) continue;
+    const disabled = !!photo.disabled;
+    row.classList.toggle('is-disabled', disabled);
+    const chosen = candidate(photo);
+    row.setAttribute('aria-label', `${photo.title || `Photograph ${photo.id}`} · Selected version: ${chosen.label || chosen.id}${disabled ? ' (disabled)' : ''}`);
+    const selectedBadge = row.querySelector('.photo-selected-badge');
+    if (selectedBadge) { selectedBadge.title = `Selected version: ${chosen.label || chosen.id}`; selectedBadge.setAttribute('aria-label', `Selected version: ${chosen.label || chosen.id}`); }
+    const badge = row.querySelector('.photo-disabled-badge');
+    if (disabled && !badge) row.insertBefore(el('span', {class: 'photo-disabled-badge', title: 'Disabled', 'aria-label': 'Disabled'}, 'Disabled'), row.querySelector('.status-dot'));
+    if (!disabled) badge?.remove();
     const decision = store.review(photo.id, candidate(photo).id).decision || 'pending';
     const dot = row.querySelector('.status-dot');
     dot.className = `status-dot ${decision}`; dot.title = pretty(decision); dot.setAttribute('aria-label', pretty(decision));
@@ -107,6 +118,7 @@ function renderPanel() {
   const ctx = {dataset: store.dataset, photo, left, right, blind: ui.blind, regionId: ui.regionId, detailTool: ui.detailTool,
     review: () => store.review(photo.id, right.id), update: patch => store.update(photo.id, right.id, patch), flush: () => store.flush(), refreshLibrary,
     selectCandidate: id => {ui.rightId = id; renderPanel();}, inspectRegion: id => {ui.panel = 'detail'; ui.regionId = id; renderTabs(); renderPanel();},
+    setPhotoDisabled: disabled => setPhotoDisabled(disabled),
     setRegion: id => {ui.regionId = id;}, setDetailTool: value => {ui.detailTool = value;}};
   activePanel = panel.render(ctx); main.append(activePanel.element); updateURL();
 }
@@ -223,6 +235,18 @@ async function setCurrentDisabled(disabled) {
     store.setRecord(updated); store.emit('loaded');
     await refreshLibrary();
     announce(disabled ? 'Collection disabled. It is hidden unless “Show disabled” is on.' : 'Collection enabled.');
+  } catch (error) { catchError(error); }
+  finally { loading = false; renderCollectionOptions(); }
+}
+async function setPhotoDisabled(disabled) {
+  if (!store.dataset || !currentPhoto() || loading) return;
+  const photo = currentPhoto();
+  loading = true; collectionPicker.setLocked(true);
+  try {
+    await store.flush();
+    const updated = await api(`/api/datasets/${encodeURIComponent(store.dataset.id)}/cases/${encodeURIComponent(photo.id)}/disabled`, {method: 'PUT', body: JSON.stringify({disabled, version: store.version})});
+    store.setRecord(updated); store.emit('loaded');
+    announce(disabled ? 'Photograph disabled. It remains visible in grey.' : 'Photograph enabled.');
   } catch (error) { catchError(error); }
   finally { loading = false; renderCollectionOptions(); }
 }

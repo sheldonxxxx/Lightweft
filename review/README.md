@@ -28,6 +28,30 @@ Open <http://127.0.0.1:8765> and keep the server running during review. `--works
 
 To review from another device on your local network (for example a tablet), start with `--bind 0.0.0.0` and open the printed LAN address there. This exposes the workspace to the local network without authentication, so use it only on a trusted network and stop the server when finished.
 
+To serve behind nginx with HTTPS on a custom domain, keep the review server on loopback and allowlist the public host explicitly:
+
+```sh
+python3 review/server.py --workspace .local/review --media-root . --port 8765 \
+  --allow-host photos.example.com --allow-origin https://photos.example.com
+```
+
+```nginx
+server {
+  listen 443 ssl;
+  server_name photos.example.com;
+
+  # The viewer has no login; enforce authentication in nginx
+  # (e.g. auth_basic + IP allowlist) before proxying.
+  location / {
+    proxy_pass http://127.0.0.1:8765;
+    proxy_set_header Host $host;
+    proxy_http_version 1.1;
+  }
+}
+```
+
+Without `--allow-host` the public `Host` is rejected with `403 Untrusted Host header`. Bare hostnames match any port; use `host:port` to pin a port. `--allow-origin` is only needed for origins beyond the matching `http(s)://<host>`. `Sec-Fetch-Site: cross-site` and mismatched `Origin` values stay rejected.
+
 The application reads browser-compatible renders. Export RAW photographs through your editor first and retain their originals and editable state. Browser display depends on the display, browser, and exported colour profile; use native exports and matched detail when judging texture or processing artifacts.
 
 ## Add a review
@@ -108,7 +132,7 @@ The comparison surface offers side-by-side and single-image views, an aligned be
 
 **Reference** selects the comparison image; **Reviewing** selects the version that receives your decision and notes. Swapping the displayed sides keeps that review target unchanged. If a search or filter hides every photograph, **Clear filters** restores the collection. Save status remains visible on smaller screens.
 
-- **Zoom:** scroll or pinch a trackpad over the photograph, or enter a percentage from 0.1% to 1600%. Fit shows the whole image and its actual magnification. At 100%, one image pixel occupies one CSS pixel; numeric zoom stays fixed when the viewer resizes.
+- **Zoom:** scroll or pinch a trackpad over the photograph, pinch on a touchscreen, or enter a percentage from 0.1% to 1600%. Fit shows the whole image and its actual magnification. At 100%, one image pixel occupies one CSS pixel; numeric zoom stays fixed when the viewer resizes.
 - **Inspect detail:** paired comparisons load full exports when both versions provide them; otherwise they use the review images. Single-image mode uses its full export when available. The selected source stays consistent across zoom levels, so a magnified preview still has preview detail.
 - **Compare and pan:** drag the divider line or its centre handle to reveal either image. At any numeric zoom, drag elsewhere to pan both images together. Focus the divider for arrow-key adjustments, Shift + arrow keys for larger steps, and Home / End to reveal either side. The divider is disabled when alignment is unconfirmed or dimensions differ.
 
@@ -166,7 +190,7 @@ WebGL sphere viewing interpolates pixels and may reduce large exports to the bro
 
 ## Session and agent contract
 
-The manifest uses `schemaVersion: 1`. Each case contains variants; each variant points to a render rather than embedding image bytes. Useful optional case fields include `category`, `split`, `format`, `intent`, `limits`, `metadata`, and `qa`. Variant roles are `baseline`, `candidate`, or `reference`; optional fields include `full`, `recipe`, `recipeFormat`, `width`, `height`, `description`, and `metadata`. Optional dataset fields are `description` and `disabled`; `disabled: true` hides a finished collection from the selector. A replacement manifest that omits `disabled` keeps the collection's current state, and the dedicated endpoint below toggles it with a version check.
+The manifest uses `schemaVersion: 1`. Each case contains variants; each variant points to a render rather than embedding image bytes. Useful optional case fields include `category`, `split`, `format`, `intent`, `limits`, `metadata`, and `qa`. Set a case's optional `selectedVariantId` to the variant ID that should open as the selected candidate; it must reference an existing variant. Set a case's optional `disabled: true` to keep a photograph in the collection but mark it as disabled; the viewer greys the row, shows a Disabled badge, and preserves its feedback. Variant roles are `baseline`, `candidate`, or `reference`; optional fields include `full`, `recipe`, `recipeFormat`, `width`, `height`, `description`, and `metadata`. Optional dataset fields are `description` and `disabled`; `disabled: true` hides a finished collection from the selector. A replacement manifest that omits `disabled` keeps the collection's current state, and the dedicated endpoint below toggles it with a version check.
 
 Set a case's optional `defaultView` to `single` (single image), `side` (side by side), or `wipe` (before/after divider). The agent chooses the opening view for each review: use `single` for a mask or overlay inspection, `side` for seeing both versions in full, and `wipe` for comparing aligned adjustments directly. A variant may also set `defaultView`; the selected right-hand variant takes precedence over the case default. This lets mask variants open alone within an adjustment comparison. Single-image mode displays the selected right-hand version.
 
@@ -180,6 +204,7 @@ Set `aligned: true` only when the compared images represent the same framing and
 | `GET /api/datasets/:id` | Current dataset, feedback, and version |
 | `PUT /api/datasets/:id` | Create with `{ "version": 0, "dataset": manifest }`, or replace using the current version |
 | `PUT /api/datasets/:id/disabled` | Hide or show a collection with `{ "version": currentVersion, "disabled": true or false }` |
+| `PUT /api/datasets/:id/cases/:caseId/disabled` | Disable or enable a photograph with `{ "version": currentVersion, "disabled": true or false }`; disabling preserves feedback |
 | `PUT /api/datasets/:id/feedback` | Save feedback with `{ "version": currentVersion, "feedback": feedback }` |
 | `GET /api/datasets/:id/feedback/export` | Download agent-readable feedback |
 | `POST /api/profiles` | Save `{ name, kind, datasetId, caseId, variantId, description, preferences, assetRevision? }`; `kind` is `profile` or `preset`; include the selected variant's revision to guard against a stale selection |

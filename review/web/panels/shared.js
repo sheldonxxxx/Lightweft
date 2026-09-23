@@ -65,5 +65,11 @@ export function regionCards(ctx, onSelect) {
   }));
 }
 export function heading(ctx) {
-  return el('div', {class: 'panel-heading'}, el('h2', {}, ctx.photo.title || `Photograph ${ctx.photo.id}`));
+  const disabled = !!ctx.photo.disabled;
+  return el('div', {class: 'panel-heading'},
+    el('div', {class: 'panel-heading-copy'}, el('h2', {}, ctx.photo.title || `Photograph ${ctx.photo.id}`),
+      disabled && el('span', {class: 'photo-disabled-label'}, 'Disabled · kept in collection')),
+    ctx.setPhotoDisabled && button(disabled ? 'Enable photo' : 'Disable photo', () => ctx.setPhotoDisabled(!disabled), {
+      class: 'photo-disabled-toggle', 'aria-pressed': disabled ? 'true' : 'false',
+      title: disabled ? 'Enable this photograph in the collection' : 'Keep this photograph in the collection but mark it as disabled'}));
 }

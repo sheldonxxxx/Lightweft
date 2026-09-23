@@ -17,13 +17,13 @@ export class CompareViewer {
       onBlur: () => this.updateScale(true)});
     const zoomControl = el('div', {class: 'zoom-control'}, this.fitButton,
       el('label', {class: 'zoom-percent'}, this.zoomInput, el('span', {'aria-hidden': 'true'}, '%')));
-    const fullscreen = button('⛶', async () => {
+    this.fullscreenButton = button('⛶', async () => {
       try { if (document.fullscreenElement) await document.exitFullscreen(); else await this.root.requestFullscreen(); }
       catch { this.note.textContent = 'Fullscreen is unavailable in this browser.'; }
     }, {class: 'icon-button', title: 'Fullscreen', 'aria-label': 'Fullscreen comparison'});
     this.toolbar = el('div', {class: 'viewer-toolbar'}, el('div', {class: 'control-group'}, this.modeSelect, zoomControl),
       el('div', {class: 'control-group'}, button('⇄ Swap', () => this.swap(), {title: 'Swap sides · B'}),
-        button('Center', () => { this.center = {x: .5, y: .5}; this.position(); }), fullscreen));
+        button('Center', () => { this.center = {x: .5, y: .5}; this.position(); }), this.fullscreenButton));
     this.surface = el('div', {class: 'compare-surface'});
     this.note = el('span', {}, 'Loading images…');
     this.hint = el('span', {class: 'viewer-hint'}, 'Hold Space to compare');
@@ -31,13 +31,27 @@ export class CompareViewer {
     this.observer = new ResizeObserver(() => this.position()); this.observer.observe(this.surface);
     this.surface.addEventListener('pointerdown', e => this.pointerDown(e));
     this.surface.addEventListener('pointermove', e => this.pointerMove(e));
-    this.surface.addEventListener('pointerup', () => this.stopDrag());
-    this.surface.addEventListener('pointercancel', () => this.stopDrag());
-    this.surface.addEventListener('lostpointercapture', () => this.stopDrag());
+    this.surface.addEventListener('pointerup', e => this.pointerUp(e));
+    this.surface.addEventListener('pointercancel', e => this.pointerUp(e));
+    this.surface.addEventListener('lostpointercapture', e => this.pointerUp(e));
     this.surface.addEventListener('wheel', e => this.wheel(e), {passive: false});
+    this.pointers = new Map();
+    this.onFullscreenChange = () => { this.syncFullscreen(); this.position(); };
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.syncFullscreen();
     this.renderSurface();
   }
-  destroy() { this.cancelDivider(); this.observer.disconnect(); }
+  destroy() {
+    this.resetPointers(); this.cancelDivider(); this.observer.disconnect();
+    if (typeof document !== 'undefined' && typeof document.removeEventListener === 'function') document.removeEventListener('fullscreenchange', this.onFullscreenChange);
+  }
+  syncFullscreen() {
+    const active = typeof document !== 'undefined' && document.fullscreenElement === this.root;
+    this.fullscreenButton.textContent = active ? '×' : '⛶';
+    this.fullscreenButton.title = active ? 'Exit fullscreen' : 'Fullscreen';
+    this.fullscreenButton.setAttribute('aria-label', active ? 'Exit fullscreen comparison' : 'Fullscreen comparison');
+    this.fullscreenButton.setAttribute('aria-pressed', String(active));
+  }
   names() { return this.swapped ? [this.right, this.left] : [this.left, this.right]; }
   swap() { this.swapped = !this.swapped; this.renderSurface(); }
   setBlind(value) { this.blind = value; this.renderSurface(); }
@@ -71,7 +85,7 @@ export class CompareViewer {
     return {box, img, source, item, evidence};
   }
   renderSurface() {
-    this.stopDrag();
+    this.resetPointers();
     this.cancelDivider();
     const [a, b] = this.names();
     const mode = this.blink ? 'single' : this.mode;
@@ -113,7 +127,9 @@ export class CompareViewer {
       this.mode = 'side'; this.modeSelect.value = 'side'; this.renderSurface(); return;
     }
     this.updateScale();
-    this.hint.textContent = this.mode === 'single' ? 'Scroll to zoom · drag to pan · hold Space to compare' : !this.aligned ? 'Scroll to zoom · wipe needs confirmed alignment' : dims.every(Boolean) && !same ? 'Scroll to zoom · different image dimensions' : this.mode === 'wipe' ? 'Scroll to zoom · drag divider to compare' : 'Scroll to zoom · drag to pan · hold Space to compare';
+    const coarse = typeof globalThis.matchMedia === 'function' ? globalThis.matchMedia('(pointer: coarse)').matches : typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia('(pointer: coarse)').matches : false;
+    const zoomHint = coarse ? 'Pinch to zoom' : 'Scroll to zoom';
+    this.hint.textContent = this.mode === 'single' ? `${zoomHint} · drag to pan · hold Space to compare` : !this.aligned ? `${zoomHint} · wipe needs confirmed alignment` : dims.every(Boolean) && !same ? `${zoomHint} · different image dimensions` : this.mode === 'wipe' ? `${zoomHint} · drag divider to compare` : `${zoomHint} · drag to pan · hold Space to compare`;
   }
   updateScale(force = false) {
     const scales = [...new Set((this.panes || []).filter(p => p.scale).map(p => Number((p.scale * 100).toFixed(2))))];
@@ -139,6 +155,52 @@ export class CompareViewer {
     }
     this.zoom = zoom;
     this.surface.classList.toggle('can-pan', zoom !== 'fit');
+    this.position();
+  }
+  paneAt(x, y, target) {
+    const targetPane = this.panes.find(pane => target && pane.box.contains(target));
+    if (targetPane) return targetPane;
+    return this.panes.find(pane => {
+      const rect = pane.box.getBoundingClientRect();
+      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    }) || this.panes[0];
+  }
+  beginDrag(x, y, pointerId, target) {
+    const pane = this.paneAt(x, y, target);
+    if (!pane?.img.naturalWidth || !pane.scale) return;
+    this.drag = {pointerId, x, y, center: {...this.center}, width: pane.img.naturalWidth * pane.scale, height: pane.img.naturalHeight * pane.scale};
+    this.surface.classList.add('panning');
+  }
+  startPinch() {
+    const points = [...this.pointers.values()];
+    if (points.length < 2) return;
+    const [a, b] = points;
+    const midpoint = {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2};
+    const pane = this.paneAt(midpoint.x, midpoint.y);
+    if (!pane?.img.naturalWidth || !pane.scale) return;
+    this.pinch = {
+      distance: Math.max(1, Math.hypot(b.x - a.x, b.y - a.y)),
+      zoom: pane.scale,
+      center: {...this.center},
+      midpoint,
+      pane
+    };
+    this.touchScroll = null;
+  }
+  updatePinch() {
+    if (!this.pinch || this.pointers.size < 2) return;
+    const [a, b] = [...this.pointers.values()];
+    const midpoint = {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2};
+    const distance = Math.max(1, Math.hypot(b.x - a.x, b.y - a.y));
+    const {pane} = this.pinch, width = pane.img.naturalWidth, height = pane.img.naturalHeight;
+    const zoom = Math.max(.001, Math.min(16, this.pinch.zoom * distance / this.pinch.distance));
+    const rect = pane.box.getBoundingClientRect();
+    this.center = {
+      x: this.pinch.center.x + (this.pinch.midpoint.x - rect.left - rect.width / 2) / width * (1 / this.pinch.zoom - 1 / zoom) - (midpoint.x - this.pinch.midpoint.x) / (width * zoom),
+      y: this.pinch.center.y + (this.pinch.midpoint.y - rect.top - rect.height / 2) / height * (1 / this.pinch.zoom - 1 / zoom) - (midpoint.y - this.pinch.midpoint.y) / (height * zoom)
+    };
+    this.zoom = zoom;
+    this.surface.classList.add('can-pan');
     this.position();
   }
   wheel(e) {
@@ -194,17 +256,61 @@ export class CompareViewer {
     if (pointerId != null && this.marker?.hasPointerCapture(pointerId)) this.marker.releasePointerCapture(pointerId);
   }
   pointerDown(e) {
-    if (e.target.closest('[role="slider"]') || this.zoom === 'fit' || e.button !== 0) return;
-    const pane = this.panes.find(p => p.box.contains(e.target)) || this.panes[0];
-    if (!pane.img.naturalWidth) return;
-    this.drag = {x: e.clientX, y: e.clientY, center: {...this.center}, width: pane.img.naturalWidth * pane.scale, height: pane.img.naturalHeight * pane.scale};
-    this.surface.setPointerCapture(e.pointerId); this.surface.classList.add('panning'); e.preventDefault();
+    if (e.target.closest('[role="slider"]')) return;
+    if (e.pointerType === 'touch') {
+      if (this.pointers.size >= 2) return;
+      this.pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
+      this.surface.setPointerCapture(e.pointerId);
+      if (this.pointers.size === 2) {
+        this.stopDrag(); this.startPinch();
+      } else if (this.zoom === 'fit') {
+        this.touchScroll = {pointerId: e.pointerId, x: e.clientX, y: e.clientY};
+      } else this.beginDrag(e.clientX, e.clientY, e.pointerId, e.target);
+      e.preventDefault();
+      return;
+    }
+    if (this.zoom === 'fit' || e.button !== 0) return;
+    this.beginDrag(e.clientX, e.clientY, e.pointerId, e.target);
+    if (this.drag) { this.surface.setPointerCapture(e.pointerId); e.preventDefault(); }
   }
   pointerMove(e) {
-    if (!this.drag) return;
+    if (this.pointers.has(e.pointerId)) this.pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    if (this.pinch && this.pointers.size >= 2) {
+      this.updatePinch(); e.preventDefault(); return;
+    }
+    if (this.touchScroll?.pointerId === e.pointerId && this.zoom === 'fit') {
+      const previous = this.touchScroll;
+      const dx = e.clientX - previous.x, dy = e.clientY - previous.y;
+      if (!document.fullscreenElement && Math.abs(dy) > Math.abs(dx) * .6) window.scrollBy(0, -dy);
+      this.touchScroll = {pointerId: e.pointerId, x: e.clientX, y: e.clientY};
+      e.preventDefault(); return;
+    }
+    if (!this.drag || this.drag.pointerId !== e.pointerId) return;
     this.center.x = this.drag.center.x - (e.clientX - this.drag.x) / this.drag.width;
     this.center.y = this.drag.center.y - (e.clientY - this.drag.y) / this.drag.height;
-    this.position();
+    this.position(); e.preventDefault();
+  }
+  pointerUp(e) {
+    if (this.pointers.has(e.pointerId)) {
+      this.pointers.delete(e.pointerId);
+      this.touchScroll = null;
+      if (this.pinch) {
+        this.pinch = null;
+        if (this.pointers.size === 1 && this.zoom !== 'fit') {
+          const [pointerId, point] = this.pointers.entries().next().value;
+          this.beginDrag(point.x, point.y, pointerId);
+        } else this.stopDrag();
+      } else if (this.drag?.pointerId === e.pointerId) this.stopDrag();
+      return;
+    }
+    if (this.drag?.pointerId === e.pointerId) this.stopDrag();
+  }
+  resetPointers() {
+    const pointerIds = [...this.pointers.keys()];
+    this.pointers.clear(); this.pinch = null; this.touchScroll = null; this.stopDrag();
+    for (const pointerId of pointerIds) {
+      if (this.surface.hasPointerCapture(pointerId)) this.surface.releasePointerCapture(pointerId);
+    }
   }
   stopDrag() { this.drag = null; this.surface.classList.remove('panning'); }
 }

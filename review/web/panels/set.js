@@ -13,7 +13,7 @@ function photograph(ctx, row, side, index) {
       'aria-current': photo.id === ctx.photo.id ? 'true' : null,
       'aria-label': `Review photograph ${index + 1}: ${photo.title}`}, frame,
     el('div', {class: 'set-photo-caption'}, el('span', {class: 'set-photo-number'}, String(index + 1)),
-      el('span', {}, photo.title), el('span', {class: 'set-photo-arrow', 'aria-hidden': true}, '↗'))));
+      el('span', {class: 'set-photo-title'}, photo.title), el('span', {class: 'set-photo-arrow', 'aria-hidden': true}, '↗'))));
 }
 
 export function setReview(ctx) {

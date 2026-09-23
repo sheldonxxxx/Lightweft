@@ -198,6 +198,11 @@ class ReviewStore:
             string_value(case.get('title'), 'case.title', 500)
             if 'defaultView' in case and case['defaultView'] not in ('single', 'side', 'wipe'):
                 raise ReviewError('case.defaultView must be single, side, or wipe')
+            if 'disabled' in case and not isinstance(case['disabled'], bool):
+                raise ReviewError('case.disabled must be boolean')
+            case.setdefault('disabled', False)
+            if 'selectedVariantId' in case:
+                valid_id(case['selectedVariantId'], 'case.selectedVariantId')
             if 'metadata' in case:
                 object_value(case['metadata'], 'case.metadata')
             for key in ('category', 'split', 'format', 'intent'):
@@ -242,6 +247,8 @@ class ReviewStore:
                     string_value(variant['description'], 'variant.description')
                 variant.pop('assetRevision', None)
                 variant.pop('unavailable', None)
+            if 'selectedVariantId' in case and case['selectedVariantId'] not in vids:
+                raise ReviewError('case.selectedVariantId must reference an existing variant')
             regions = case.setdefault('regions', [])
             if not isinstance(regions, list) or len(regions) > 200:
                 raise ReviewError('case.regions must be a list with at most 200 regions')
@@ -375,6 +382,33 @@ class ReviewStore:
             dataset['disabled'] = disabled
             # A display-only flag change must not require renders to be present;
             # refresh() still marks any missing media unavailable.
+            validated = self.validate_dataset(dataset, require_files=False)
+            next_record = {'dataset': validated, 'feedback': {}, 'version': record['version'] + 1}
+            self.refresh(next_record, record)
+            state['datasets'][dataset_id] = next_record
+            self.write(state)
+            return self.envelope(next_record)
+
+    def set_case_disabled(self, dataset_id, case_id, disabled, version=None):
+        valid_id(dataset_id)
+        valid_id(case_id, 'case.id')
+        if not isinstance(disabled, bool):
+            raise ReviewError('disabled must be boolean')
+        with self.locked():
+            state = self.read()
+            record = state['datasets'].get(dataset_id)
+            if record is None:
+                raise ReviewError('Dataset not found', 404)
+            if self.refresh(record):
+                record['version'] += 1
+                self.write(state)
+            if version is not None and (type(version) is not int or version != record['version']):
+                raise ReviewError('Workspace changed; reload before saving', 409)
+            dataset = copy.deepcopy(record['dataset'])
+            case = next((item for item in dataset['cases'] if item['id'] == case_id), None)
+            if case is None:
+                raise ReviewError('Case not found', 404)
+            case['disabled'] = disabled
             validated = self.validate_dataset(dataset, require_files=False)
             next_record = {'dataset': validated, 'feedback': {}, 'version': record['version'] + 1}
             self.refresh(next_record, record)
@@ -522,15 +556,58 @@ class ReviewStore:
             return assets
 
 
+def _split_host(value):
+    """Split a Host header into (hostname, port). Handles IPv6 brackets."""
+    name, sep, received = value.rpartition(':')
+    if sep and ']' in name:
+        # IPv6 like [::1]:8765; a bare [::1] has no port separator outside brackets.
+        if name.endswith(']'):
+            hostname, port = value, None
+        else:
+            hostname, port = name, received or None
+    elif sep:
+        hostname, port = name, received or None
+    else:
+        hostname, port = value, None
+    hostname = hostname.strip()
+    if hostname.startswith('[') and hostname.endswith(']'):
+        hostname = hostname[1:-1]
+    return hostname.lower(), port
+
+
+def _normalize_host_list(values):
+    """Normalize --allow-host entries to {(hostname, port|None)}; None port matches any."""
+    entries = set()
+    for raw in values:
+        text = (raw or '').strip()
+        if not text:
+            continue
+        hostname, port = _split_host(text)
+        if not hostname:
+            raise ReviewError('Allowed host must be a hostname or host:port')
+        entries.add((hostname, port))
+    return frozenset(entries)
+
+
+def _host_is_allowed(host, allowed_hosts):
+    hostname, port = _split_host(host)
+    for wanted, wanted_port in allowed_hosts:
+        if hostname == wanted and (wanted_port is None or port == wanted_port):
+            return True
+    return False
+
+
 class ReviewServer(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
 
-    def __init__(self, address, store, web_root=None):
+    def __init__(self, address, store, web_root=None, allowed_hosts=None, allowed_origins=None):
         if address[0] not in ('127.0.0.1', 'localhost', '0.0.0.0'):
             raise ReviewError('Review server must bind to IPv4 loopback or 0.0.0.0')
         self.store = store
         self.web_root = Path(web_root or Path(__file__).parent / 'web').resolve()
+        self.allowed_hosts = _normalize_host_list(allowed_hosts or [])
+        self.allowed_origins = frozenset(o for o in (allowed_origins or []) if o)
         super().__init__(address, ReviewHandler)
 
 
@@ -544,17 +621,18 @@ class ReviewHandler(BaseHTTPRequestHandler):
     def trusted_request(self, mutation=False):
         port = self.server.server_address[1]
         host = self.headers.get('Host', '')
-        if self.server.server_address[0] == '0.0.0.0':
+        explicit = _host_is_allowed(host, getattr(self.server, 'allowed_hosts', frozenset()))
+        if explicit:
+            pass
+        elif self.server.server_address[0] == '0.0.0.0':
             # LAN mode: accept only the address this connection actually arrived
             # on, plus loopback names. A page served from any other hostname (a
             # DNS-rebinding origin, for example) is rejected even when its Origin
             # header matches its forged Host header.
-            name, sep, received = host.rpartition(':')
-            hostname, port_ok = (name, received == str(port)) if sep else (host, port == 80)
-            if hostname.startswith('[') and hostname.endswith(']'):
-                hostname = hostname[1:-1]
+            hostname, received = _split_host(host)
+            port_ok = (received == str(port)) if received is not None else (port == 80)
             allowed = {'127.0.0.1', 'localhost', '::1', self.connection.getsockname()[0].lower()}
-            if not port_ok or hostname.lower() not in allowed:
+            if not port_ok or hostname not in allowed:
                 raise ReviewError('Untrusted Host header', 403)
         else:
             allowed = {f'127.0.0.1:{port}', f'localhost:{port}'}
@@ -565,8 +643,16 @@ class ReviewHandler(BaseHTTPRequestHandler):
         if self.headers.get('Sec-Fetch-Site') == 'cross-site':
             raise ReviewError('Cross-site requests are not allowed', 403)
         origin = self.headers.get('Origin')
-        if origin is not None and origin != 'http://' + host:
-            raise ReviewError('Cross-origin requests are not allowed', 403)
+        if origin is not None:
+            allowed_origins = getattr(self.server, 'allowed_origins', frozenset())
+            if origin in allowed_origins:
+                pass
+            elif explicit and origin in ('http://' + host, 'https://' + host):
+                pass
+            elif not explicit and origin == 'http://' + host:
+                pass
+            else:
+                raise ReviewError('Cross-origin requests are not allowed', 403)
         if mutation and self.headers.get('Content-Type', '').split(';')[0].strip() != 'application/json':
             raise ReviewError('Mutations require application/json', 415)
 
@@ -696,6 +782,10 @@ class ReviewHandler(BaseHTTPRequestHandler):
                 raise ReviewError('Page not found', 404)
             return self.send_file(self.server.web_root, asset)
         if self.command == 'PUT':
+            match = re.fullmatch(r'/api/datasets/([^/]+)/cases/([^/]+)/disabled', path)
+            if match:
+                payload = self.read_json()
+                return self.json_response(store.set_case_disabled(match[1], match[2], payload.get('disabled'), payload.get('version', 0)))
             match = re.fullmatch(r'/api/datasets/([^/]+)(/feedback|/disabled)?', path)
             if not match:
                 raise ReviewError('API route not found', 404)
@@ -748,13 +838,20 @@ def main():
     parser.add_argument('--port', type=int, default=8765)
     parser.add_argument('--bind', default='127.0.0.1', choices=('127.0.0.1', 'localhost', '0.0.0.0'),
                         help='Interface to listen on: loopback (default) or 0.0.0.0 for LAN access')
+    parser.add_argument('--allow-host', action='append', default=[],
+                        help='Extra Host header to trust behind a reverse proxy (repeatable, e.g. photos.example.com). Bare hostname matches any port; host:port requires that port.')
+    parser.add_argument('--allow-origin', action='append', default=[],
+                        help='Extra Origin to trust behind a reverse proxy (repeatable, e.g. https://photos.example.com). Explicitly allowed hosts already accept matching http/https origins.')
     args = parser.parse_args()
     if not 0 <= args.port <= 65535:
         parser.error('port must be between 0 and 65535')
     try:
-        server = ReviewServer((args.bind, args.port), ReviewStore(args.workspace, args.media_root))
+        server = ReviewServer((args.bind, args.port), ReviewStore(args.workspace, args.media_root),
+                              allowed_hosts=args.allow_host, allowed_origins=args.allow_origin)
     except (ReviewError, OSError) as exc:
         parser.exit(1, f'{exc}\n')
+    if args.allow_host:
+        print(f'Trusting Host headers: {", ".join(args.allow_host)} (use only behind your authenticated proxy)', flush=True)
     if args.bind == '0.0.0.0':
         lan = lan_address()
         print(f'Photo Review listening at http://127.0.0.1:{server.server_port}' + (f' and http://{lan}:{server.server_port} (LAN)' if lan else ' on all interfaces (LAN)'), flush=True)

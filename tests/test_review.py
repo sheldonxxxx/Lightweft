@@ -71,6 +71,17 @@ class StoreTests(ReviewFixture, unittest.TestCase):
             data['cases'][0]['variants'][1]['defaultView'] = mode
             self.store.validate_dataset(data)
 
+    def test_selected_variant_is_validated_and_persisted(self):
+        data = copy.deepcopy(self.dataset)
+        data['cases'][0]['selectedVariantId'] = 'candidate'
+        saved = self.store.put_dataset('test', data, self.record['version'])
+        self.assertEqual(saved['dataset']['cases'][0]['selectedVariantId'], 'candidate')
+        for value, message in [('missing', 'existing variant'), ('', 'case.selectedVariantId')]:
+            invalid = copy.deepcopy(self.dataset)
+            invalid['cases'][0]['selectedVariantId'] = value
+            with self.assertRaisesRegex(ReviewError, message):
+                self.store.validate_dataset(invalid)
+
     def test_persistence_metadata_and_compare_and_swap(self):
         saved = self.store.put_feedback('test', self.feedback(), self.record['version'])
         reopened = ReviewStore(self.root / 'workspace', self.media).get_dataset('test')
@@ -168,6 +179,27 @@ class StoreTests(ReviewFixture, unittest.TestCase):
         self.assertTrue(disabled['dataset']['cases'][0]['variants'][1]['unavailable'])
         enabled = self.store.set_disabled('test', False)
         self.assertFalse(enabled['dataset']['disabled'])
+
+    def test_photo_disable_toggle_preserves_feedback_and_defaults_other_cases(self):
+        saved = self.store.put_feedback('test', self.feedback(), self.record['version'])
+        disabled = self.store.set_case_disabled('test', 'one', True, saved['version'])
+        case = disabled['dataset']['cases'][0]
+        self.assertTrue(case['disabled'])
+        self.assertEqual(disabled['version'], saved['version'] + 1)
+        self.assertEqual(disabled['feedback'], saved['feedback'])
+        enabled = self.store.set_case_disabled('test', 'one', False, disabled['version'])
+        self.assertFalse(enabled['dataset']['cases'][0]['disabled'])
+        self.assertEqual(enabled['feedback']['one']['candidate']['decision'], 'accepted')
+        with self.assertRaisesRegex(ReviewError, 'case.disabled'):
+            invalid = copy.deepcopy(self.dataset)
+            invalid['cases'][0]['disabled'] = 'yes'
+            self.store.validate_dataset(invalid)
+
+    def test_photo_disable_toggle_rejects_unknown_case_and_stale_version(self):
+        with self.assertRaisesRegex(ReviewError, 'Case not found'):
+            self.store.set_case_disabled('test', 'missing', True, self.record['version'])
+        with self.assertRaisesRegex(ReviewError, 'Workspace changed'):
+            self.store.set_case_disabled('test', 'one', True, self.record['version'] + 1)
 
     def test_manifest_replace_without_disabled_field_keeps_state(self):
         disabled = self.store.set_disabled('test', True)
@@ -409,6 +441,17 @@ class HttpTests(ReviewFixture, unittest.TestCase):
         self.assertEqual(self.request('PUT', '/api/datasets/test/disabled', {'disabled': 'yes', 'version': 2})[0], 400)
         status, _, body = self.request('PUT', '/api/datasets/test/disabled', {'disabled': False, 'version': 2})
         self.assertEqual((status, json.loads(body)['dataset']['disabled']), (200, False))
+
+    def test_http_photo_disable_endpoint_guards_versions(self):
+        status, _, body = self.request('PUT', '/api/datasets/test/cases/one/disabled', {'disabled': True, 'version': 1})
+        self.assertEqual(status, 200)
+        record = json.loads(body)
+        self.assertTrue(record['dataset']['cases'][0]['disabled'])
+        self.assertEqual(record['version'], 2)
+        self.assertEqual(self.request('PUT', '/api/datasets/test/cases/one/disabled', {'disabled': False, 'version': 1})[0], 409)
+        self.assertEqual(self.request('PUT', '/api/datasets/test/cases/one/disabled', {'disabled': 'yes', 'version': 2})[0], 400)
+        status, _, body = self.request('PUT', '/api/datasets/test/cases/one/disabled', {'disabled': False, 'version': 2})
+        self.assertEqual((status, json.loads(body)['dataset']['cases'][0]['disabled']), (200, False))
 
     def test_http_profile_and_preset_export(self):
         payload = {'name': 'Winter', 'kind': 'preset', 'datasetId': 'test', 'caseId': 'one', 'variantId': 'candidate'}

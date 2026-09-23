@@ -45,7 +45,11 @@
 - Fix photo loading and panel switching when 360 review contains a flat photograph or mask variant.
 - Keep dropdowns and options in the dark theme, improve secondary text and focus visibility, and fit controls and dialogs on narrow screens.
 - Allow disabling review collections to shorten the selector, with a “Show disabled” toggle and per-collection Disable/Enable control plus matching CLI commands; disabling preserves feedback and works even while a render is missing.
+- Allow disabling individual photographs within a collection while keeping them visible in grey; the versioned photo endpoint preserves feedback and the list shows selected-version and disabled badges.
+- Persist an optional per-photo `selectedVariantId` that selects the opening candidate, validates against existing variants, and survives manifest replacement.
 - Allow the review server to listen on 0.0.0.0 via `--bind` for trusted-LAN viewing from other devices, keeping loopback the default and restricting requests to the address they arrived on.
+- Support serving the review app behind an authenticated reverse proxy with repeatable `--allow-host` and `--allow-origin` allowlists, keeping loopback the default and rejecting cross-site requests.
+- Add touch comparison support with pinch-to-zoom, one-finger pan when zoomed, vertical page scroll at Fit, coarse-pointer hints, and safe-area fullscreen viewing on mobile.
 - Direct the style-builder skill to publish new edits of an already-reviewed photograph into the existing review collection as new candidates, creating a new collection only for a genuinely new study, batch, or grouping.
 
 ### Editing guidance
