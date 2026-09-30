@@ -1,6 +1,6 @@
 # Landscape judgment
 
-Use with the shared philosophy in `SKILL.md` when place, space, weather, land, or natural pattern carries the photograph. These are applications of our synthesis, not separate looks to assign to scenes.
+Use with the lessons and workflow in `SKILL.md` when place, space, weather, land, or natural pattern carries the photograph. These are applications of our synthesis, not separate looks to assign to scenes.
 
 ## Find what makes this place specific
 

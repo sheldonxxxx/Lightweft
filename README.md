@@ -108,7 +108,7 @@ For longer sessions, use [per-photo checkpoints and selective review](docs/conti
 </tr>
 </table>
 
-### One shared philosophy, different photographic relationships
+### One editing approach, different photographic relationships
 
 | Genre | What carries the photograph |
 | :--- | :--- |
@@ -118,7 +118,7 @@ For longer sessions, use [per-photo checkpoints and selective review](docs/conti
 | [People](skills/photo-edit-master/references/people.md) | Faces, gesture, skin, and relationships among people |
 | [Still life](skills/photo-edit-master/references/still-life.md) | Colour, light, texture, food, flowers, and material |
 
-The skill uses selective reading: a shared core plus the reference relevant to the photograph. [Master studies](skills/photo-edit-master/references/master-studies.md) provide deeper context and distinguish testimony, observation, and inference. The guidance contains no fixed slider recipes or mandatory look.
+The skill uses selective reading: a shared workflow plus the reference relevant to the photograph. [Master studies](skills/photo-edit-master/references/master-studies.md) provide deeper context and distinguish testimony, observation, and inference. It suggests starting ranges for common moves, not fixed recipes or a mandatory look.
 
 ## One workspace for review and personal style
 

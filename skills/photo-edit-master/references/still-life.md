@@ -1,6 +1,6 @@
 # Still life and material
 
-Apply the shared philosophy to food, flowers, objects, and surfaces. These are practical applications of the shared principles, not a newly researched historical genre survey.
+Apply the lessons and workflow in `SKILL.md` to food, flowers, objects, and surfaces. These are practical applications of the shared principles, not a newly researched historical genre survey.
 
 Find the relationship that makes the material tangible: translucent petals around a warm centre, pale food against ceramic, wet fruit beside a dry counter, or warm wood beneath blue room light. Preserve differences among materials rather than making every surface equally bright, saturated, or textured.
 

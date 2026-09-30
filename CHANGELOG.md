@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Editing guidance
+
+- Rewrite `photo-edit-master` around concrete editing decisions: lessons from master photographers and darkroom printing, an eight-step workflow with starting ranges for crop, light shaping, colour and finish, a subject and inverted-environment mask pair, and common failures. Candidates are now checked twice before delivery: technical defects to fix, then artistic questions to answer for the photograph.
+- Rewrite the wildlife reference with picture types, standard moves, difficult light, cleanup and documentary honesty, including how to choose a depth-based or AI subject selection and what each tends to miss.
+
 ### Workspace and documentation
 
 - Add prerequisite checks and explicit Codex skill locations, with links to the companion's MCP setup guide and Codex host configuration.

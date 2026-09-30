@@ -1,33 +1,47 @@
-# Wildlife judgment
+# Wildlife
 
-Use with the shared philosophy in `SKILL.md` when an animal's presence, behaviour, or relationship with its habitat carries the photograph. Environmental wildlife belongs here even when the animal occupies little of the frame. These are readings of meaning, not preset categories.
+Use with the workflow in `SKILL.md` when an animal's presence, behaviour or relationship with its habitat carries the photograph. The goal is an animal with presence in a world that supports it: the eye goes to the animal, then to what it is doing, then to where it is.
 
-## Honour the living individual and the encounter
+## Decide the picture type first
 
-Individuality may reside in a face, stance, worn feather, asymmetry, or interaction. It does not require a close portrait, eye contact, or an immaculate appearance. A bird can be the visible object while its precarious foothold, camouflage, or relationship with another bird is the actual subject.
+| Type | What carries it | Typical treatment |
+| :-- | :-- | :-- |
+| **Portrait** (head or half body fills the frame) | Eye, face, texture | Tight crop with gaze room. Strong subject/background separation, eye dodge, dark or smooth background, texture on feathers or fur. |
+| **Action** (flight, landing, catch, fight) | Gesture and moment | Crop for direction of travel. Keep all of the wing tips, feet and prey. Freeze the peak; spray and droplets are part of the moment. |
+| **Behaviour / interaction** | Two or more participants and the space between them | Keep every participant readable. Tone the space between them down without losing it. |
+| **Animal in habitat** | Scale and place | Wide crop. Tone the habitat as a landscape (gradients, depth); the animal stays the brightest or most contrasty element at its scale. |
+| **Graphic / silhouette** | Shape against light | Commit to the silhouette: deep blacks, clean sky gradient, no shadow lifting. Monochrome is often stronger. |
 
-In a portrait, judge form, material, and gesture. In behaviour, judge whether the action and relevant participants remain understandable. In an environmental image, judge whether animal and habitat illuminate each other. These concerns can coexist. An eye can anchor attention when visible and relevant; a silhouette, turned back, flock, or moving body can carry the photograph without one.
+## Standard moves
 
-## Decide how discovery should work
+1. **Subject mask and its inverse.** Select the animal, including prey or perch if they belong with it. A depth-based selection follows the silhouette and leaves openings such as an open beak out of the subject. Refine its edge with matting when the animal stands clear of everything else in depth; when water, ice, a perch or foreground sits at the same depth, intersect it with an AI subject selection. (In RapidRAW: a Marigold depth mask, `refine_mask` matting, or a depth mask intersected with the subject mask.)
 
-A small or dark animal can be the emotional centre without becoming the brightest object. The setting may invite attention before the animal is discovered. Preserve camouflage when discovery or adaptation is central; the habitat must give the viewer a reason to stay. Equally, ambiguity adds little when it prevents an important behaviour from being understood.
+   Look at the mask before grading: on black-and-white birds, AI selections often drop the white shoulder or tail, the beak, the eye or the prey, and a depth band can lose a tail or far wingtip. Add include points or brush them in, then duplicate the finished selection inverted for the environment.
 
-Stronger separation of a bird from reeds might clarify posture while weakening camouflage. Choose which relationship serves this image and the brief. More space can communicate exposure, scale, habitat, or direction; less can concentrate on individuality or contact. A branch can interrupt a silhouette yet explain support. Include or exclude it according to that consequence, not tidiness alone.
+   On the subject: exposure up, shadows up, a little texture, a little warmth. On the environment: exposure down, saturation down, clarity down, slightly cooler. Adjust both until the animal separates at thumbnail size.
+2. **Eye.** If the eye is visible and sharp, give it a small dodge (+0.2 to +0.4 EV on a small radial or brush) and keep the catchlight. Never paint in a catchlight that isn't there.
+3. **Edges.** Burn corners and bright edge clutter. A vignette of −15 to −30 suits most wildlife frames; use radial burns instead when the subject is off-centre.
+4. **Crop.** Leave space in front of the face or the direction of travel. Don't clip wing tips, feet or tails at the edge; if the frame does, crop decisively inside the body (at the joint, not the tip) or keep the full frame. Level any horizon or water line.
+5. **Detail.** Denoise high-ISO files with dedicated denoise first. Add texture and sharpening to the subject only; keep the background soft.
 
-## Keep the animal in its light and material
+## Difficult light and plumage
 
-Black feathers absorb light; a shaded body should still look shaded. Plumage, fur, eyes, and markings carry both presence and biological information. Preserve anatomy and meaningful distinctions without claiming precise species colour from uncertain viewing conditions. Feathers may change appearance with angle and illumination. Expressive colour should not quietly imply a different identity, condition, season, or event.
+**Dark plumage (eagles, crows, cormorants, dark fur).** Lift the subject's shadows and use texture or clarity to reveal feather structure, but keep the body dark: it should read as a black bird in shade, not a grey one. Protect the white patches (tail, shoulders) with highlight recovery. A darker environment makes a dark animal feel brighter without lifting it.
 
-Texture should serve the body's form and presence. Uniform crispness can compete with gesture; excessive smoothness can make an animal feel manufactured. Rain, spray, dust, and snow may explain movement, shelter, or exposure. A face should belong to the light shared by body and habitat; a face that seems separately illuminated signals excessive emphasis.
+**White birds on snow or pale sky (swans, cranes, gulls, snowy owls).** Expose for the whites: highlights −30 to −60 and whites down until feather texture returns. Separate white on white with a slightly cooler, darker environment and a touch of warmth on the bird. Snow in shade is blue; keep it blue unless it looks like a cast.
 
-When a head reads as one dark mass, first distinguish its important markings from the illumination. A small coloured crown, pale cheek and dark neck can become legible through their relative colour and tone without lifting the whole face. Judge the gain at the photograph's intended viewing size, then inspect whether the accent retains texture and the face remains shaded. An overbright marking, vivid colour patch or circular pool of light can separate the parts while weakening the animal's presence. Do not promise an eye or feather detail that the source does not resolve.
+**Blue hour and dusk.** Keep the scene dark and blue. Lift only the animal (subject mask) and any warm light source. Denoise before any lift. The environment usually needs to get darker, not brighter.
 
-## Let emotion emerge without inventing evidence
+**Backlight and rim light.** Keep the rim bright and warm and let the body stay in shadow with just enough detail. Darken the background behind the rim so it glows. Recover highlights in bright water sparkle so the rim still reads as the brightest light.
 
-Preserve observable behaviour and the context needed to understand it. An open beak is visible; anger is inferred. A predator need not appear menacing, and a vulnerable animal need not be made pitiable. Posture, gaze, contact, movement, and setting can evoke grief or tenderness without proving the animal experienced either. Visual intensity cannot establish the cause of suffering or substantiate a conservation claim.
+**Overcast flat light.** Flat light is where local shaping matters most. Build a light direction with a subject dodge on the side facing the brighter sky, burn the far side and the edges, and add colour contrast (warmer subject, cooler surroundings).
 
-## Turn the reading into a bounded decision
+**Water and ice.** Blue ice gains depth from a slightly deeper, more saturated blue; keep whites clean. Reflections should be darker than what they reflect. Calm water behind a subject can be darkened to near black for a clean stage.
 
-For a hypothetical backlit bird, let posture become readable while the body remains visibly shaded; protect the warm rim and luminous grasses. Identify a competing bright clump by its actual location and let it become subordinate without turning into an unexplained dark patch. Judge these emphases together: several small changes can detach the bird from its world.
+## Cleanup in wildlife
 
-This demonstrates a destination and its limits, not a reusable treatment. If concealment is the photograph's central relationship, the appropriate degree of recognition may be very different. Keep the chosen experience, supporting evidence, and cost of stronger emphasis connected.
+Remove bright specks, out-of-focus branches crossing the edge of the frame, and distant birds that make a tangent with the subject. Keep perches, prey, droplets, snowfall and other animals that are part of the behaviour. When the photograph is presented as documentary, don't remove anything that changes what happened, such as bait, fences or people in the scene.
+
+## Honesty limits
+
+Tone, colour and crop can be expressive. Don't add catchlights, feathers, anatomy, animals or behaviour. Don't reshape an animal. Emotion comes from gesture and light; don't claim what the animal felt.

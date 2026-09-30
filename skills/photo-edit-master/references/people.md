@@ -1,6 +1,6 @@
 # People in their light
 
-Apply the shared philosophy when a face, gesture, or human relationship carries the photograph. These are practical applications of the shared principles, not a newly researched account of portrait masters.
+Apply the lessons and workflow in `SKILL.md` when a face, gesture, or human relationship carries the photograph. These are practical applications of the shared principles, not a newly researched account of portrait masters.
 
 Read the encounter before correcting skin. A shaded face beside a bright window can become more legible while remaining shaded. A performer under saturated stage light should still belong to that light. Tinted glasses, reflected foliage, and coloured surroundings can explain local colour; a familiar skin tone is not a universal neutral reference. Judge whether the colour describes the illumination or merely makes the face difficult to read.
 

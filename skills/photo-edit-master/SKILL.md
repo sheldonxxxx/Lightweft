@@ -1,76 +1,153 @@
 ---
 name: photo-edit-master
-description: Create decisive, image-specific edit plans and critique photographs using shared principles of attention, light, colour, atmosphere, and truthful representation, with researched landscape, wildlife, and nightscape guidance. Use for autonomous artistic direction, edit planning, and aesthetic review alongside a separate execution skill. Theory only; excludes software procedures, numerical adjustment recipes, and photographer-style presets.
+description: Direct and critique expressive, portfolio-grade photo edits. Turns lessons from master photographers and darkroom printing into concrete decisions about crop, light shaping, colour and finish, with starting ranges, a tonal-hierarchy check and genre guidance for wildlife, landscape, nightscapes, people and still life. Use when planning, executing through an editor skill, or reviewing a photo edit.
 ---
 
 # Photo Edit Master
 
-## Purpose and selective reading
+Make the photograph a viewer stops for. A technically clean correction that looks like the camera file with a little more contrast is an unfinished edit, not a safe one.
 
-Decide what a particular photograph should become and explain the visual relationships that will get it there. Respect the photographer's stated intention; otherwise choose a defensible direction from the image's strongest qualities. Supply artistic reasoning to a separate execution skill: visible outcomes, priorities, and relationships to protect. Keep application procedures and numerical settings out of this skill.
+This skill decides **what the finished photograph should look like and which moves get it there**. Pair it with an editor skill (for example `rapidraw-mcp` from the [RapidRAW MCP fork](https://github.com/sheldonxxxx/RapidRAW)) that executes those moves, and with `photo-style-builder` when a personal profile, accepted edits or earlier feedback exist. Current user instructions and the user's accepted edits outrank everything here.
 
-Supply the image-specific foundation for a good photograph. Reusable taste belongs in the user's workspace edit profile, separate from this shared philosophy. When a profile, accepted edits, or earlier feedback exists, use photo-style-builder's taste-learning workflow during ordinary editing as well as explicit style exploration. Apply supported preferences to the image-specific plan; do not restart from generic defaults on each new photograph or batch. Collaborative look comparisons and saving profiles or editor presets also belong to photo-style-builder when available. Keep the convincing base and the qualities the user already accepted as references; a base need not be neutral or stylistically uniform.
+## The standard: print it, don't process it
 
-For a photo book, essay, or successive batches from a large trip, also read [Collection judgment](references/collections.md). Select for each photograph's contribution to the whole as well as its individual edit potential.
+The masters treated the print as interpretation, not correction. Ansel Adams described the negative as the score and the print as the performance, and his printing notes for *Moonrise, Hernandez* show extensive dodging and burning of sky and foreground. Burning in the edges was routine in fine darkroom printing. Treat each photograph the same way:
 
-During ordinary edit planning, consider whether a film interpretation would strengthen the intended colour, light, or atmosphere. Suggest it only when a visible relationship supports it, naming the expected benefit and the quality it could sacrifice. Confirm which emulations the editor actually provides; use photo-style-builder's film selection guidance when available. A genre or film name alone is insufficient. Preserve the established base as a comparison, and recommend keeping it when a film treatment adds no useful expression. A suggestion is provisional, not a saved personal preference or permission beyond the user's editing brief.
+1. **Visualise the final print first.** Before any adjustment, write two sentences: what the viewer sees first, what they feel, and where the light falls. Name the tonal key (low-key, high-key or full-range) and the colour idea.
+2. **Shape the light by region.** Global sliders set the base. The image is made with local work: subject lifted, surroundings subdued, edges burned, light paths emphasised.
+3. **Judge the result as a picture on a wall or a phone screen**, not as a set of plausible adjustments.
 
-Read this shared core, then only the reference relevant to the current photograph's central relationship:
+Default to decisive. If you can't tell the edit from the RAW at thumbnail size, it isn't finished. Restraint is a choice you make for a reason you can name ("this fog is the subject"), not a default.
 
-- [Landscape](references/landscape.md): place, space, weather, land, or patterns of nature carry the photograph.
-- [Wildlife](references/wildlife.md): an animal's presence, behaviour, or relationship with its habitat carries the photograph. This includes environmental wildlife and animals small in the frame.
-- [Nightscapes](references/nightscapes.md): the relationship between a starry sky and a terrestrial place carries the photograph, including the tradeoff between sky clarity and preserved faint detail.
-- [People](references/people.md): a face, gesture, or relationship among people carries the photograph, including mixed light and group consistency.
-- [Still life and material](references/still-life.md): food, flowers, objects, or surfaces carry the photograph through colour, light, and material.
+## Lessons from the masters, as editing moves
 
-For a full-sphere photograph or a conventional view selected from one, also read [Spherical photographs and selected views](references/spherical.md). It addresses the difference between a place the viewer explores and a frame the photographer chooses; use the genre reference for the scene's meaning.
+| Lesson | Master | What to do in the edit |
+| :-- | :-- | :-- |
+| Visualise, then place tones deliberately | Ansel Adams | Decide which areas are the deepest black, the brightest white, and where the subject sits. Set blacks and whites on purpose; don't leave the file's default range. |
+| Light the subject, let the world fall away | Rembrandt, chiaroscuro painting | Make the subject the brightest, highest-contrast, most detailed area. Let the surroundings fall off in brightness and clarity towards the edges. |
+| Burn the edges | Darkroom printing tradition | Darken the frame edges and corners so the eye stays inside. Keep it subtle enough that the vignette itself isn't visible. |
+| Warm against cool | Galen Rowell (*Mountain Light*) | Build colour contrast. Keep warm light on the subject against a cooler environment, or a single warm accent in a cool field. Don't neutralise it away. |
+| Simplicity and negative space | Michael Kenna, Vincent Munier | Remove, crop or tone down anything that competes. Empty space works when its tone is even and quiet. |
+| The animal in its world | Frans Lanting | Keep habitat that tells the story, but give it less brightness, saturation and texture than the animal. |
+| Portrait presence | Nick Brandt | For close animal portraits, commit to a strong tonal key. Deep, clean backgrounds and luminous eyes work; monochrome can sharpen the gesture. |
+| Geometry carries the moment | Henri Cartier-Bresson | He composed in the viewfinder and rarely cropped. When the camera frame missed, use the crop to restore that geometry: direction of travel, gaze room, strong diagonals, a clean border. |
 
-Choose by meaning, not by counting objects. Treat discovery labels and captions as leads: inspect an ambiguous silhouette before deciding that it is an animal or building an intention around that identity. Wildlife guidance already covers habitat; an incidental animal does not automatically turn a landscape into wildlife. Nightscape guidance covers the sky–land relationship; darkness alone does not make a photograph a nightscape. Read an additional reference only for consequential needs the selected one does not address. For a mixed collection, load each genre when reaching its photographs. People and still-life notes apply the shared philosophy to edit review. Other genres, including specialised telescopic astrophotography, have no dedicated reference yet; use applicable shared principles without claiming researched genre coverage.
+These describe widely documented working practices, not looks to imitate. Use the lesson when this photograph gives it a reason. For deeper background, read [learning from the masters](references/master-studies.md).
 
-[Learning from the masters](references/master-studies.md) is optional background for deeper theoretical explanation or contrasting precedents. Do not load it routinely for an edit plan or critique. Our philosophy synthesises the research and its disagreements; it does not claim that the masters share one doctrine.
+## Workflow
 
-## Our philosophy
+Work through these steps in order. Steps 2–5 are where average edits usually stop short.
 
-**Edit to deepen the encounter: make what matters more perceptible, preserve what gives it meaning, and leave room for discovery.**
+### 1. Read the photograph (brief, written)
 
-A photograph relates an actual world, a photographer's response, and a viewer's attention. Its success lies in making a particular encounter convincing. The subject has resistance: concealment, darkness, irregularity, and difficult context can be the facts that make it worth looking at. Understand them before overcoming them. Restraint means purpose and proportion; it can support forceful colour or near silence. There is no mandatory palette, mood, geometry, or degree of drama.
+- **Subject and story:** who or what, doing what, in what place.
+- **Light:** direction, quality, colour, and the time of day it actually shows. A blue-hour scene must stay blue hour.
+- **Strength:** the best thing already in the frame.
+- **Obstacles:** what stops it being a great picture (flat light, bright clutter, weak crop, colour cast, noise, tilted horizon, a distraction).
+- **Final-print sentence:** the visualisation from above.
 
-**Meaning begins in relationships.** The visible object need not be the photograph's subject. Identify what connects the elements and the experience that connection can sustain. Separate observation from interpretation; keep unavailable or unresolved evidence conditional. Name visible light or gesture before assigning a time, activity, or story: a low sun alone does not establish sunrise or sunset, nor a dim rendition the time of day. Keep a chosen mood separate from claims about what occurred. A simple intention such as “vivid and readable” can suffice when the image supplies the context. Treat intention as a revisable hypothesis, never an obligation to force the image into an initial idea.
+### 2. Geometry first
 
-**Attention should have a reason.** Brightness, contrast, colour, edges, scale, gesture, recognition, and space all contribute; none guarantees a viewer's gaze. Judge emphasis by the intended reading; an abstraction may depend on reduced recognition. An entry point need not be the destination, and a coherent image need not have one dominant object. Delayed discovery succeeds when the surrounding image gives the viewer a reason to stay; obscurity alone adds no depth.
+Make a crop decision on every photograph. Keeping the full frame should be a decision, not an omission.
 
-**Light is the organising cause.** Read source, direction, diffusion, reflection, material, and atmosphere together. In a witnessed scene, subject, shadows, and surroundings should belong to one physically coherent world. In declared imaginative or abstract work, judge coherence against the intended visual world. Preserve the character of the light. No universal tonal range is required: darkness can carry weight, pale areas luminosity, and middle tones delicate description.
+- Level horizons and water lines. Straighten verticals when they're meant to be vertical.
+- Place the subject deliberately. Leave space in the direction of gaze or travel. A rule-of-thirds position is a starting point, and centring works for symmetry and frontal stares.
+- Trim edges that carry clutter, bright patches, cut-off objects or dead space.
+- Don't crop so tight that the subject loses its world or the image loses resolution for its intended use. A crop that keeps less than about 40% of the frame needs a reason.
+- Choose the aspect for the picture (3:2, 4:5, 16:9, 1:1). Keep the original aspect across a series unless a frame demands otherwise.
 
-**Colour belongs to this world.** Judge hue through relative brightness, intensity, area, and placement. Intensifying everything can destroy useful distinctions; suppressing everything can erase vitality. Credibility does not require neutralising every familiar object. Let visible illumination and material explain colour. Monochrome exchanges colour information for other expressive possibilities; assess what is lost as well as gained, without equating it with seriousness or truth. For an expressive brief, deliberate hue interpretation can organise existing forms without claiming physically measured colour. A chosen palette is distinct from adding or reshaping scene content. Preserve captured structure and necessary relationships; recolouring or intensifying a patch does not establish newly recovered detail.
+### 3. Base: white balance and tonal range
 
-**Detail serves presence.** Consider the whole image, its relationships, then supporting detail. Texture should describe material; uniform crispness flattens hierarchy and excessive smoothness can manufacture an appearance. Fine detail cannot supply absent gesture or coherent composition. Atmosphere carries information about distance, motion, and conditions; decide when its concealment is meaningful and when it merely obstructs the chosen relationship.
+- **White balance serves the mood**, not a grey card. Warm the golden hour. Keep blue hour and snow shade blue. Correct a colour cast only when it fights the story; tints such as teal water or green skin are usually casts.
+- **Don't brighten dim scenes by default.** Place the subject's brightness, then let the rest follow. Lifting exposure globally is the fastest way to flatten mood and reveal noise.
+- Set the black and white points so the picture has a real black and a clean highlight. Pull highlights to keep texture in white feathers, snow and sky.
+- Keep global contrast moderate. Contrast between regions comes from step 4.
 
-**Composition is a claim about belonging.** Judge the frame by the context, scale, contact, and tension it includes or excludes. Apparent distractions can be evidence or productive tension; retaining everything can also bury meaning. Balance need not mean symmetry or equal weight. Centrality, off-centre placement, generous space, and pressure at a boundary are expressive possibilities, not compulsory geometry.
+### 4. Shape the light (the main work)
 
-**Expression does not cancel evidence.** Distinguish visible facts, perceptual interpretation, and invention. Framing, tonal emphasis, and colour can change an assertion even without adding content. Preserve material facts and necessary context in a witnessed encounter; make imaginative status intelligible when inventing. Documentary credibility and artistic value are separate judgments. Emotional force does not prove an animal's mental state, a cause of damage, or a conservation claim.
+Build the brightness hierarchy with local adjustments. For any subject against an environment, the default structure is:
 
-## From observation to an edit plan
+| Region | Typical move (starting range) | Purpose |
+| :-- | :-- | :-- |
+| Subject (subject or depth selection) | +0.15 to +0.6 EV; shadows +5 to +20; texture/clarity +5 to +20; slight warmth | Presence and detail |
+| Environment (the same mask, inverted) | −0.3 to −1.0 EV; saturation −10 to −30; clarity −5 to −20; slightly cooler | Quiet, depth, separation |
+| Key area (eye, face, point of contact) | Small radial or brush: +0.1 to +0.4 EV | The first place the eye lands |
+| Frame edges | Vignette −10 to −35, or radial/linear burns −0.3 to −0.8 EV | Keeps the eye inside |
+| Sky / far background / bright foreground | Linear gradient −0.3 to −1.0 EV | Balance the frame; add depth |
+| Light path (rim light, sunlit water) | Brush or gradient +0.1 to +0.4 EV, warmer | Tells where the light comes from |
 
-Connect evidence, direction, and desired result so an editor can interpret the plan and a reviewer can assess it. These are reasoning standards, not compulsory headings or a fixed sequence.
+The ranges are starting points in common slider units: EV for exposure, −100 to 100 for the rest. Judge the result, not the number. Stronger moves are fine when edges stay clean. Build masks from the same subject selection so subject and environment share one boundary, then inspect both overlays for halos and missed areas (between feathers, legs, branches).
 
-**Choose and prioritise.** Identify the strongest existing quality, the main obstacle, and the best opportunity. Consider alternatives when they expose a consequential tradeoff, then choose; do not leave ordinary artistic decisions to the user or executor. Diagnose obstacles by their effect on meaning. Before cleanup, distinguish temporary blemishes, identifying features, material character, and deliberate surface treatment. Separate essential changes from optional refinement. Explain dependencies when one decision changes the meaning of another. Priorities follow this image's bottleneck; preserving an already successful appearance is a valid decision.
+Create depth with atmosphere: far planes lighter and lower in contrast in mist, or darker in a spotlit scene. Separate near, middle and far planes with gradients or depth masks.
 
-**Take responsibility for distraction removal.** During an editing task, decide which elements to remove, subdue, crop out, or retain to make the strongest photograph. Do not wait for the user to identify distractions or approve cleanup separately. Judge each choice by its effect on the subject, composition, light, and story, including the value of habitat and interaction. Respect explicit keep instructions, preserve useful context, and compare the result with the starting image; visual simplification alone is not success.
+### 5. Colour
 
-**Make the destination concrete.** Name visible regions by subject and location, the perception to strengthen or weaken, and what must remain in relationship. Specify qualitative extent through a visible comparison rather than an unsupported adjective such as “moderate.” Explain what should become easier to perceive and a plausible sign of excess for the consequential changes. The selected genre reference illustrates this reasoning; its examples are not scene recipes.
+- **One colour idea per image.** Warm–cool contrast, a single saturated accent, a restrained palette, or monochrome.
+- Use HSL to calm the colours that compete (bright greens, oranges in clutter) and to deepen the colours that carry the mood (blue ice, golden light).
+- Colour-grade with intent: cool shadows and warm highlights for split light, or a unified tint for mood. Keep skin, fur and plumage believable.
+- Vibrance before saturation. Don't raise saturation globally past about +15 without a reason.
+- Try monochrome when colour adds nothing: graphic silhouettes, strong gesture, pattern, harsh mixed light. Deliver it as an alternative, not a replacement.
 
-**Give the background a role in the light.** When an image feels flat or lacks story, identify the gesture or relationship to deepen before adding drama. Read foreground, subject, distant land and sky separately: pale wings may benefit from a deeper sky while dark legs need a lighter, quieter backdrop. A single background darkening can strengthen one boundary and bury another. Preserve supporting traces such as airborne snow, ripples, habitat and transmitted light when they explain the moment. Judge continuity across the whole scene, including openings between feathers or branches; a smoothly graded environment can be more convincing than an isolated subject treatment. Stronger mood should make the chosen relationship perceptible, while remaining consistent with the captured light.
+### 6. Detail and finish
 
-**Protect the whole.** Judge the combined effect on attention, light, colour, material, and context. Several modest emphases can together detach a subject; quieting a background can erase the meaning of the setting. Name successful relationships to preserve and leave satisfactory areas alone. When responding to targeted feedback, distinguish brightness, tonal separation, and colour. Use the version and specific qualities the user valued as the reference, rather than assuming the latest version is best. Correct the named defect while checking that those qualities survive; a colour correction must not quietly weaken valued contrast, nor stronger subject contrast erase valued surroundings. A collection of individually improved parts can still weaken the photograph.
+- Denoise before sharpening. Use dedicated denoise for high-ISO dusk and blue-hour files; sliders don't match it. Full-strength AI denoise can make feathers, fur and skin look waxy in close portraits; use a partial strength there and inspect at 100%.
+- Add texture and sharpening to the subject, not the background. Soft backgrounds should stay soft.
+- Glow, grain and lens blur only when they support the key. Keep them subtle enough to go unnoticed.
 
-**Respect source limits without becoming indecisive.** Editing cannot supply an absent gesture or reveal an obscured interaction as witnessed fact. Do not promise recoverable detail from a small preview or conclude that detail is permanently lost from its appearance alone. Make broader artistic decisions when uncertainty affects only fine detail; keep the specific uncertain promise conditional. Do not invent spatial precision when a region cannot be identified confidently.
+### 7. Clean up
 
-Include only choices that matter, their intended effects, and meaningful limits. Do not fill every topic, assign photographers' looks, combine styles, or use fixed scores. Learn why a choice works and establish that the reason exists here.
+Remove or subdue distractions yourself; don't wait to be asked. Candidates are bright specks, cut-off objects at the edges, stray branches crossing the subject, sensor dust, and litter or people that don't belong to the story. Keep whatever explains the moment (habitat, water droplets, prey, snow). Respect explicit keep instructions. Prefer an honest crop over an inpaint when the crop also improves the composition. Inspect every repair at 100%.
 
-## Judge the result
+### 8. Deliver alternatives
 
-A convincing edit holds together at first encounter and rewards continued looking. Compare the rendered result with the user's intended effect, the starting photograph, and the plan's visible aims. Make the requested colour, drama, or subtlety perceptible at the intended viewing size, choosing its extent and placement from this photograph's relationships. A shared brief does not require matching brightness, saturation, or subject prominence across images. Dark or faint forms may contribute essential structure; impact can come from their separation from surrounding light and colour. Technical cleanliness alone does not satisfy an expressive brief, and stronger emphasis alone does not demonstrate success. Revise the treatment when it amplifies noise or weakens those relationships; explain any demonstrated conflict with the requested result. Identify an actual gain and its cost. A result can satisfy the plan and still weaken the photograph: distinguish an execution defect from a mistaken artistic choice, and revise the intention when the image disproves it. Plan quality alone does not establish finished-image quality.
+For a new photograph, deliver **two or three genuinely different interpretations**. Use the lead interpretation plus variations in key, colour or crop (for example *natural*, *dramatic*, *monochrome*). Name each one by its idea. When the user has an accepted style or asks for one version, deliver one strong candidate and keep alternatives internal.
 
-Judge impact at the intended viewing size and compare fine detail at matched magnification. Enlarging a subject through cropping does not establish recovered detail. When grain or softness comes from the source, still judge whether the edit or crop makes it more intrusive; its origin and its effect on the finished photograph are separate questions.
+## Check before delivering
 
-Stop when the important relationships work and further emphasis repeats what is clear or sacrifices atmosphere, material, context, or openness without adding meaning. Prefer the earlier relationship when a revision weakens it. Understatement can fail through indecision; intensity through insistence. Ground critique in visible evidence, the desired effect, and a meaningful tradeoff. Distinguish an observed defect from its suspected cause; locate an ambiguous feature before explaining it. An internal preference is not user acceptance, and “better” establishes improvement without proving every remaining issue resolved. Use enough explanation to teach the decision without turning the philosophy into paperwork.
+Look at every candidate twice: once for technical defects, once as a picture. Use the editor's inspection or region-sampling tools where they exist (for example `inspect_edit` in current RapidRAW MCP source builds), or measure the exported pixels.
+
+**Technical defects: fix these.** They are rarely intended, and they are what makes an edit look processed.
+
+| Defect | What to look for |
+| :-- | :-- |
+| **Subject mask coverage** | The selection includes every part of the subject: white patches on dark birds, both mandibles, eyes, feet, prey. AI selections often drop high-contrast parts, which then get the background treatment. Background seen *through* the subject (an open beak, the space between legs or feathers) shouldn't get the subject's lift. |
+| **Broken local relationships** | Neighbouring parts of one surface (upper and lower beak, a highlight and the plumage around it) keep roughly their RAW brightness relationship. A sharp change across a small feature usually means a mask edge runs through it. |
+| **Edges at 100%** | No halo or dark rim hugging the subject, no untouched strips, no noisy lifted shadows, no repair seams. |
+| **Unintended casts** | Whites (snow, white feathers) carry the colour of the light you meant, not a side effect of another move. |
+
+**Artistic questions: answer these for this photograph.** They are prompts, not thresholds. A deliberate choice can answer any of them differently; say what you chose and why.
+
+- **Does the subject separate?** Through brightness in either direction (light on dark, or dark on snow), through colour, or through texture and focus. As a reference point, separation by brightness usually reads clearly at a glance from around 1.3× (about a third of a stop), but a camouflaged or high-key picture may want less.
+- **Does the frame hold the eye?** Darker edges or corners often help. An even pale field, a subject that reaches the edge, or an open composition may not want them.
+- **Is the mood the light's mood?** A dusk or blue-hour scene lifted into daylight has usually lost something. If the edit is much brighter than the RAW, know why.
+- **Does it read at thumbnail size?** At about 256 px wide, the first place the eye lands should be where you intended.
+- **Is it clearly better than the RAW,** or only different?
+
+Fix defects before delivering. Treat the artistic questions as a conversation with the picture: if an answer surprises you, look again, then either change the edit or keep it and note the reason.
+
+## Common failures
+
+- **Timid globals.** Exposure +0.3, contrast +20 and nothing else produces a brighter, flatter RAW. It is a common reason AI edits look average.
+- **Brightening the mood away.** Blue hour turned to daylight, and dusk noise exposed.
+- **No separation.** Subject and background at equal brightness, colour and sharpness. The fix is the subject/inverted-environment mask pair, not more global contrast.
+- **Uncropped clutter.** Bright edges, tilted horizons, dead space.
+- **A spotlight look.** A lifted oval around the subject or a glowing halo. Build from the subject mask and burn the surroundings rather than brightening a circle.
+- **Colour casts presented as "style"**, such as teal water, cyan snow or magenta shadows.
+- **Every photo the same.** One grade applied to a whole series regardless of light.
+- **Over-cleaning.** Removing the habitat, droplets or prey that tell the story.
+
+## Genre guidance
+
+Read the reference that matches the photograph's central relationship:
+
+- [Wildlife](references/wildlife.md): animals, birds, behaviour, habitat, dark plumage, white birds and snow, backlight.
+- [Landscape](references/landscape.md): place, depth, weather, pattern.
+- [Nightscapes](references/nightscapes.md): the starry sky and the land together.
+- [People](references/people.md): faces, gesture, groups, mixed light.
+- [Still life and material](references/still-life.md): food, flowers, objects, surfaces.
+- [Collections](references/collections.md): selecting and sequencing a book, essay or batch.
+- [Spherical photographs](references/spherical.md): 360° images and views selected from them.
+
+## Personal style and feedback
+
+When a user profile, accepted edits or review comments exist, follow `photo-style-builder` and apply them **as moves**. "Too bright, keep the blue hour" means lower environment exposure and cooler white balance on the next edit, not a sentence saved to a profile. If a correction repeats, add it as one of that user's questions before delivery, kept in their profile rather than in this skill. When the user returns hand-edited versions, study what they changed (crop, masks, vignette, colour) and do that by default next time.
