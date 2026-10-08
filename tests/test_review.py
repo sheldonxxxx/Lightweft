@@ -5,6 +5,7 @@ from http.client import HTTPConnection
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tempfile
@@ -14,6 +15,7 @@ from urllib.parse import quote
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'review'))
+import server
 from server import ReviewError, ReviewServer, ReviewStore
 
 
@@ -180,6 +182,69 @@ class StoreTests(ReviewFixture, unittest.TestCase):
         enabled = self.store.set_disabled('test', False)
         self.assertFalse(enabled['dataset']['disabled'])
 
+    def move_media(self, folder):
+        target = self.media / folder
+        target.mkdir()
+        for name in ('base.jpg', 'edit.jpg', 'detail.png', 'recipe.json'):
+            (self.media / name).rename(target / name)
+
+    def test_relocate_rewrites_paths_and_carries_feedback(self):
+        saved = self.store.put_feedback('test', self.feedback(checks={'overview': True}), self.record['version'])
+        old_revision = saved['dataset']['cases'][0]['variants'][1]['assetRevision']
+        self.move_media('moved')
+        dry = self.store.relocate([('base.jpg', 'moved/base.jpg')], dry_run=True)
+        self.assertEqual((dry['datasets'], dry['dryRun']), (1, True))
+        report = self.store.relocate([('base.jpg', 'moved/base.jpg'), ('edit.jpg', 'moved/edit.jpg'), ('detail.png', 'moved/detail.png'), ('recipe.json', 'moved/recipe.json')])
+        self.assertEqual(report['carried'], 2)
+        self.assertEqual(report['missing'], [])
+        fresh = self.store.get_dataset('test')
+        candidate = fresh['dataset']['cases'][0]['variants'][1]
+        self.assertEqual((candidate['image'], candidate['recipe']), ('moved/edit.jpg', 'moved/recipe.json'))
+        self.assertEqual(fresh['dataset']['cases'][0]['regions'][0]['images'][0]['image'], 'moved/detail.png')
+        self.assertNotEqual(candidate['assetRevision'], old_revision)
+        self.assertEqual(fresh['feedback']['one']['candidate']['decision'], 'accepted')
+        self.assertFalse(candidate['unavailable'])
+        self.assertEqual(fresh['version'], saved['version'] + 1)
+        self.assertEqual(len(list((self.store.workspace / 'backups').glob('state.before-relocate-*.json'))), 1)
+
+    def test_relocate_refuses_when_media_is_missing_and_writes_nothing(self):
+        saved = self.store.put_feedback('test', self.feedback(), self.record['version'])
+        self.move_media('moved')
+        before = self.store.state_path.read_bytes()
+        with self.assertRaisesRegex(ReviewError, 'missing'):
+            self.store.relocate([('base.jpg', 'moved/base.jpg'), ('edit.jpg', 'elsewhere/edit.jpg'), ('detail.png', 'moved/detail.png'), ('recipe.json', 'moved/recipe.json')])
+        self.assertEqual(self.store.state_path.read_bytes(), before)
+        self.assertEqual(self.store.get_dataset('test')['version'], saved['version'] + 1)
+
+    def test_relocate_does_not_vouch_for_changed_media(self):
+        self.store.put_feedback('test', self.feedback(), self.record['version'])
+        self.move_media('moved')
+        (self.media / 'moved' / 'edit.jpg').write_bytes(b'different render')
+        self.store.relocate([('base.jpg', 'moved/base.jpg'), ('edit.jpg', 'moved/edit.jpg'), ('detail.png', 'moved/detail.png'), ('recipe.json', 'moved/recipe.json')])
+        fresh = self.store.get_dataset('test')
+        self.assertEqual(fresh['feedback']['one']['candidate']['decision'], '')
+
+    def test_archive_keeps_decisions_while_media_is_offline_and_unarchive_restores(self):
+        saved = self.store.put_feedback('test', self.feedback(), self.record['version'])
+        revision = saved['dataset']['cases'][0]['variants'][1]['assetRevision']
+        archived = self.store.set_archived('test', True, 'archive/202610/test.tar.zst')
+        self.assertTrue(archived['dataset']['archived'] and archived['dataset']['disabled'])
+        self.assertEqual(archived['dataset']['archivedTo'], 'archive/202610/test.tar.zst')
+        self.move_media('offline')
+        offline = self.store.get_dataset('test')
+        self.assertEqual(offline['feedback']['one']['candidate']['decision'], 'accepted')
+        self.assertEqual(offline['dataset']['cases'][0]['variants'][1]['assetRevision'], revision)
+        self.assertTrue(offline['dataset']['cases'][0]['variants'][1]['unavailable'])
+        self.assertTrue(self.store.workspace_summary()['datasets'][0]['archived'])
+        with self.assertRaisesRegex(ReviewError, 'Restore the media'):
+            self.store.set_archived('test', False)
+        for name in ('base.jpg', 'edit.jpg', 'detail.png', 'recipe.json'):
+            (self.media / 'offline' / name).rename(self.media / name)
+        restored = self.store.set_archived('test', False)
+        self.assertNotIn('archived', restored['dataset'])
+        self.assertEqual(restored['feedback']['one']['candidate']['decision'], 'accepted')
+        self.assertEqual(restored['dataset']['cases'][0]['variants'][1]['assetRevision'], revision)
+
     def test_photo_disable_toggle_preserves_feedback_and_defaults_other_cases(self):
         saved = self.store.put_feedback('test', self.feedback(), self.record['version'])
         disabled = self.store.set_case_disabled('test', 'one', True, saved['version'])
@@ -253,6 +318,26 @@ class StoreTests(ReviewFixture, unittest.TestCase):
         with self.assertRaisesRegex(ReviewError, 'booleans'):
             self.store.put_feedback('test', feedback, self.record['version'])
 
+    def test_pinned_notes_are_validated_and_survive_round_trips(self):
+        pin = {'id': 'p1', 'x': 0.25, 'y': 0.75, 'zoom': 1, 'note': 'Halo at the wing edge', 'compareWith': ['baseline']}
+        feedback = self.feedback()
+        feedback['one']['candidate']['pins'] = [pin]
+        saved = self.store.put_feedback('test', feedback, self.record['version'])
+        self.assertEqual(saved['feedback']['one']['candidate']['pins'], [pin])
+        for bad in (
+            [{'id': 'a', 'x': 1.2, 'y': 0.5}], [{'id': 'a', 'x': 0.5, 'y': float('nan')}], [{'id': 'a', 'x': 0.5}],
+            [{'id': 'a', 'x': 0.5, 'y': 0.5, 'zoom': 0}], [{'id': 'a', 'x': 0.5, 'y': 0.5, 'note': 4}],
+            [{'id': 'a', 'x': 0.5, 'y': 0.5}, {'id': 'a', 'x': 0.1, 'y': 0.1}], [{'x': 0.5, 'y': 0.5}],
+            [{'id': 'a', 'x': 0.5, 'y': 0.5, 'compareWith': ['candidate']}],
+            [{'id': 'a', 'x': 0.5, 'y': 0.5, 'compareWith': ['missing']}],
+            [{'id': str(i), 'x': 0.5, 'y': 0.5} for i in range(201)], 'pin',
+            [{'id': 'a', 'x': 0.5, 'y': 0.5, 'blob': 'x' * 5000}], [{'id': 'a', 'x': 0.5, 'y': 0.5, 'createdAt': 5}],
+        ):
+            feedback = self.feedback()
+            feedback['one']['candidate']['pins'] = bad
+            with self.assertRaises(ReviewError, msg=repr(bad)[:80]):
+                self.store.put_feedback('test', feedback, saved['version'])
+
     def test_styles_preserve_provenance_and_exact_preset_snapshot(self):
         payload = {'name': 'Soft winter', 'kind': 'preset', 'datasetId': 'test', 'caseId': 'one', 'variantId': 'candidate', 'preferences': {'keep': 'Gentle highlight falloff'}}
         recipe = (self.media / 'recipe.json').read_bytes()
@@ -297,6 +382,79 @@ class StoreTests(ReviewFixture, unittest.TestCase):
             thread.join()
         self.assertEqual(sorted(outcomes), [2, 409, 409, 409])
 
+    def test_pin_limit_matches_the_browser_constant(self):
+        script = (REPO / 'review/web/pins.js').read_text()
+        self.assertEqual(int(re.search(r'MAX_PINS = (\d+)', script)[1]), server.MAX_PINS)
+
+    def test_pin_fields_are_whitelisted(self):
+        pin = {'id': 'p', 'x': 0.5, 'y': 0.5, 'zoom': 2, 'note': 'n', 'compareWith': [], 'createdAt': '2026-10-02T00:00:00Z'}
+        feedback = self.feedback()
+        feedback['one']['candidate']['pins'] = [pin]
+        saved = self.store.put_feedback('test', feedback, self.record['version'])
+        self.assertEqual(saved['feedback']['one']['candidate']['pins'], [pin])
+
+    def test_add_variants_is_append_only_and_preserves_feedback(self):
+        (self.media / 'edit-r2.jpg').write_bytes(b'revision two bytes')
+        saved = self.store.put_feedback('test', self.feedback(), self.record['version'])
+        before = copy.deepcopy(saved['dataset']['cases'][0]['variants'])
+        added = self.store.add_variants('test', [{'caseId': 'one', 'select': True, 'variant': {'id': 'candidate-r2', 'label': 'Revision 2', 'image': 'edit-r2.jpg', 'metadata': {'parentVariantId': 'candidate'}}}], saved['version'])
+        case = added['dataset']['cases'][0]
+        self.assertEqual([v['id'] for v in case['variants']], ['baseline', 'candidate', 'candidate-r2'])
+        self.assertEqual(case['variants'][2]['role'], 'candidate')
+        self.assertEqual(case['selectedVariantId'], 'candidate-r2')
+        self.assertEqual(added['version'], saved['version'] + 1)
+        for old, new in zip(before, case['variants']):
+            self.assertEqual(old, new)
+        self.assertEqual(added['feedback'], saved['feedback'])
+
+    def test_add_variants_inserts_after_last_candidate_before_references(self):
+        (self.media / 'ref.jpg').write_bytes(b'reference bytes')
+        (self.media / 'new.jpg').write_bytes(b'new bytes')
+        data = copy.deepcopy(self.dataset)
+        data['cases'][0]['variants'].append({'id': 'reference', 'label': 'Reference', 'role': 'reference', 'image': 'ref.jpg'})
+        record = self.store.put_dataset('test', data, self.record['version'])
+        added = self.store.add_variants('test', [{'caseId': 'one', 'variant': {'id': 'candidate-b', 'image': 'new.jpg'}}], record['version'])
+        self.assertEqual([v['id'] for v in added['dataset']['cases'][0]['variants']], ['baseline', 'candidate', 'candidate-b', 'reference'])
+
+    def test_add_variants_refuses_replacement_and_applies_batches_atomically(self):
+        (self.media / 'new.jpg').write_bytes(b'new bytes')
+        with self.assertRaises(ReviewError) as caught:
+            self.store.add_variants('test', [{'caseId': 'one', 'variant': {'id': 'candidate', 'image': 'new.jpg'}}])
+        self.assertEqual(caught.exception.status, 409)
+        with self.assertRaisesRegex(ReviewError, 'Case not found'):
+            self.store.add_variants('test', [{'caseId': 'one', 'variant': {'id': 'ok', 'image': 'new.jpg'}}, {'caseId': 'missing', 'variant': {'id': 'x', 'image': 'new.jpg'}}])
+        with self.assertRaises(ReviewError):
+            self.store.add_variants('test', [{'caseId': 'one', 'variant': {'id': 'ok', 'image': 'new.jpg'}}, {'caseId': 'one', 'variant': {'id': 'gone', 'image': 'does-not-exist.jpg'}}])
+        current = self.store.get_dataset('test')
+        self.assertEqual([v['id'] for v in current['dataset']['cases'][0]['variants']], ['baseline', 'candidate'])
+        self.assertEqual(current['version'], self.record['version'])
+        with self.assertRaises(ReviewError) as stale:
+            self.store.add_variants('test', [{'caseId': 'one', 'variant': {'id': 'ok', 'image': 'new.jpg'}}], self.record['version'] + 5)
+        self.assertEqual(stale.exception.status, 409)
+
+    def test_cli_add_variant_and_batch(self):
+        source = self.root / 'dataset.json'
+        source.write_text(json.dumps(self.dataset))
+        (self.media / 'r2.jpg').write_bytes(b'r2')
+        (self.media / 'r3.jpg').write_bytes(b'r3')
+        args = ['--workspace', str(self.root / 'cli-state'), '--media-root', str(self.media)]
+
+        def run(*command, ok=True):
+            result = subprocess.run([sys.executable, str(REPO / 'review/cli.py'), *command, *args], text=True, capture_output=True)
+            self.assertEqual(result.returncode == 0, ok, result.stderr)
+            return json.loads(result.stdout) if ok else result.stderr
+
+        run('import', str(source), '--id', 'test')
+        self.assertEqual(run('add-variant', 'test', 'one', '--id', 'candidate-r2', '--image', 'r2.jpg', '--parent', 'candidate', '--label', 'R2', '--select')['added'], 1)
+        self.assertIn('already exists', run('add-variant', 'test', 'one', '--id', 'candidate-r2', '--image', 'r2.jpg', ok=False))
+        batch = self.root / 'batch.json'
+        batch.write_text(json.dumps({'additions': [{'caseId': 'one', 'variant': {'id': 'candidate-r3', 'image': 'r3.jpg'}}]}))
+        run('add-variants', 'test', str(batch))
+        case = run('show', 'test')['dataset']['cases'][0]
+        self.assertEqual([v['id'] for v in case['variants']], ['baseline', 'candidate', 'candidate-r2', 'candidate-r3'])
+        self.assertEqual(case['variants'][2]['metadata'], {'parentVariantId': 'candidate'})
+        self.assertEqual(case['selectedVariantId'], 'candidate-r2')
+
     def test_native_cli_import_and_feedback_roundtrip(self):
         source = self.root / 'dataset.json'
         source.write_text(json.dumps(self.dataset))
@@ -327,6 +485,27 @@ class StoreTests(ReviewFixture, unittest.TestCase):
         run('import', str(source), '--id', 'test')
         self.assertIs(run('show', 'test')['dataset']['disabled'], True)
         self.assertIs(run('enable', 'test')['disabled'], False)
+
+    def test_cli_relocate_and_archive(self):
+        source = self.root / 'dataset.json'
+        source.write_text(json.dumps(self.dataset))
+        args = ['--workspace', str(self.root / 'cli-state'), '--media-root', str(self.media)]
+
+        def run(*command, ok=True):
+            result = subprocess.run([sys.executable, str(REPO / 'review/cli.py'), *command, *args], text=True, capture_output=True)
+            self.assertEqual(result.returncode == 0, ok, result.stderr)
+            return json.loads(result.stdout) if ok else result.stderr
+
+        run('import', str(source), '--id', 'test')
+        self.move_media('moved')
+        maps = [item for name in ('base.jpg', 'edit.jpg', 'detail.png', 'recipe.json') for item in ('--map', f'{name}=moved/{name}')]
+        self.assertEqual(run('relocate', *maps, '--dry-run')['datasets'], 1)
+        self.assertEqual(run('relocate', *maps)['missing'], [])
+        self.assertEqual(run('show', 'test')['dataset']['cases'][0]['variants'][0]['image'], 'moved/base.jpg')
+        self.assertIs(run('archive', 'test', '--to', 'a.tar.zst')['archived'], True)
+        self.assertIs(run('list')['datasets'][0]['archived'], True)
+        self.assertIs(run('unarchive', 'test')['archived'], False)
+        self.assertIn('OLD=NEW', run('relocate', '--map', 'bad', ok=False))
 
     def test_cli_dispatches_embedded_html_to_inert_importer(self):
         from cli import load_dataset
@@ -452,6 +631,18 @@ class HttpTests(ReviewFixture, unittest.TestCase):
         self.assertEqual(self.request('PUT', '/api/datasets/test/cases/one/disabled', {'disabled': 'yes', 'version': 2})[0], 400)
         status, _, body = self.request('PUT', '/api/datasets/test/cases/one/disabled', {'disabled': False, 'version': 2})
         self.assertEqual((status, json.loads(body)['dataset']['cases'][0]['disabled']), (200, False))
+
+    def test_http_add_variant_endpoints_refuse_replacement(self):
+        (self.media / 'a.jpg').write_bytes(b'a')
+        (self.media / 'b.jpg').write_bytes(b'b')
+        status, _, body = self.request('POST', '/api/datasets/test/cases/one/variants', {'version': 1, 'select': True, 'variant': {'id': 'a', 'image': 'a.jpg'}})
+        self.assertEqual(status, 201)
+        record = json.loads(body)
+        self.assertEqual((record['version'], record['dataset']['cases'][0]['selectedVariantId']), (2, 'a'))
+        self.assertEqual(self.request('POST', '/api/datasets/test/cases/one/variants', {'version': 2, 'variant': {'id': 'a', 'image': 'b.jpg'}})[0], 409)
+        self.assertEqual(self.request('POST', '/api/datasets/test/cases/one/variants', {'version': 1, 'variant': {'id': 'b', 'image': 'b.jpg'}})[0], 409)
+        status, _, body = self.request('POST', '/api/datasets/test/variants', {'version': 2, 'additions': [{'caseId': 'one', 'variant': {'id': 'b', 'image': 'b.jpg'}}]})
+        self.assertEqual((status, json.loads(body)['version']), (201, 3))
 
     def test_http_profile_and_preset_export(self):
         payload = {'name': 'Winter', 'kind': 'preset', 'datasetId': 'test', 'caseId': 'one', 'variantId': 'candidate'}

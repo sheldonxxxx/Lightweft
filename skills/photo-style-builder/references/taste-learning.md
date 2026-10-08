@@ -2,6 +2,8 @@
 
 Learning should change the next edit. A profile that describes preferences but does not affect rendered decisions has not completed that work. Use this loop for revisions and new photographs alike, alongside image-specific judgment and the editor's execution workflow.
 
+For a photographer-requested skill-only blind round, use the skill text and new original photographs alone. Do not load the private profile, previous renders or recipes, human exports, prior review cases, or accepted anchors during planning, first edits, or their internal quality checks. Preserve each first candidate and the skill revision before feedback. Apply the evidence-reading and retrospective comparison sections below only after the photographer explicitly requests that analysis.
+
 ## Ground preferences in evidence
 
 Read the current brief and relevant review comments before editing. Reconcile each decision with its exact rendered version. Retain stable photograph and variant IDs, asset revision or file hash, feedback text, decision, and the accepted comparison where available. Conversation endorsements are valid evidence; identify them as such instead of inventing review checkmarks. Selection approval, artistic approval, rendered acceptance, and book inclusion are different decisions. An explicit hold or removal controls inclusion without erasing historical feedback.
@@ -16,6 +18,14 @@ For each consequential preference, retain compact fields in the private workspac
 - **Action and limit:** what to decide differently, what to preserve, and a visible sign of excess.
 
 Keep this proportional to the work. Link existing review records rather than duplicating every comment. Keep personal photographs, quotations, recipes, and taste profiles outside shared skill files.
+
+### Learn from a human-edited handoff
+
+Match each returned edit to the exact source and the version the photographer received. Verify identity before interpreting differences; keep missing returns separate from explicit rejection or exclusion. Compare native renders at whole-image or intended delivery size and relevant detail, using the same region when judging texture or retouching across different crops. Read editable state as evidence of *how* the result was made, then check the pixels to learn *why* it works. A slider or mask count alone cannot establish a taste preference.
+
+Record the few relationships that recur across unlike scenes, plus counterexamples. A closer crop in one frame and a wider crop in another can both express the same preference for deliberate subject placement. Likewise, subject detail and a quieter background may come from paired selections, controlled global tone, or a crop. Identify the successful decision and its limit rather than copying the operation or its numeric strength.
+
+Separate a human-authored revision, an explicitly accepted rendered version, and inclusion in a collection or book. Save exact file or variant provenance in the private evidence; update the qualitative profile only with supported interpretations. On the next applicable edit, compare the first delivered render with a matching human example and the earlier miss to test whether the lesson changed the result.
 
 ## Turn feedback into changed decisions
 
@@ -57,4 +67,4 @@ After a rule changes, replay the decision against a relevant accepted and reject
 
 Use the next applicable new photograph or batch to evaluate transfer. Preserve the first delivered rendition and the profile version used. After review, distinguish accepted first deliveries, artistic revisions, selection removals, holds, and unanswered cases. Report counts only from explicit decisions; do not score an unreviewed edit as accepted or fold source-selection rejection into artistic acceptance. Small samples and retrospective checks cannot establish a reliable success rate.
 
-When the same defect recurs, record the recurrence, inspect why the pre-delivery comparison missed it, and change the decision or checking process. Keep a new preference provisional until supported, and retain old accepted references when a later experiment fails. The profile should grow more useful and more selective, not merely longer.
+When the same defect recurs, record the recurrence, inspect why the pre-delivery comparison missed it, and change the decision or checking process. Keep a new preference provisional until supported, and retain old accepted references when a later experiment fails. Revise the one current profile at its stable path and keep detailed per-round evidence separately. The profile should grow more useful and more selective, not merely longer.

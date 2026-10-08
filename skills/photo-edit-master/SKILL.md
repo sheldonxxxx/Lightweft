@@ -73,10 +73,13 @@ Build the brightness hierarchy with local adjustments. For any subject against a
 | Environment (the same mask, inverted) | −0.3 to −1.0 EV; saturation −10 to −30; clarity −5 to −20; slightly cooler | Quiet, depth, separation |
 | Key area (eye, face, point of contact) | Small radial or brush: +0.1 to +0.4 EV | The first place the eye lands |
 | Frame edges | Vignette −10 to −35, or radial/linear burns −0.3 to −0.8 EV | Keeps the eye inside |
-| Sky / far background / bright foreground | Linear gradient −0.3 to −1.0 EV | Balance the frame; add depth |
+| Sky / far background / bright foreground | Linear gradient −0.3 to −1.0 EV, with a wide soft transition so no band shows | Balance the frame; add depth |
 | Light path (rim light, sunlit water) | Brush or gradient +0.1 to +0.4 EV, warmer | Tells where the light comes from |
+| Pale mass under or behind the subject (ice mound, rock, sand) | Feathered radial, about +0.4 EV worked on one frame (try +0.3 to +0.5) | Carries the eye to the subject without a visible mask |
 
 The ranges are starting points in common slider units: EV for exposure, −100 to 100 for the rest. Judge the result, not the number. Stronger moves are fine when edges stay clean. Build masks from the same subject selection so subject and environment share one boundary, then inspect both overlays for halos and missed areas (between feathers, legs, branches).
+
+Keep whatever the subject stands on or touches attached to it. A deep environment cut that swallows the perch, the ice under the feet or the water contact makes the subject float. After any deep cut, look at the support first.
 
 Create depth with atmosphere: far planes lighter and lower in contrast in mist, or darker in a spotlit scene. Separate near, middle and far planes with gradients or depth masks.
 
@@ -93,14 +96,15 @@ Create depth with atmosphere: far planes lighter and lower in contrast in mist, 
 - Denoise before sharpening. Use dedicated denoise for high-ISO dusk and blue-hour files; sliders don't match it. Full-strength AI denoise can make feathers, fur and skin look waxy in close portraits; use a partial strength there and inspect at 100%.
 - Add texture and sharpening to the subject, not the background. Soft backgrounds should stay soft.
 - Glow, grain and lens blur only when they support the key. Keep them subtle enough to go unnoticed.
+- Avoid pulling highlights or whites hard on a clipped light source such as a low sun; on a test frame it became a flat grey disc with a visible ring. Lower overall exposure and add contrast instead, so the source stays bright.
 
 ### 7. Clean up
 
-Remove or subdue distractions yourself; don't wait to be asked. Candidates are bright specks, cut-off objects at the edges, stray branches crossing the subject, sensor dust, and litter or people that don't belong to the story. Keep whatever explains the moment (habitat, water droplets, prey, snow). Respect explicit keep instructions. Prefer an honest crop over an inpaint when the crop also improves the composition. Inspect every repair at 100%.
+Remove or subdue distractions yourself; don't wait to be asked. Match the method to the defect: a smooth, low-contrast flare ghost in clear sky can be neutralised with a feathered radial correction (exposure, tint, saturation) and no inpainting; inpaint structured objects. Candidates are bright specks, cut-off objects at the edges, stray branches crossing the subject, sensor dust, and litter or people that don't belong to the story. Keep whatever explains the moment (habitat, water droplets, prey, snow). Respect explicit keep instructions. Prefer an honest crop over an inpaint when the crop also improves the composition. Inspect every repair at 100%.
 
 ### 8. Deliver alternatives
 
-For a new photograph, deliver **two or three genuinely different interpretations**. Use the lead interpretation plus variations in key, colour or crop (for example *natural*, *dramatic*, *monochrome*). Name each one by its idea. When the user has an accepted style or asks for one version, deliver one strong candidate and keep alternatives internal.
+For a new photograph, deliver **two or three genuinely different interpretations**. Use the lead interpretation plus variations in key, colour or crop (for example *natural*, *dramatic*, *monochrome*). Name each one by its idea, and pick the styles that suit the photograph rather than a fixed set: [style and method notes](references/style-and-method-notes.md) records a four-frame wildlife comparison: what each style did and which settings failed. When the user has an accepted style or asks for one version, deliver one strong candidate and keep alternatives internal.
 
 ## Check before delivering
 
@@ -135,6 +139,10 @@ Fix defects before delivering. Treat the artistic questions as a conversation wi
 - **Colour casts presented as "style"**, such as teal water, cyan snow or magenta shadows.
 - **Every photo the same.** One grade applied to a whole series regardless of light.
 - **Over-cleaning.** Removing the habitat, droplets or prey that tell the story.
+- **Floating subject.** An environment cut deep enough that the perch, ice or water contact disappears.
+- **Grey plate for a sun.** Highlights and whites pulled hard on a blown source.
+- **Rim at 100%.** A pale halo around dark edges (wing tips, head) when a subject lift and environment cut are far apart (about 1 EV left one on a test frame) and the mask edge is soft. Shrink the difference and tighten the selection (grow −10, feather 4 worked there), then recheck at 100%.
+- **Monochrome that drops the accent.** The colour version depended on a beak, a light or an eye that grey can't carry.
 
 ## Genre guidance
 
@@ -147,6 +155,8 @@ Read the reference that matches the photograph's central relationship:
 - [Still life and material](references/still-life.md): food, flowers, objects, surfaces.
 - [Collections](references/collections.md): selecting and sequencing a book, essay or batch.
 - [Spherical photographs](references/spherical.md): 360° images and views selected from them.
+
+Also see [style and method notes](references/style-and-method-notes.md) for a wildlife style comparison.
 
 ## Personal style and feedback
 

@@ -28,6 +28,7 @@ You are authorized to make any changes to RapidRAW and its MCP integration that 
 - Reuse verified model assets through the companion editor's model cache, on the same volume as the workspaces for clone savings. Keep isolated workspaces, but use independent filesystem clones for large local fixture and source copies where supported. Do not use hard links for editable photographs or replace review assets with symlinks.
 - Reuse a build target for the same toolchain and configuration. Prefer non-incremental builds without debug symbols for validation; opt into larger development caches only when needed.
 - Keep accepted edits, recipes, original sources, review decisions, and reproducibility manifests. Prune only known rebuildable caches after confirming no active writer; completed experiments should be archived with checksum verification before local removal.
+- Keep the ignored workspace organised by kind (shoots, styles, experiments, publication, records, archive, cache, scratch); never leave loose files at its root. Start each new run with the workspace's scaffold helper so it has a dated folder and a README stating its purpose and status. Take finished experiments offline with the review CLI's `archive` command before removing their media, and move folders that review datasets use with `relocate`, so decisions and asset revisions survive.
 - Put archive and retention records in the ignored workspace. Keep current review references usable and verify them after any storage migration.
 
 ## Product manager review of public-facing material

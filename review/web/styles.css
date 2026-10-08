@@ -750,3 +750,13 @@ textarea:disabled {
     margin-left:0;
   }
 }
+
+.pin-mode{cursor:crosshair}
+.pin-marker{position:absolute;z-index:4;width:24px;height:24px;min-height:0;padding:0;margin:-12px 0 0 -12px;border-radius:50%;box-shadow:0 1px 6px #0008;background:var(--accent);border:2px solid #17301d;color:#17301d;font-size:10px;font-weight:700}
+.pin-marker:enabled:hover{background:#fff;border-color:#17301d}
+.pin-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.pin-item{display:flex;flex-direction:column;gap:6px}
+.pin-item-head{display:flex;align-items:center;gap:8px}
+.pin-item-head button{font-size:10px;min-height:24px;padding:3px 8px}
+.pin-item-head .muted{flex:1}
+.pin-number{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#17301d;font-size:10px;font-weight:700}

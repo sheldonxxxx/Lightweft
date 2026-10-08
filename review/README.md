@@ -114,6 +114,21 @@ Select **Personal style study** in the collection selector, or open <http://127.
 
 Hide finished experiments with the collection selector's **Disable** button; disabled collections stay in the workspace but are hidden unless **Show disabled** is on. Re-enable them from the viewer or with `python3 review/cli.py enable <id> --workspace .local/review --media-root .` (`disable` hides them the same way). Disabling preserves feedback and bumps the dataset version. The toggle changes collection metadata only, so it also works while a render is temporarily missing.
 
+Move media folders without losing decisions. Move the folder, then run `python3 review/cli.py relocate --map old/folder=new/folder --workspace .local/review --media-root .` (repeat `--map` for several folders; add `--dry-run` first to count the paths that would change). The command rewrites every stored media path that starts with a mapped folder, recomputes each variant's asset revision at the new location, and carries feedback across only when the bytes at the new path are the ones that were reviewed. A variant whose media changed is left to the normal stale-decision rule. It refuses to write if any relocated media is missing, and it saves the previous state under `backups/` in the workspace first.
+
+Retire the media of a finished collection with `python3 review/cli.py archive <id> --to <archive name> --workspace .local/review --media-root .`. Run it before moving the media away. Archiving disables the collection and marks its media as intentionally offline, so opening it later keeps its decisions and asset revisions instead of clearing them for missing renders. `unarchive <id>` brings it back once the media is restored at the same paths; use `relocate` first if it returns somewhere else.
+
+Add a revision without touching the existing versions, so earlier decisions and the images already reviewed stay intact:
+
+```sh
+python3 review/cli.py add-variant style-study example --id warm-v2 \
+  --image .local/renders/example-warm-v2.jpg --full .local/renders/example-warm-v2-full.jpg \
+  --label "Warm light, softer shadows" --parent warm-v1 --select \
+  --workspace .local/review --media-root .
+```
+
+Here `style-study` is the dataset ID and `example` the case ID. `add-variant` only appends. A variant ID that already exists is refused with a request to publish under a new ID, and nothing else in the dataset changes: feedback on other variants is preserved and the dataset version increments once. The new variant defaults to role `candidate` and is placed after the last existing candidate (or at the end if the case has none); `--select` makes it the case's selected variant. The CLI applies the addition to the current dataset version; the API calls below take it explicitly. `add-variants <dataset> <file.json>` applies several additions atomically from `{"additions": [{"caseId": "...", "variant": {...}, "select": true}]}`.
+
 For large photographs, each variant can point `image` to a smaller review preview and `full` to the full export. Both files must exist when imported. Use browser-compatible formats such as JPEG, PNG, or WebP; TIFF and AVIF display support depends on the browser. RAW decoding and edit rendering belong to your editor.
 
 ## Review and build a style
@@ -141,11 +156,14 @@ The comparison surface offers side-by-side and single-image views, an aligned be
 | Left / Right arrow | Previous / next photograph |
 | Hold Space | Temporarily show the other version |
 | B | Swap comparison sides |
+| P | Pin the center of the current view (Photo reviewer) |
 | 1 / 2 / 3 / 4 | Open Photo reviewer / Style builder / Detail lab / 360 review |
 | Scroll / trackpad pinch over the photograph | Zoom around the pointer |
 | Drag at any numeric zoom | Pan the compared images together |
 
 Feedback saves automatically to the workspace, with a browser draft available if saving fails. The save status shows whether the workspace has received it. On a concurrent update, loading the newer version retains a separate recovery draft and opens the earlier feedback as JSON for reconciliation. Exports provide copy, select, and download controls so in-app browsers need not rely on downloads. “Follow agent updates” refreshes published candidates while there are no unsaved edits. Feedback can also be imported as JSON.
+
+To leave feedback about one place in a photograph, choose **Pin note** above the image in Photo reviewer, then click the spot, or choose **Pin center** (or press `P`) to pin the center of the current view without a pointer. The note appears in the **Pinned notes** list beside the photograph; **Go to** returns the view to that point at the zoom it was pinned at (100% when it was pinned from Fit). Pins belong to the version being reviewed and save with the rest of the feedback. A new revision starts without pins, so read the previous version's pins before revising and address each one.
 
 Use the edit reviewer to compare source or base against candidates, inspect the whole photograph, and record the gain, cost, and requested revision. Fine-detail checks belong to the same decision: a successful export or an agent's preferred candidate does not establish user acceptance.
 
@@ -205,6 +223,8 @@ Set `aligned: true` only when the compared images represent the same framing and
 | `PUT /api/datasets/:id` | Create with `{ "version": 0, "dataset": manifest }`, or replace using the current version |
 | `PUT /api/datasets/:id/disabled` | Hide or show a collection with `{ "version": currentVersion, "disabled": true or false }` |
 | `PUT /api/datasets/:id/cases/:caseId/disabled` | Disable or enable a photograph with `{ "version": currentVersion, "disabled": true or false }`; disabling preserves feedback |
+| `POST /api/datasets/:id/variants` | Append variants with `{ "version": currentDatasetVersion, "additions": [{ "caseId": "...", "variant": {...}, "select": false }] }`; an existing variant ID returns HTTP 409 and no change is applied. Returns HTTP 201 |
+| `POST /api/datasets/:id/cases/:caseId/variants` | Append one variant with `{ "version": currentDatasetVersion, "variant": {...}, "select": false }` |
 | `PUT /api/datasets/:id/feedback` | Save feedback with `{ "version": currentVersion, "feedback": feedback }` |
 | `GET /api/datasets/:id/feedback/export` | Download agent-readable feedback |
 | `POST /api/profiles` | Save `{ name, kind, datasetId, caseId, variantId, description, preferences, assetRevision? }`; `kind` is `profile` or `preset`; include the selected variant's revision to guard against a stale selection |
@@ -213,7 +233,7 @@ Set `aligned: true` only when the compared images represent the same framing and
 
 Use the local server URL as the API base and send `Content-Type: application/json` with mutations. Cross-origin browser requests are rejected. A stale dataset version returns HTTP 409. The CLI is the simplest way to register exports from an agent with local filesystem access; no MCP connection is required for Review.
 
-Feedback is keyed by case ID and then variant ID. Entries include `decision` (`accepted`, `revise`, `rejected`, or empty), `note`, `checks`, `style`, and asset revision metadata. Style notes contain `direction`, `keep`, `avoid`, and `scope`. The decision and technical check status are independent: checks record what was inspected, not an automatic image-quality assessment. When an asset or its review context changes, earlier feedback becomes stale and its decision and checks are cleared while notes remain available.
+Feedback is keyed by case ID and then variant ID. Entries include `decision` (`accepted`, `revise`, `rejected`, or empty), `note`, `checks`, `style`, and asset revision metadata. Style notes contain `direction`, `keep`, `avoid`, and `scope`. `pins` holds pinned notes: a list of up to 200 `{ id, x, y, note, zoom?, compareWith?, createdAt? }`, where `x` and `y` are 0–1 fractions of the image width and height (so they locate the same point on a preview and on the full export), `zoom` is the magnification the reviewer was using (1 is one image pixel per screen pixel), and `compareWith` lists other versions of the same photograph that were being compared. Agents should read pins before the next revision and address each one. The decision and technical check status are independent: checks record what was inspected, not an automatic image-quality assessment. When an asset or its review context changes, earlier feedback becomes stale and its decision and checks are cleared while notes remain available.
 
 Agents should read the current version and saved feedback before editing a manifest or preparing the next candidate. Publish a new variant for a revision, preserve accepted versions, and supply truthful provenance. On a version conflict, reread and reconcile with the latest feedback; do not blindly overwrite it. An internal agent ranking must remain distinct from the photographer's saved decision.
 

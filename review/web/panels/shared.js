@@ -1,5 +1,6 @@
 import {el, button, field, media} from '../dom.js';
 import {CompareViewer} from '../compare.js';
+import {MAX_PINS, withNote, withoutPin} from '../pins.js';
 
 export function source(variant, region) {
   const detail = region?.images?.find(image => image.variantId === variant.id);
@@ -72,4 +73,29 @@ export function heading(ctx) {
     ctx.setPhotoDisabled && button(disabled ? 'Enable photo' : 'Disable photo', () => ctx.setPhotoDisabled(!disabled), {
       class: 'photo-disabled-toggle', 'aria-pressed': disabled ? 'true' : 'false',
       title: disabled ? 'Enable this photograph in the collection' : 'Keep this photograph in the collection but mark it as disabled'}));
+}
+/** Pinned notes for the reviewed version: a list beside the viewer's pin markers. */
+export function pins(ctx, viewer) {
+  const list = el('ol', {class: 'pin-list'});
+  const current = () => ctx.review().pins || [];
+  const save = next => { ctx.update({pins: next}); draw(); };
+  function draw() {
+    const items = current();
+    viewer.setPins(ctx.right.id, items, {
+      onAdd: pin => { if (current().length >= MAX_PINS) return; save([...current(), pin]); list.querySelector('li:last-child textarea')?.focus(); },
+      onSelect: pin => viewer.focusPin(pin)});
+    list.replaceChildren(...items.map((pin, index) => {
+      const note = el('textarea', {rows: 2, placeholder: 'What should change at this point?', 'aria-label': `Note for pin ${index + 1}`,
+        onInput: e => ctx.update({pins: withNote(current(), pin.id, e.target.value)}), onBlur: () => viewer.setPins(ctx.right.id, current(), viewer.pinHandlers)});
+      note.value = pin.note || '';
+      return el('li', {class: 'pin-item'}, el('div', {class: 'pin-item-head'}, el('span', {class: 'pin-number'}, String(index + 1)),
+        el('span', {class: 'muted'}, `${Math.round(pin.x * 100)}%, ${Math.round(pin.y * 100)}%${pin.zoom ? ` · ${Math.round(pin.zoom * 100)}%` : ''}`),
+        button('Go to', () => viewer.focusPin(pin)), button('Remove', () => save(withoutPin(current(), pin.id)), {'aria-label': `Remove pin ${index + 1}`})), note);
+    }));
+    empty.textContent = items.length >= MAX_PINS ? `This version has ${MAX_PINS} pinned notes. Remove one before adding another.` : 'Choose Pin note above the photograph, then click the spot on the version being reviewed. Pins keep their position and zoom for the next edit.';
+    empty.hidden = items.length > 0 && items.length < MAX_PINS;
+  }
+  const empty = el('p', {class: 'field-hint'}, 'Choose Pin note above the photograph, then click the spot you want changed. Pins keep their position and zoom for the next edit.');
+  draw();
+  return el('section', {class: 'inspector-section'}, el('h3', {}, 'Pinned notes'), empty, list);
 }

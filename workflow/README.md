@@ -73,12 +73,49 @@ Use the [unified review application](../review/README.md) for ongoing edit, styl
 
 Never publish generated catalogues, manifests, or populated evaluations from a personal library. They can contain paths, identifiers, capture metadata, and photographs.
 
+## Describe an edit as a recipe
+
+Keep an edit as reviewable data: replay it, diff a new pass against the last, and store the exact steps beside the render. An edit recipe here is a Lightweft step list that drives the engine's tools; it is separate from the editor's own saved recipes and presets. `edit_recipe.py` keeps the edit as data instead of a one-off script. A recipe is JSON: ordered steps, each one RapidRAW MCP tool call. The executor adds the session ID, tracks the revision each mutation returns, and substitutes names for IDs the engine generates:
+
+```json
+{
+  "version": 1,
+  "steps": [
+    {"id": "base", "tool": "set_adjustments", "args": {"mode": "replace", "patch": {"exposure": -0.1, "contrast": 16}}},
+    {"as": "subject", "tool": "mask_generate",
+     "args": {"kind": "subject", "name": "Subject", "parameters": {"grow": -30, "feather": 2}, "adjustments": {"exposure": 0.6}}},
+    {"as": "environment", "tool": "mask_duplicate",
+     "args": {"mask_id": {"$mask": "subject"}, "name": "Environment", "invert": true}},
+    {"tool": "mask_update",
+     "args": {"mask_id": {"$mask": "environment"}, "patch": {"adjustments": {"exposure": {"$param": "environment_exposure"}}}}}
+  ]
+}
+```
+
+`"as"` names a mask the step creates and `{"$mask": "name"}` refers to it later. `{"$submask": {"mask": "name", "index": 0}}` resolves a submask ID from the live session, and `{"$param": "name"}` takes a value from the run. A recipe can use `extends` to load another file: the child's steps are appended and a step with the same `id` replaces the parent's, so a new pass is a small, reviewable difference. Tool names and argument shapes are the RapidRAW MCP server's; see its tool schemas.
+
+```sh
+python3 workflow/edit_recipe.py validate recipes/example.json
+python3 workflow/edit_recipe.py flatten recipes/example.json
+python3 workflow/edit_recipe.py run recipes/example.json --session SESSION_ID \
+  --param environment_exposure=-0.7 --log run-log.json \
+  --client node /path/to/rapidraw-mcp/scripts/mcp-client.mjs --server /path/to/RapidRAW/mcp/dist/index.js \
+  --binary /path/to/RapidRAW/src-tauri/target/release/rapidraw-mcp --workspace /path/to/client-workspace
+```
+
+**Run it.** `--client` must come last: everything after it is the command that starts the persistent client from the [rapidraw-mcp skill](https://github.com/sheldonxxxx/RapidRAW/tree/main/skills/rapidraw-mcp), and its flags (`--server`, `--binary`, `--workspace`) belong to that client. Open the photograph first and pass its session ID. From Python, `edit_recipe.run(recipe, call, session_id)` accepts any `call(tool, arguments)` that returns structured data and raises on error. The executor adds `expected_revision` to every tool whose input schema accepts it. The bundled client reads those schemas from the engine; another `call` provides a `revision_tools()` method, or pass `revision_tools=` to `run`. The returned log lists every step with the revision it produced, so the edit that produced a render can be stored beside it.
+
+**Failure behaviour.** `validate` lists the `--param` names a recipe needs, and `run` refuses to start until each one is supplied, so a missing value cannot stop an edit halfway. The client is read with deadlines: a client that never becomes ready, hangs on a request or exits reports its last stderr lines as an error instead of blocking.
+
+**Compare with and without masks.** `render_without_mask_adjustments` asks the engine's `render_compare` for the edit beside a copy with its masks switched off. Every kind of mask adjustment is excluded, and the session, its revision and its history are untouched, so there is nothing to restore. `render_compare` switches off at most 32 masks; pass `mask_ids` to choose which.
+
 ## Verify changes to these tools
 
 First install and activate the [development prerequisites](../CONTRIBUTING.md#develop-and-test), including Pillow for public showcase checks. Then run from the repository root:
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_workflow.py' -v
+python3 -m unittest tests.test_edit_recipe -v
 python3 scripts/check_public_repo.py --working-tree
 ```
 

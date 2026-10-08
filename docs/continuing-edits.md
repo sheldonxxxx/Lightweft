@@ -20,6 +20,6 @@ Load the core editing guidance, the applicable genre, and the execution referenc
 
 Review an overview after a meaningful group of edits. Inspect changed local corrections at matched native detail and check their relationship to the whole image. Use multi-view diagnostics to resolve a specific uncertainty. Keep the accepted reference and inspect the actual exported file before delivery.
 
-Publish candidates through the [shared review app](../review/README.md). Inspect rendered files directly for photographic decisions; operate the browser when interaction, feedback, alignment, or display behavior needs checking. Showing an existing comparison does not itself require another interface audit.
+Publish candidates through the [shared review app](../review/README.md), adding each revision as a new variant so earlier versions and the decisions made on them stay reviewable, and read any pinned notes on the previous version (`feedback-export` lists them under each variant's `pins`) before revising. Inspect rendered files directly for photographic decisions; operate the browser when interaction, feedback, alignment, or display behavior needs checking. Showing an existing comparison does not itself require another interface audit.
 
 For RapidRAW response formats, selected schema reads, and connection recovery, follow the companion's [MCP guide](https://github.com/sheldonxxxx/RapidRAW/blob/main/mcp/README.md). This workflow does not prescribe a smaller preview size, fewer necessary detail checks, a particular model, or additional agents.

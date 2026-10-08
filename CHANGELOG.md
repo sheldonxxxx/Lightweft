@@ -5,7 +5,19 @@
 ### Editing guidance
 
 - Rewrite `photo-edit-master` around concrete editing decisions: lessons from master photographers and darkroom printing, an eight-step workflow with starting ranges for crop, light shaping, colour and finish, a subject and inverted-environment mask pair, and common failures. Candidates are now checked twice before delivery: technical defects to fix, then artistic questions to answer for the photograph.
-- Rewrite the wildlife reference with picture types, standard moves, difficult light, cleanup and documentary honesty, including how to choose a depth-based or AI subject selection and what each tends to miss.
+- Rewrite the wildlife reference with picture types, standard moves, difficult light, cleanup and documentary honesty, including how to choose a depth-based or AI subject selection and what each tends to miss, and how to keep subject and environment masks on one shared edge to avoid halos.
+- Add a four-frame wildlife style comparison and guidance for keeping the subject's support visible, preserving bright light sources, correcting smooth flare ghosts, and checking mask edges at full size.
+- Guide style learning from returned human edits and blind comparisons, keeping one current personal profile with separate evidence for each round.
+
+### Review application
+
+- Add append-only variant publishing: `review/cli.py add-variant` and `add-variants` and the `POST /api/datasets/:id/variants` endpoints add a revision without replacing an existing version, so earlier decisions and the images already reviewed stay intact. Re-using a variant ID is refused.
+- Add `review/cli.py relocate` to rewrite media paths after folders move, saving a state backup and carrying feedback across when the reviewed bytes are unchanged. Add `archive` and `unarchive` to take a finished collection's media offline without clearing its decisions or asset revisions.
+- Add pinned notes to Photo reviewer: pin a note to a point on the photograph, with its position and zoom, and return to it later. Pins save with the version's feedback and are validated by the server, which accepts only known pin fields. **Pin center** or `P` pins the center of the view from the keyboard.
+
+### Editing workflow
+
+- Add `workflow/edit_recipe.py`, a declarative recipe format and executor for RapidRAW MCP sessions: ordered steps with tracked revisions, named mask references, recipes that extend and override a parent recipe, revision guards taken from the engine's tool schemas instead of a hardcoded list, parameters checked before a run starts, a client that reports errors instead of hanging, and a helper that renders the edit beside a global-only copy through the engine's non-mutating `render_compare`.
 
 ### Workspace and documentation
 

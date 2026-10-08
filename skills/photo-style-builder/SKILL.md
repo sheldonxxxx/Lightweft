@@ -13,11 +13,15 @@ For a returning photographer, an existing profile, or feedback from earlier edit
 
 Update the evidence after feedback and distinguish a repeated execution failure from a new preference. Explore alternatives only when a consequential preference remains unresolved or the user requests them. Better first deliveries are the objective; acceptance by the photographer is the evidence, not a guarantee supplied by the skill.
 
+When the photographer returns editable versions of earlier work, compare the exact source and prior edit with each human revision before updating the profile. Treat framing, local light, texture, and cleanup as evidence alongside colour. Use the editor-specific skill to learn which operations produced the visible improvement; keep scene-specific settings and personal examples in the private workspace. A returned edit is evidence of the photographer's chosen treatment, but does not by itself settle book inclusion or make every operation a general preference.
+
 ## Begin from the photograph
 
 Establish or reuse a convincing image-specific base: meaningful attention, coherent light and colour, appropriate detail, and preserved context. When available, use photo-edit-master for that judgment and the appropriate execution tool for edits. A base is a defensible starting interpretation, not a compulsory neutral look. Keep its render and editable state available throughout exploration.
 
 Read any workspace profile and the user's current brief before proposing directions. Distinguish preferences they have accepted from agent hypotheses. If the user values an existing edit, retain that version as the reference for its successful qualities. Never replace it merely because a newer version exists.
+
+If the photographer asks for a skill-only blind round, use the skills and new original photographs without opening the private profile, earlier edits, human exports, prior review cases, visual anchors, or memory and prior conversation notes about those edits. Judge each new first candidate against its own original and the skill's principles, save that candidate with editable state and operation provenance before feedback, and defer comparison with older work until the photographer requests it. If review is needed, use a separate blind collection containing only the new original and candidate. This explicit evaluation mode overrides the normal reference-reading and collection-reuse steps elsewhere in this skill.
 
 When film colour or tone could support the photograph, read [choosing a film emulation](references/film-emulation.md). Use its conditional recommendations to suggest an available look, explain the visible reason and tradeoff, and decide what to compare. Keep this optional in ordinary editing; a film treatment must earn its place against the base.
 
@@ -44,6 +48,8 @@ Use photo-edit-master's collection judgment when available. Review accepted imag
 ## Save the right kind of style
 
 **Edit profile:** save qualitative, image-independent preferences, their intended use, important limits, and the accepted examples that support them. Express how the user wants light, colour, contrast, texture, and atmosphere to relate, using only the dimensions that matter. Separate supported preferences from unresolved ideas and say when a preference needs adaptation to subject or illumination. A profile guides image-specific judgment; it is not a universal exposure, crop, mask, or denoise prescription. Keep the profile in the user's workspace, independent of the shared master skill.
+
+Keep one current profile per photographer and intended scope at a stable workspace path. Update it in place as evidence changes, with an internal revision or date, rather than creating another numbered profile after every review. Before revising a profile used for a delivered edit, retain a recoverable snapshot of that revision, including for edits awaiting review. Keep those snapshots and exact edit comparisons as historical evidence, not competing current guidance.
 
 **Editor preset:** save an actual recipe exported from the editor and checked against the rendered candidate. Record the editor and version, source candidate, scope of included adjustments, and known applicability limits. Do not invent slider values, relabel prose as an executable preset, or carry scene-specific crops, masks, retouching, or adaptive settings into a general preset without a supported and validated reuse method. If the editor cannot export a suitable reusable recipe, save an edit profile and explain that limitation.
 
