@@ -25,7 +25,7 @@ The shared boundary is **an intention, rendered files, provenance, and feedback*
 1. **Read the photograph.** Photo Edit Master identifies the strongest quality, chooses a direction, and names relationships to protect.
 2. **Prepare only when needed.** For native Insta360 input, the toolkit supplies an appropriate Studio or SDK route. Ordinary photographs can go straight to their editor.
 3. **Render a candidate.** RapidRAW or another editor performs the edit. Keep the original and the editor's editable state or processing recipe.
-4. **Publish a review case.** Register a browser-readable baseline and candidates through the [Lightweft manifest, CLI, or API](../review/README.md). Use stable case and variant IDs; mark changed framing honestly.
+4. **Publish a review case.** Register a browser-readable baseline and candidates through the [Lightweft manifest, CLI, or API](../review/README.md). Use stable case and variant IDs; mark changed framing honestly. Publish each revision beside earlier versions with `add-variant` or `add-variants`, which never replace a published version, and read the reviewer's pinned notes (`feedback-export` lists them under each variant's `pins`) before the next pass.
 5. **Refine from feedback.** The photographer compares results, chooses a direction, and leaves notes. The agent reads that feedback and makes the next edit in its owning tool.
 6. **Deliver from the processing tool.** Export the final photograph and verify dimensions, colour, and relevant metadata. Review selections are feedback, not final-image exports.
 

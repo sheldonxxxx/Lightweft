@@ -84,3 +84,72 @@ test('zoom rejects invalid values and bounds extreme magnification', () => {
   value.setZoom(.00001);
   assert.equal(value.zoom, .001);
 });
+
+test('pin coordinates are image-relative, reject outside points, and recall their zoom', async () => {
+  const {imagePoint, createPin, markerOffset, viewFor, withoutPin, withNote} = await import('../web/pins.js');
+  const rect = {left: 100, top: 50, width: 800, height: 400};
+  assert.deepEqual(imagePoint(rect, 500, 250), {x: .5, y: .5});
+  assert.equal(imagePoint(rect, 99, 250), null);
+  assert.equal(imagePoint({left: 0, top: 0, width: 0, height: 0}, 0, 0), null);
+  const pin = createPin({x: .25, y: .75, zoom: 2, compareWith: ['base']}, 'p1');
+  assert.deepEqual({id: pin.id, x: pin.x, y: pin.y, zoom: pin.zoom, compareWith: pin.compareWith}, {id: 'p1', x: .25, y: .75, zoom: 2, compareWith: ['base']});
+  assert.equal(createPin({x: 0, y: 0, zoom: null}, 'p2').zoom, undefined);
+  assert.deepEqual(markerOffset(pin, {left: 10, top: 20, width: 400, height: 200}), {left: 110, top: 170});
+  assert.deepEqual(viewFor(pin), {zoom: 2, center: {x: .25, y: .75}});
+  assert.equal(viewFor(createPin({x: .1, y: .2}, 'p3')).zoom, 1);
+  assert.deepEqual(withoutPin([pin, {id: 'q'}], 'p1').map(item => item.id), ['q']);
+  assert.equal(withNote([pin], 'p1', 'fix').at(0).note, 'fix');
+});
+
+test('focusing a pin centres the view on it at the recorded zoom', async () => {
+  const {createPin} = await import('../web/pins.js');
+  const value = viewer();
+  value.focusPin(createPin({x: .3, y: .6, zoom: .5}, 'p'));
+  close(value.zoom, .5);
+  assert.deepEqual(value.center, {x: .3, y: .6});
+  value.focusPin(createPin({x: .8, y: .2}, 'q'));
+  close(value.zoom, 1);
+});
+
+test('pinning from the keyboard uses the view center and the recorded zoom', () => {
+  const value = viewer();
+  const added = [];
+  Object.assign(value, {left: {id: 'base'}, right: {id: 'edit'}, pinButton: {hidden: true}, pinCenterButton: {hidden: true}, renderPins() {}});
+  value.setPins('edit', [], {onAdd: pin => added.push(pin)});
+  assert.equal(value.pinCenterButton.hidden, false);
+  value.pinCenter();
+  assert.deepEqual([added[0].x, added[0].y, added[0].zoom, added[0].compareWith], [.5, .5, undefined, ['base']]);
+  value.center = {x: .3, y: .6}; value.zoom = 2;
+  value.pinCenter();
+  assert.deepEqual([added[1].x, added[1].y, added[1].zoom], [.3, .6, 2]);
+  value.setPins('edit', [], null);
+  assert.equal(value.pinCenterButton.hidden, true);
+  value.pinCenter();
+  assert.equal(added.length, 2);
+});
+
+test('pins at the server limit remain intact and refuse further pointer or keyboard additions', () => {
+  const value = viewer(), added = [];
+  Object.assign(value, {pinButton: {}, pinCenterButton: {}, renderPins() {}});
+  const pins = Array.from({length: 200}, (_, i) => ({id: String(i), x: .5, y: .5, note: `Note ${i}`}));
+  value.setPins('edit', pins, {onAdd: pin => added.push(pin)});
+  value.pinCenter();
+  value.addPinAt(300, 200, {});
+  assert.equal(value.pinButton.disabled, true);
+  assert.equal(value.pinCenterButton.disabled, true);
+  assert.deepEqual(value.pins, pins);
+  assert.equal(added.length, 0);
+  value.setPins('edit', pins.slice(1), {onAdd: pin => added.push(pin)});
+  assert.equal(value.pinButton.disabled, false);
+});
+
+test('pointer pins belong to the reviewed photo and never use an unaligned reference frame', () => {
+  const value = viewer(), added = [], candidate = {id: 'edit'}, original = {id: 'base'};
+  Object.assign(value, {pinButton: {disabled: false}, pinVariant: 'edit', note: {}, left: original, right: candidate,
+    pinHandlers: {onAdd: pin => added.push(pin)},
+    paneAt: (_x, _y, item) => ({item, img: {naturalWidth: 300, getBoundingClientRect: () => ({left: 100, top: 50, width: 300, height: 450})}})});
+  value.addPinAt(175, 275, original);
+  assert.equal(added.length, 0);
+  value.addPinAt(175, 275, candidate);
+  assert.deepEqual([added[0].x, added[0].y, added[0].compareWith], [.25, .5, ['base']]);
+});

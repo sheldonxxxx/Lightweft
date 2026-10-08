@@ -18,6 +18,12 @@ Use with the workflow in `SKILL.md` when an animal's presence, behaviour or rela
 
    Look at the mask before grading: on black-and-white birds, AI selections often drop the white shoulder or tail, the beak, the eye or the prey, and a depth band can lose a tail or far wingtip. Add include points or brush them in, then duplicate the finished selection inverted for the environment.
 
+   Keep the edge honest. When the subject is lifted and the surroundings are darkened, any band between the two masks receives neither edit and reads as a halo, worst where the source already has a soft or out-of-focus patch next to the subject. Pull the subject mask slightly inside the animal (a small negative grow and a few pixels of feather; the scale depends on the editor) rather than letting it spill onto the background; an edit that stops just inside the edge is less conspicuous than one that stops outside it. Build the environment as the inverse of that same mask so the two share one boundary. If a rim still shows at 100%, burn a narrow band along that stretch of edge instead of widening the subject mask.
+
+   Common mask mistakes: inverting a mask inverts everything it contains, so "region A except the subject" is A added with the subject subtracted, not an inverted mask. A linear gradient applies its adjustment on one side of its line only; check the overlay before grading. Compare the finished edit with a render that has only the global adjustments applied and look at every outline where the two differ.
+
+   Check the lifted subject's brightest parts at 100% with the clipping view: sunlit folds and whites clip first. Measure the subject against the brightest background area (snow, sky); the animal should stay the brightest element, so ease the environment before darkening it hard, since a heavy darkening merges trees and sky into one flat mass.
+
    On the subject: exposure up, shadows up, a little texture, a little warmth. On the environment: exposure down, saturation down, clarity down, slightly cooler. Adjust both until the animal separates at thumbnail size.
 2. **Eye.** If the eye is visible and sharp, give it a small dodge (+0.2 to +0.4 EV on a small radial or brush) and keep the catchlight. Never paint in a catchlight that isn't there.
 3. **Edges.** Burn corners and bright edge clutter. A vignette of −15 to −30 suits most wildlife frames; use radial burns instead when the subject is off-centre.

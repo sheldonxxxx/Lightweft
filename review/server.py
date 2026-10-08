@@ -56,6 +56,11 @@ def string_value(value, label, limit=10000):
     return value
 
 
+# Keep MAX_PINS equal to MAX_PINS in web/pins.js (tests/test_review.py checks it).
+MAX_PINS = 200
+PIN_FIELDS = {'id', 'x', 'y', 'zoom', 'note', 'compareWith', 'createdAt'}
+
+
 def relative_path(value):
     if not isinstance(value, str) or not value or len(value) > 4096:
         raise ReviewError('Media path must be a nonempty relative path')
@@ -183,6 +188,10 @@ class ReviewStore:
         if 'disabled' in d and not isinstance(d['disabled'], bool):
             raise ReviewError('dataset.disabled must be boolean')
         d.setdefault('disabled', False)
+        if 'archived' in d and not isinstance(d['archived'], bool):
+            raise ReviewError('dataset.archived must be boolean')
+        if 'archivedTo' in d:
+            string_value(d['archivedTo'], 'dataset.archivedTo', 4096)
         if 'metadata' in d:
             object_value(d['metadata'], 'dataset.metadata')
         cases = d.get('cases')
@@ -280,20 +289,26 @@ class ReviewStore:
                     self.validate_asset(entry.get('image'), require_file=require_files)
         return d
 
-    def variant_revision(self, case, variant):
-        material = {k: v for k, v in variant.items() if k not in ('assetRevision', 'unavailable', 'defaultView')}
+    @staticmethod
+    def variant_assets(case, variant):
         assets = [variant[k] for k in ('image', 'full', 'recipe') if variant.get(k)]
+        for region in case.get('regions', []):
+            assets.extend(entry['image'] for entry in region.get('images', []) if entry['variantId'] == variant['id'])
+        return assets
+
+    def variant_revision(self, case, variant, resolve=None):
+        """Hash the variant's recipe material; `resolve` maps a stored path to where its bytes live now."""
+        material = {k: v for k, v in variant.items() if k not in ('assetRevision', 'unavailable', 'defaultView')}
         region_material = []
         for region in case.get('regions', []):
             entries = [entry for entry in region.get('images', []) if entry['variantId'] == variant['id']]
             if entries:
                 region_material.append({**region, 'images': entries})
-                assets.extend(entry['image'] for entry in entries)
         missing = []
         hashes = {}
-        for path in assets:
+        for path in self.variant_assets(case, variant):
             try:
-                hashes[path] = self.digest(path)
+                hashes[path] = self.digest(resolve(path) if resolve else path)
             except ReviewError:
                 hashes[path] = 'unavailable'
                 missing.append(path)
@@ -302,6 +317,12 @@ class ReviewStore:
         return revision, missing
 
     def refresh(self, record, previous=None):
+        if record['dataset'].get('archived'):
+            # Media is intentionally offline: keep revisions and feedback untouched.
+            for case in record['dataset']['cases']:
+                for variant in case['variants']:
+                    variant['unavailable'] = self.variant_assets(case, variant)
+            return False
         changed = False
         before = previous or record
         old_revisions = {(c['id'], v['id']): v.get('assetRevision') for c in before['dataset']['cases'] for v in c['variants']}
@@ -329,7 +350,7 @@ class ReviewStore:
     def workspace_summary(self):
         with self.locked():
             state = self.read()
-            return {'workspaceId': self.workspace_id, 'datasets': [{'id': r['dataset']['id'], 'title': r['dataset']['title'], 'description': r['dataset'].get('description', ''), 'count': len(r['dataset']['cases']), 'version': r['version'], 'disabled': bool(r['dataset'].get('disabled', False))} for r in state['datasets'].values()], 'profiles': [self.public_profile(p) for p in state['profiles']]}
+            return {'workspaceId': self.workspace_id, 'datasets': [{'id': r['dataset']['id'], 'title': r['dataset']['title'], 'description': r['dataset'].get('description', ''), 'count': len(r['dataset']['cases']), 'version': r['version'], 'disabled': bool(r['dataset'].get('disabled', False)), 'archived': bool(r['dataset'].get('archived', False))} for r in state['datasets'].values()], 'profiles': [self.public_profile(p) for p in state['profiles']]}
 
     def get_dataset(self, dataset_id):
         valid_id(dataset_id)
@@ -389,6 +410,127 @@ class ReviewStore:
             self.write(state)
             return self.envelope(next_record)
 
+    def set_archived(self, dataset_id, archived, archived_to=None):
+        """Mark a collection's media as intentionally offline (or back online) without touching decisions."""
+        valid_id(dataset_id)
+        if not isinstance(archived, bool):
+            raise ReviewError('archived must be boolean')
+        with self.locked():
+            state = self.read()
+            record = state['datasets'].get(dataset_id)
+            if record is None:
+                raise ReviewError('Dataset not found', 404)
+            if self.refresh(record):
+                record['version'] += 1
+                self.write(state)
+            next_record = copy.deepcopy(record)
+            dataset = next_record['dataset']
+            if archived:
+                dataset['archived'] = True
+                dataset['disabled'] = True
+                if archived_to:
+                    dataset['archivedTo'] = archived_to
+                self.validate_dataset(dataset, require_files=False)
+                next_record['version'] += 1
+                self.refresh(next_record, record)
+            else:
+                dataset.pop('archived', None)
+                dataset.pop('archivedTo', None)
+                missing = [p for case in dataset['cases'] for v in case['variants'] for p in self.variant_revision(case, v)[1]]
+                if missing:
+                    raise ReviewError(f'Restore the media before unarchiving; {len(missing)} files are missing, e.g. {missing[0]}', 409)
+                next_record['version'] += 1
+                self.refresh(next_record, record)
+            state['datasets'][dataset_id] = next_record
+            self.write(state)
+            return self.envelope(next_record)
+
+    def relocate(self, mapping, dry_run=False, allow_missing=False):
+        """Rewrite stored media paths after folders moved, carrying feedback over for unchanged bytes."""
+        pairs = sorted(((relative_path(old), relative_path(new)) for old, new in mapping), key=lambda pair: -len(pair[0]))
+        if not pairs:
+            raise ReviewError('Give at least one OLD=NEW folder mapping')
+        root = str(self.media_root)
+
+        def rewrite(value):
+            for old, new in pairs:
+                for before, after in ((old, new), (f'{root}/{old}', f'{root}/{new}')):
+                    if value == before or value.startswith(before + '/'):
+                        return after + value[len(before):]
+            return value
+
+        def rewrite_tree(node):
+            count = 0
+            if isinstance(node, dict):
+                items = node.items()
+            elif isinstance(node, list):
+                items = enumerate(node)
+            else:
+                return 0
+            for key, value in list(items):
+                if isinstance(value, str):
+                    changed = rewrite(value)
+                    if changed != value:
+                        node[key] = changed
+                        count += 1
+                else:
+                    count += rewrite_tree(value)
+            return count
+
+        def resolve(path):
+            moved = rewrite(path)
+            return moved if os.path.lexists(self.media_root / moved) else path
+
+        with self.locked():
+            state = self.read()
+            report = {'datasets': 0, 'strings': 0, 'profileStrings': 0, 'carried': 0, 'unverified': 0, 'missing': [], 'dryRun': dry_run}
+            for dataset_id, record in list(state['datasets'].items()):
+                next_record = copy.deepcopy(record)
+                count = rewrite_tree(next_record['dataset'])
+                if not count:
+                    continue
+                report['datasets'] += 1
+                report['strings'] += count
+                if dry_run:
+                    continue
+                next_record['version'] = record['version'] + 1
+                if next_record['dataset'].get('archived'):
+                    self.refresh(next_record, record)
+                else:
+                    previous = copy.deepcopy(record)
+                    old_cases = {c['id']: c for c in previous['dataset']['cases']}
+                    for case in next_record['dataset']['cases']:
+                        old_case = old_cases[case['id']]
+                        old_variants = {v['id']: v for v in old_case['variants']}
+                        for variant in case['variants']:
+                            old_variant = old_variants[variant['id']]
+                            stored = old_variant.get('assetRevision')
+                            current, _ = self.variant_revision(old_case, old_variant, resolve)
+                            if not stored or current != stored:
+                                report['unverified'] += 1
+                                continue
+                            fresh, _ = self.variant_revision(case, variant)
+                            old_variant['assetRevision'] = fresh
+                            item = previous['feedback'].get(case['id'], {}).get(variant['id'])
+                            if item and item.get('assetRevision') == stored:
+                                item['assetRevision'] = fresh
+                            report['carried'] += 1
+                    self.refresh(next_record, previous)
+                    for case in next_record['dataset']['cases']:
+                        for variant in case['variants']:
+                            report['missing'].extend(variant.get('unavailable') or [])
+                state['datasets'][dataset_id] = next_record
+            report['profileStrings'] = sum(rewrite_tree(profile) for profile in state['profiles'])
+            if report['missing'] and not allow_missing:
+                raise ReviewError(f"{len(report['missing'])} relocated media files are missing, e.g. {report['missing'][0]}; nothing was written")
+            if not dry_run and (report['datasets'] or report['profileStrings']):
+                backups = self.workspace / 'backups'
+                stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+                atomic_write(backups / f'state.before-relocate-{stamp}.json', self.state_path.read_bytes())
+                self.write(state)
+            report['missing'] = report['missing'][:20]
+            return report
+
     def set_case_disabled(self, dataset_id, case_id, disabled, version=None):
         valid_id(dataset_id)
         valid_id(case_id, 'case.id')
@@ -410,6 +552,53 @@ class ReviewStore:
                 raise ReviewError('Case not found', 404)
             case['disabled'] = disabled
             validated = self.validate_dataset(dataset, require_files=False)
+            next_record = {'dataset': validated, 'feedback': {}, 'version': record['version'] + 1}
+            self.refresh(next_record, record)
+            state['datasets'][dataset_id] = next_record
+            self.write(state)
+            return self.envelope(next_record)
+
+    def add_variants(self, dataset_id, additions, version=None):
+        """Append variants to existing cases without touching published ones.
+
+        ``additions`` is a list of ``{caseId, variant, select?}``. A variant id that
+        already exists is refused: a revision must be published under a new id so
+        earlier renders and the decisions made on them stay reviewable. The whole
+        batch is applied in one version bump or not at all.
+        """
+        valid_id(dataset_id)
+        if not isinstance(additions, list) or not additions or len(additions) > 10000:
+            raise ReviewError('additions must be a non-empty list')
+        with self.locked():
+            state = self.read()
+            record = state['datasets'].get(dataset_id)
+            if record is None:
+                raise ReviewError('Dataset not found', 404)
+            if self.refresh(record):
+                record['version'] += 1
+                self.write(state)
+            if version is not None and (type(version) is not int or version != record['version']):
+                raise ReviewError('Workspace changed; reload before saving', 409)
+            dataset = copy.deepcopy(record['dataset'])
+            cases = {case['id']: case for case in dataset['cases']}
+            for item in additions:
+                object_value(item, 'addition')
+                case = cases.get(valid_id(item.get('caseId'), 'caseId'))
+                if case is None:
+                    raise ReviewError(f"Case not found: {item.get('caseId')}", 404)
+                variant = copy.deepcopy(object_value(item.get('variant'), 'variant'))
+                vid = valid_id(variant.get('id'), 'variant.id')
+                if any(existing['id'] == vid for existing in case['variants']):
+                    raise ReviewError(f"Variant {vid} already exists in case {case['id']}; publish the revision under a new id", 409)
+                for key in ('assetRevision', 'unavailable'):
+                    variant.pop(key, None)
+                variant.setdefault('role', 'candidate')
+                variant.setdefault('label', vid)
+                last_candidate = max((i for i, existing in enumerate(case['variants']) if existing.get('role') == 'candidate'), default=-1)
+                case['variants'].insert(last_candidate + 1 if last_candidate >= 0 else len(case['variants']), variant)
+                if item.get('select'):
+                    case['selectedVariantId'] = vid
+            validated = self.validate_dataset(dataset)
             next_record = {'dataset': validated, 'feedback': {}, 'version': record['version'] + 1}
             self.refresh(next_record, record)
             state['datasets'][dataset_id] = next_record
@@ -452,6 +641,8 @@ class ReviewStore:
                         for key, value in style.items():
                             string_value(key, 'style field', 100)
                             string_value(value, 'style preference')
+                    if 'pins' in item:
+                        item['pins'] = self.clean_pins(item['pins'], cid, cases[cid], vid)
                     if 'rating' in item and (type(item['rating']) not in (int, float) or not math.isfinite(item['rating']) or not 0 <= item['rating'] <= 5):
                         raise ReviewError('Rating must be between 0 and 5')
                     if item['decision'] == 'accepted' and cases[cid][vid].get('unavailable'):
@@ -468,6 +659,37 @@ class ReviewStore:
             record['version'] += 1
             self.write(state)
             return self.envelope(record)
+
+    @staticmethod
+    def clean_pins(pins, case_id, variants, variant_id):
+        """Pinned notes: a note at a point on the photograph, in image-relative coordinates."""
+        if not isinstance(pins, list) or len(pins) > MAX_PINS:
+            raise ReviewError(f'Pinned notes must be a list of at most {MAX_PINS} pins')
+        clean, seen = [], set()
+        for raw in pins:
+            pin = copy.deepcopy(object_value(raw, 'pin'))
+            unknown = sorted(set(pin) - PIN_FIELDS)
+            if unknown:
+                raise ReviewError(f'Unknown pin field: {unknown[0]}')
+            string_value(pin.get('id'), 'pin id', 100)
+            if not pin['id'] or pin['id'] in seen:
+                raise ReviewError('Each pin needs its own id')
+            seen.add(pin['id'])
+            for axis in ('x', 'y'):
+                value = pin.get(axis)
+                if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1:
+                    raise ReviewError('Pin position must be between 0 and 1')
+            if 'zoom' in pin and (type(pin['zoom']) not in (int, float) or not math.isfinite(pin['zoom']) or not 0 < pin['zoom'] <= 16):
+                raise ReviewError('Pin zoom must be between 0 and 16')
+            string_value(pin.setdefault('note', ''), 'pin note')
+            if 'createdAt' in pin:
+                string_value(pin['createdAt'], 'pin creation time', 64)
+            if 'compareWith' in pin:
+                others = pin['compareWith']
+                if not isinstance(others, list) or len(others) > 8 or any(o not in variants or o == variant_id for o in others):
+                    raise ReviewError('Pin comparison must name other versions of the same photograph')
+            clean.append(pin)
+        return clean
 
     @staticmethod
     def public_profile(profile):
@@ -795,6 +1017,16 @@ class ReviewHandler(BaseHTTPRequestHandler):
             if match[2]:
                 return self.json_response(store.put_feedback(match[1], payload.get('feedback'), payload.get('version')))
             return self.json_response(store.put_dataset(match[1], payload.get('dataset'), payload.get('version', 0)))
+        if self.command == 'POST':
+            match = re.fullmatch(r'/api/datasets/([^/]+)/variants', path)
+            if match:
+                payload = self.read_json()
+                return self.json_response(store.add_variants(match[1], payload.get('additions'), payload.get('version')), status=201)
+            match = re.fullmatch(r'/api/datasets/([^/]+)/cases/([^/]+)/variants', path)
+            if match:
+                payload = self.read_json()
+                addition = {'caseId': match[2], 'variant': payload.get('variant'), 'select': bool(payload.get('select'))}
+                return self.json_response(store.add_variants(match[1], [addition], payload.get('version')), status=201)
         if self.command == 'POST' and path == '/api/profiles':
             return self.json_response(store.create_profile(self.read_json()), status=201)
         raise ReviewError('Method not allowed', 405)

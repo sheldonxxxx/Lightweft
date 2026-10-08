@@ -38,12 +38,14 @@
 !/workflow/README.md
 !/workflow/build_suite.py
 !/workflow/build_catalogue.py
+!/workflow/edit_recipe.py
 !/workflow/verify_collection.py
 !/workflow/catalogue.css
 !/workflow/selection.example.json
 !/workflow/evaluation-template.json
 !/tests/
 !/tests/test_workflow.py
+!/tests/test_edit_recipe.py
 !/tests/test_review.py
 !/tests/test_review_import.py
 

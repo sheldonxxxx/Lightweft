@@ -122,7 +122,7 @@ The skill uses selective reading: a shared workflow plus the reference relevant 
 
 ## One workspace for review and personal style
 
-The [local review application](review/README.md) brings edit comparisons, style exploration, denoise review, and detail inspection into one extensible workspace. Agents publish rendered candidates; photographers compare them and save feedback and selections for the next iteration. Start it from this repository with Python 3.10+ on macOS or Linux:
+The [local review application](review/README.md) brings edit comparisons, style exploration, denoise review, and detail inspection into one extensible workspace. Agents publish rendered candidates, and later revisions beside them without replacing earlier versions; photographers compare them, pin notes to exact points on a photograph, and save feedback and selections for the next iteration. Start it from this repository with Python 3.10+ on macOS or Linux:
 
 ```sh
 python3 review/server.py --workspace .local/review --media-root . --port 8765

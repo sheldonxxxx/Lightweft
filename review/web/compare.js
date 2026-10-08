@@ -1,4 +1,5 @@
 import { el, button, select, media } from './dom.js';
+import { MAX_PINS, imagePoint, createPin, markerOffset, viewFor } from './pins.js';
 
 /** Shared image surface. Panels choose sources; this owns viewing behaviour. */
 export class CompareViewer {
@@ -7,6 +8,7 @@ export class CompareViewer {
     this.mode = ['single', 'side', 'wipe'].includes(defaultView) ? defaultView : left.id === right.id ? 'single' : aligned ? 'wipe' : 'side';
     this.zoom = native ? 1 : 'fit'; this.center = {x: .5, y: .5};
     this.division = 50; this.swapped = false; this.blink = false; this.loaded = new Map();
+    this.pins = []; this.pinMode = false;
     this.root = el('section', {class: 'compare-viewer', 'aria-label': 'Photo comparison'});
     this.modeSelect = select('Comparison view', [{value: 'wipe', label: 'Before / after'}, {value: 'side', label: 'Side by side'}, {value: 'single', label: 'Single image'}], this.mode, value => { this.mode = value; this.renderSurface(); });
     this.fitButton = button('Fit', () => this.setZoom('fit'), {title: 'Fit photograph to view'});
@@ -21,8 +23,10 @@ export class CompareViewer {
       try { if (document.fullscreenElement) await document.exitFullscreen(); else await this.root.requestFullscreen(); }
       catch { this.note.textContent = 'Fullscreen is unavailable in this browser.'; }
     }, {class: 'icon-button', title: 'Fullscreen', 'aria-label': 'Fullscreen comparison'});
+    this.pinButton = button('Pin note', () => this.setPinMode(!this.pinMode), {title: 'Pin a note to a point on the photograph', 'aria-pressed': 'false', hidden: true});
+    this.pinCenterButton = button('Pin center', () => this.pinCenter(), {title: 'Pin a note at the center of the current view · P', hidden: true});
     this.toolbar = el('div', {class: 'viewer-toolbar'}, el('div', {class: 'control-group'}, this.modeSelect, zoomControl),
-      el('div', {class: 'control-group'}, button('⇄ Swap', () => this.swap(), {title: 'Swap sides · B'}),
+      el('div', {class: 'control-group'}, this.pinButton, this.pinCenterButton, button('⇄ Swap', () => this.swap(), {title: 'Swap sides · B'}),
         button('Center', () => { this.center = {x: .5, y: .5}; this.position(); }), this.fullscreenButton));
     this.surface = el('div', {class: 'compare-surface'});
     this.note = el('span', {}, 'Loading images…');
@@ -117,6 +121,7 @@ export class CompareViewer {
       }, el('span', {'aria-hidden': 'true'}, '↔'));
       this.surface.append(this.marker);
     } else { this.marker = null; }
+    this.renderPins();
     this.updateCapability(); this.position();
   }
   updateCapability() {
@@ -220,6 +225,10 @@ export class CompareViewer {
       pane.scale = scale;
       const x = this.zoom === 'fit' ? .5 : this.center.x, y = this.zoom === 'fit' ? .5 : this.center.y;
       Object.assign(pane.img.style, {width: `${w * scale}px`, height: `${h * scale}px`, left: `${width / 2 - x * w * scale}px`, top: `${height / 2 - y * h * scale}px`});
+      for (const marker of pane.markers || []) {
+        const at = markerOffset(marker.pin, {left: width / 2 - x * w * scale, top: height / 2 - y * h * scale, width: w * scale, height: h * scale});
+        Object.assign(marker.node.style, {left: `${at.left}px`, top: `${at.top}px`});
+      }
     }
     if (this.marker && this.panes[1]) {
       // B is the full backing image; A occupies the left side of the divider.
@@ -256,7 +265,8 @@ export class CompareViewer {
     if (pointerId != null && this.marker?.hasPointerCapture(pointerId)) this.marker.releasePointerCapture(pointerId);
   }
   pointerDown(e) {
-    if (e.target.closest('[role="slider"]')) return;
+    if (e.target.closest('[role="slider"]') || e.target.closest?.('.pin-marker')) return;
+    this.pinDown = this.pinMode && e.button === 0 && this.pointers.size === 0 ? {pointerId: e.pointerId, x: e.clientX, y: e.clientY, target: e.target} : null;
     if (e.pointerType === 'touch') {
       if (this.pointers.size >= 2) return;
       this.pointers.set(e.pointerId, {x: e.clientX, y: e.clientY});
@@ -291,6 +301,11 @@ export class CompareViewer {
     this.position(); e.preventDefault();
   }
   pointerUp(e) {
+    const down = this.pinDown;
+    if (down?.pointerId === e.pointerId) {
+      this.pinDown = null;
+      if (e.type === 'pointerup' && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 6) this.addPinAt(e.clientX, e.clientY, down.target);
+    }
     if (this.pointers.has(e.pointerId)) {
       this.pointers.delete(e.pointerId);
       this.touchScroll = null;
@@ -311,6 +326,59 @@ export class CompareViewer {
     for (const pointerId of pointerIds) {
       if (this.surface.hasPointerCapture(pointerId)) this.surface.releasePointerCapture(pointerId);
     }
+  }
+  /** Enable pinned notes for `variantId`: `pins` are its saved pins; `handlers.onAdd(pin)` receives a new one. */
+  setPins(variantId, pins, handlers) {
+    this.pinVariant = variantId; this.pins = pins || []; this.pinHandlers = handlers;
+    this.pinButton.hidden = this.pinCenterButton.hidden = !handlers;
+    this.pinButton.disabled = this.pinCenterButton.disabled = this.pins.length >= MAX_PINS;
+    if (this.pinMode && this.pinButton.disabled) this.setPinMode(false);
+    this.renderPins();
+  }
+  setPinMode(value) {
+    this.pinMode = value && !this.pinButton.hidden && !this.pinButton.disabled;
+    this.pinButton.setAttribute('aria-pressed', String(this.pinMode));
+    this.surface.classList.toggle('pin-mode', this.pinMode);
+  }
+  renderPins() {
+    for (const pane of this.panes || []) {
+      for (const marker of pane.markers || []) marker.node.remove();
+      pane.markers = [];
+      if (pane.item.id !== this.pinVariant) continue;
+      this.pins.forEach((pin, index) => {
+        const node = el('button', {type: 'button', class: 'pin-marker', title: pin.note || `Pin ${index + 1}`,
+          'aria-label': `Pinned note ${index + 1}${pin.note ? `: ${pin.note}` : ''}`,
+          onClick: e => { e.stopPropagation(); this.pinHandlers?.onSelect?.(pin); }}, String(index + 1));
+        pane.box.append(node); pane.markers.push({pin, node});
+      });
+    }
+    this.position();
+  }
+  addPinAt(clientX, clientY, target) {
+    if (!this.pinHandlers?.onAdd || this.pinButton.disabled) return;
+    const pane = this.paneAt(clientX, clientY, target);
+    if (pane?.item.id !== this.pinVariant) {
+      this.note.textContent = 'Pin notes on the version being reviewed.';
+      return;
+    }
+    const point = pane?.img.naturalWidth ? imagePoint(pane.img.getBoundingClientRect(), clientX, clientY) : null;
+    if (!point) return;
+    const other = [this.left, this.right].find(item => item.id !== this.pinVariant);
+    this.pinHandlers.onAdd(createPin({...point, zoom: this.zoom === 'fit' ? null : this.zoom, compareWith: other ? [other.id] : []}));
+  }
+  /** Keyboard route: pin the point at the center of the current view (the image center at Fit). */
+  pinCenter() {
+    if (!this.pinHandlers?.onAdd || this.pinCenterButton.disabled) return;
+    const center = this.zoom === 'fit' ? {x: .5, y: .5} : this.center;
+    const other = [this.left, this.right].find(item => item.id !== this.pinVariant);
+    this.pinHandlers.onAdd(createPin({x: Math.min(1, Math.max(0, center.x)), y: Math.min(1, Math.max(0, center.y)),
+      zoom: this.zoom === 'fit' ? null : this.zoom, compareWith: other ? [other.id] : []}));
+  }
+  /** Show the pinned point at the zoom it was pinned at (100% when pinned from Fit). */
+  focusPin(pin) {
+    const view = viewFor(pin);
+    this.center = view.center;
+    this.setZoom(view.zoom);
   }
   stopDrag() { this.drag = null; this.surface.classList.remove('panning'); }
 }

@@ -11,9 +11,9 @@ from showcase_media import JPEG_LIMIT, is_asset_path, validate_jpeg
 ROOT = Path(__file__).resolve().parents[1]
 EXACT = {
     '.gitignore', '.gitattributes', 'AGENTS.md', 'README.md', 'CONTRIBUTING.md', 'LICENSE',
-    '.github/workflows/validate.yml', 'scripts/check_public_repo.py', 'tests/test_workflow.py',
+    '.github/workflows/validate.yml', 'scripts/check_public_repo.py', 'tests/test_workflow.py', 'tests/test_edit_recipe.py',
     'skills/photo-edit-master/SKILL.md', 'workflow/README.md', 'workflow/build_suite.py',
-    'workflow/build_catalogue.py', 'workflow/verify_collection.py', 'workflow/catalogue.css',
+    'workflow/build_catalogue.py', 'workflow/edit_recipe.py', 'workflow/verify_collection.py', 'workflow/catalogue.css',
     'workflow/selection.example.json', 'workflow/evaluation-template.json',
     'assets/readme-hero.svg',
     'docs/getting-started.md', 'docs/ecosystem.md', 'docs/continuing-edits.md',
